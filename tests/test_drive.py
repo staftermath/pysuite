@@ -81,3 +81,13 @@ def test_update_change_file_content_correctly(drive, clean_up_file, tmpdir):
         result = [l.strip() for l in f.readlines()]
 
     assert result == ["the world has changed"]
+
+
+def test_list_return_correct_values(drive):
+    result = drive.list(id="1R5zuuDSzR9BW3pOJmwhYEIILQ23p0kYv")
+    expected = [
+        {'id': '1bR7LoLo_BBjHyTsDk4y-27wyBk_6K6-t', 'name': 'c'},
+        {'id': '1tyZqvCeoiA5OvrGuHoygiy73qrNoLRdL', 'name': 'b'},
+        {'id': '1erVdsBfgNVpMEWRhp0o-DDUfC26O7luO', 'name': 'a'}
+    ]
+    assert result == expected

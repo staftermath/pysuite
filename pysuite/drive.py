@@ -56,7 +56,7 @@ class Drive:
             q += f" and '{parent_id}' in parents"
 
         response = self._client.files().list(pageSize=10,
-                                           fields=self._get_fields_query_string(["id", "name"]),
+                                           fields=self._get_fields_query_string(),
                                            q=q).execute()
 
         item = response.get('files', None)
@@ -69,7 +69,18 @@ class Drive:
         return item[0]['id']
 
     def list(self, id: str):
-        pass
+        q = f"'{id}' in parents and trashed = false"
+        result = []
+        page_token = ""  # place holder to start the loop
+        while page_token is not None:
+            response = self._client.files().list(q=q,
+                                                 spaces='drive',
+                                                 fields=self._get_fields_query_string(),
+                                                 pageToken=page_token).execute()
+            result.extend(response.get("files", []))
+            page_token = response.get("nextPageToken", None)
+
+        return result
 
     def delete(self, id: str, recursive: bool=False):
         """delete target file from google drive
@@ -87,7 +98,7 @@ class Drive:
     def modify_sharing(self, id: str, emails: List[str], role: str="reader", notify=True):
         pass
 
-    def _get_fields_query_string(self, fields: Optional[list]) -> str:
+    def _get_fields_query_string(self, fields: Optional[list]=None) -> str:
         if fields is None:
             fields = ["id", "name"]
 
