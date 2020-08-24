@@ -19,6 +19,7 @@ class Authentication:
     def __init__(self, credential: Optional[Union[PosixPath, str, dict]], token: Union[PosixPath, str]):
         self._token_path = Path(token)
         self._credential = self.load_credential(credential)
+        self.refresh()
         self.write_token()
 
     def load_credential(self, credential: Optional[Union[PosixPath, str, dict]]):
