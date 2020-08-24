@@ -3,6 +3,7 @@ from pathlib import Path, PosixPath
 import pickle
 import logging
 
+from googleapiclient.discovery import build
 from google.oauth2.credentials import Credentials
 from google.auth.transport.requests import Request
 from google_auth_oauthlib.flow import InstalledAppFlow
@@ -59,5 +60,7 @@ class Authentication:
         raise NotImplementedError
 
 
-class GoogleDrive(Authentication):
+class GoogleDriveClient(Authentication):
     SCOPE = ["https://www.googleapis.com/auth/drive"]
+    def get_client(self):
+        return build('drive', 'v3', credentials=self._credential, cache_discovery=True)
