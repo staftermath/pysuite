@@ -8,15 +8,14 @@ from google.oauth2.credentials import Credentials
 from google.auth.transport.requests import Request
 from google_auth_oauthlib.flow import InstalledAppFlow
 
-CREDENTIALS = {
-    "drive":["token"],
-    "sheet": ["token"]
+SCOPES = {
+    "drive": "https://www.googleapis.com/auth/drive",
+    "spreadsheet": "https://www.googleapis.com/auth/spreadsheets"
 }
 
 
 class Authentication:
     SCOPE = None  # overload in child class
-
     def __init__(self, credential: Optional[Union[PosixPath, str, dict]], token: Union[PosixPath, str]):
         self._token_path = Path(token)
         self._credential = self.load_credential(credential)
@@ -61,6 +60,12 @@ class Authentication:
 
 
 class GoogleDriveClient(Authentication):
-    SCOPE = ["https://www.googleapis.com/auth/drive"]
+    SCOPE = [SCOPES["drive"]]
     def get_client(self):
         return build('drive', 'v3', credentials=self._credential, cache_discovery=True)
+
+
+class GoogleSheetClient(Authentication):
+    SCOPE = [SCOPES["spreadsheet"]]
+    def get_client(self):
+        return build('sheets', 'v4', credentials=self._credential, cache_discovery=True)
