@@ -93,7 +93,21 @@ class Drive:
         self._client.files().delete(fileId=id).execute()
 
     def create_folder(self, name: str, parent_ids: Optional[list]=None):
-        pass
+        file_metadata = {
+            'name': name,
+            'mimeType': 'application/vnd.google-apps.folder'
+        }
+        if parent_ids is not None:
+            if not isinstance(parent_ids, list):
+                raise TypeError(f"parent_ids must be a list. got {type(parent_ids)}")
+
+            if len(parent_ids) == 0:
+                raise ValueError(f"parent_ids cannot be empty")
+
+            file_metadata["parents"] = parent_ids
+
+        folder = self._client.files().create(body=file_metadata, fields='id').execute()
+        return folder.get("id")
 
     def modify_sharing(self, id: str, emails: List[str], role: str="reader", notify=True):  # pragma: no cover
         call_back = None

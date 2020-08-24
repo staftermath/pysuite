@@ -97,3 +97,21 @@ def test_get_name_return_correct_value(drive):
     result = drive.get_name("1-zIfn0kUcK6KI9PfZLXu6uCt01ZSOTOZ")
     expected = "drive_test_file"
     assert result == expected
+
+
+@pytest.fixture()
+def clean_folder(drive):
+    folder_id = "1iUzQwHtr3KE_jR3AGo2-Qjq_5v99eh5u"
+    yield folder_id
+
+    items = drive.list(id=folder_id)
+    for item in items:
+        drive.delete(item['id'])
+
+
+def test_create_folder_correctly(drive, clean_folder):
+    folder_id = clean_folder
+    expected = "test_create_folder"
+    id = drive.create_folder(expected, parent_ids=[folder_id])
+    result = drive.get_name(id)
+    assert result == expected
