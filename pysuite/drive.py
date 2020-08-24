@@ -1,10 +1,10 @@
 import logging
 
-from pathlib import PosixPath
+from pathlib import PosixPath, Path
 from typing import Union, Optional, List
 
 from googleapiclient.discovery import Resource
-from googleapiclient.http import MediaIoBaseDownload
+from googleapiclient.http import MediaIoBaseDownload, MediaFileUpload
 
 
 class Drive:
@@ -23,7 +23,25 @@ class Drive:
 
     def upload(self, from_file: Union[str, PosixPath], name: Optional[str]=None, mimetype: Optional[str]=None,
                parent_ids: Optional[List[str]]=None) -> str:
-        pass
+        file_metadata = {'name': name if name is not None else Path(from_file).name}
+
+        if parent_ids is not None:
+            if not isinstance(parent_ids, list):
+                raise TypeError(f"parent_ids must be a list. got {type(parent_ids)}")
+
+            if len(parent_ids) == 0:
+                raise ValueError(f"parent_ids cannot be empty")
+
+            file_metadata["parents"] = parent_ids
+
+        media = MediaFileUpload(str(from_file),
+                                mimetype=mimetype,
+                                resumable=True)
+
+        file = self._client.files().create(body=file_metadata,
+                                           media_body=media,
+                                           fields='id').execute()
+        return file.get("id")
 
     def update(self, id: str, from_file: Union[str, PosixPath]):
         pass
@@ -50,7 +68,14 @@ class Drive:
         pass
 
     def delete(self, id: str, recursive: bool=False):
-        pass
+        """delete target file from google drive
+        TODO: implement recursive delete
+
+        :param id: id of target object.
+        :param recursive: if True and target id represents a folder, remove all nested files and folders.
+        :return: None
+        """
+        self._client.files().delete(fileId=id).execute()
 
     def create_folder(self, name: str, parent_ids: Optional[list]=None):
         pass
