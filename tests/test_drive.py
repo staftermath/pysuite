@@ -91,3 +91,9 @@ def test_list_return_correct_values(drive):
         {'id': '1erVdsBfgNVpMEWRhp0o-DDUfC26O7luO', 'name': 'a'}
     ]
     assert result == expected
+
+
+def test_get_name_return_correct_value(drive):
+    result = drive.get_name("1-zIfn0kUcK6KI9PfZLXu6uCt01ZSOTOZ")
+    expected = "drive_test_file"
+    assert result == expected

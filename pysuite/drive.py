@@ -56,8 +56,8 @@ class Drive:
             q += f" and '{parent_id}' in parents"
 
         response = self._client.files().list(pageSize=10,
-                                           fields=self._get_fields_query_string(),
-                                           q=q).execute()
+                                             fields=self._get_fields_query_string(),
+                                             q=q).execute()
 
         item = response.get('files', None)
         if item is None:
@@ -95,8 +95,24 @@ class Drive:
     def create_folder(self, name: str, parent_ids: Optional[list]=None):
         pass
 
-    def modify_sharing(self, id: str, emails: List[str], role: str="reader", notify=True):
-        pass
+    def modify_sharing(self, id: str, emails: List[str], role: str="reader", notify=True):  # pragma: no cover
+        call_back = None
+        batch = self._client.new_batch_http_request(callback=call_back)
+
+        for email in emails:
+            user_permission = {
+                "type": "user",
+                "role": role,
+                "emailAddress": email
+            }
+            batch.add(self._client.permissions().create(
+                fileId=id,
+                body=user_permission,
+                fields='id',
+                sendNotification=notify
+            ))
+        batch.execute()
+        return self.get_name(id)
 
     def _get_fields_query_string(self, fields: Optional[list]=None) -> str:
         if fields is None:
@@ -109,3 +125,7 @@ class Drive:
             raise ValueError("fields cannot be empty")
 
         return f"nextPageToken, files({','.join(fields)})"
+
+    def get_name(self, id: str) -> str:
+        file = self._client.files().get(fileId=id).execute()
+        return file['name']
