@@ -148,7 +148,7 @@ class Drive:
         folder = self._client.files().create(body=file_metadata, fields='id').execute()
         return folder.get("id")
 
-    def modify_sharing(self, id: str, emails: List[str], role: str="reader", notify=True):  # pragma: no cover
+    def share(self, id: str, emails: List[str], role: str= "reader", notify=True):  # pragma: no cover
         """modify the permission of the target object and share with the provided emails.
 
         :param id: id of target object.
