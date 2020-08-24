@@ -44,7 +44,11 @@ class Drive:
         return file.get("id")
 
     def update(self, id: str, from_file: Union[str, PosixPath]):
-        pass
+        media = MediaFileUpload(str(from_file),
+                                resumable=True)
+
+        self._client.files().update(body=dict(), fileId=id, media_body=media).execute()
+        return id
 
     def get_id(self, name: str, parent_id: Optional[str]=None):
         q = f"name = '{name}' and trashed = false"
