@@ -16,38 +16,24 @@ CREDENTIALS = {
 class Authentication:
     SCOPE = None  # overload in child class
 
-    def __init__(self, credential: Optional[Union[PosixPath, str, dict]], token: Optional[Union[PosixPath, str]]):
+    def __init__(self, credential: Optional[Union[PosixPath, str, dict]], token: Union[PosixPath, str]):
         self._token_path = Path(token)
-        self._credential = self.load_credential(credential, token=token)
+        self._credential = self.load_credential(credential)
 
-    def load_credential(self, credential: Optional[Union[PosixPath, str, dict]],
-                        token: Optional[Union[PosixPath, str]]=None):
-        if token is not None:
-            return self._load_token(token)
-
-        if credential is None:
-            return self._load_credential_from_input()
+    def load_credential(self, credential: Optional[Union[PosixPath, str, dict]]):
+        if self._token_path.exists():
+            return self._load_token()
 
         if isinstance(credential, str):
             credential = Path(credential)
 
-        if isinstance(credential, PosixPath):
-            return self._load_credential_from_file(credential)
-
-        if isinstance(credential, dict):
-            return self._load_credential_from_dict(credential)
+        return self._load_credential_from_file(credential)
 
     def _load_credential_from_file(self, file_path: PosixPath):
         return InstalledAppFlow.from_client_secrets_file(file_path, self.SCOPE)
 
-    def _load_credential_from_dict(self, credential: dict):
-        pass
-
-    def _load_credential_from_input(self):
-        pass
-
-    def _load_token(self, token: Union[PosixPath, str, dict]):
-        with open(token, 'rb') as f:
+    def _load_token(self):
+        with open(self._token_path, 'rb') as f:
             credentials = pickle.load(f)
 
         if not isinstance(credentials, Credentials):
