@@ -1,1 +1,2 @@
 googleads==25.0.0
+google-api-python-client==1.10.0
