@@ -1,7 +1,10 @@
+import logging
+
 from pathlib import PosixPath
 from typing import Union, Optional, List
 
 from googleapiclient.discovery import Resource
+from googleapiclient.http import MediaIoBaseDownload
 
 
 class Drive:
@@ -10,7 +13,13 @@ class Drive:
         self._client = client
 
     def download(self, id: str, to_file: Union[str, PosixPath]):
-        pass
+        request = self._client.files().get_media(fileId=id)
+        with open(to_file, 'wb') as fh:
+            downloader = MediaIoBaseDownload(fh, request)
+            done = False
+            while not done:
+                status, done = downloader.next_chunk()
+                logging.info(f"Download {status.progress()*100}%")
 
     def upload(self, from_file: Union[str, PosixPath], name: Optional[str]=None, mimetype: Optional[str]=None,
                parent_ids: Optional[List[str]]=None) -> str:
