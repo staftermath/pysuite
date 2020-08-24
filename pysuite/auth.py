@@ -19,6 +19,7 @@ class Authentication:
     def __init__(self, credential: Optional[Union[PosixPath, str, dict]], token: Union[PosixPath, str]):
         self._token_path = Path(token)
         self._credential = self.load_credential(credential)
+        self.write_token()
 
     def load_credential(self, credential: Optional[Union[PosixPath, str, dict]]):
         if self._token_path.exists():
@@ -30,7 +31,9 @@ class Authentication:
         return self._load_credential_from_file(credential)
 
     def _load_credential_from_file(self, file_path: PosixPath):
-        return InstalledAppFlow.from_client_secrets_file(file_path, self.SCOPE)
+        flow = InstalledAppFlow.from_client_secrets_file(file_path, self.SCOPE)
+        credential = flow.run_local_server(port=9999)
+        return credential
 
     def _load_token(self):
         with open(self._token_path, 'rb') as f:
@@ -45,9 +48,6 @@ class Authentication:
         if not self._credential.valid:
             if self._credential.expired and self._credential.refresh_token:
                 self._credential.refresh(Request())
-            else:
-                # need to manually authenticate once
-                self._credential.run_local_server(port=9999)
 
         self.write_token()
 
@@ -57,3 +57,7 @@ class Authentication:
 
     def get_client(self):
         raise NotImplementedError
+
+
+class GoogleDrive(Authentication):
+    SCOPE = ["https://www.googleapis.com/auth/drive"]
