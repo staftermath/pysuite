@@ -130,3 +130,6 @@ dmypy.json
 
 # intelliJ
 .idea/
+
+# credential folder
+credentials
