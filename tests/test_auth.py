@@ -9,14 +9,14 @@ from pysuite.auth import GoogleDriveClient, GoogleSheetClient
 
 
 credential_folder = Path(".").resolve().parent / "credentials"
-gdrive_credential = credential_folder / "credential.json"
-gdrive_token = credential_folder / "token.pickle"
+credential_file = credential_folder / "credential.json"
+token = credential_folder / "token.pickle"
 
 
 @pytest.mark.skip("this will prompt browser")
 def test_gdrive_load_from_file_correctly(tmpdir):
     token_path = Path(tmpdir.join("test_load_from_file_token.pickle"))
-    result = GoogleDriveClient(credential=gdrive_credential, token=token_path)
+    result = GoogleDriveClient(credential=credential_file, token=token_path)
     assert result._credential.valid
     assert not result._credential.expired
 
@@ -28,7 +28,7 @@ def test_gdrive_load_from_file_correctly(tmpdir):
 
 @pytest.fixture()
 def drive_client():
-    return GoogleDriveClient(credential=None, token=gdrive_token)
+    return GoogleDriveClient(credential=credential_file, token=token)
 
 
 def test_gdrive_load_from_token_correctly(drive_client):
@@ -43,7 +43,7 @@ def test_gdrive_get_client_return_correct_values(drive_client):
 
 @pytest.fixture()
 def sheet_client():
-    return GoogleSheetClient(credential=None, token=gdrive_token)
+    return GoogleSheetClient(credential=None, token=token)
 
 
 def test_google_sheet_client_get_client_return_correct_values(sheet_client):
