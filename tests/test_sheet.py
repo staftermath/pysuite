@@ -1,6 +1,9 @@
 import pytest
 from pathlib import Path
 
+import pandas as pd
+from pandas.testing import assert_frame_equal
+
 from pysuite.sheet import Sheet
 from googleapiclient.errors import HttpError
 from tests.test_auth import sheet_client
@@ -61,3 +64,20 @@ def clear_sheet(sheet):
     yield
     clear()
 
+
+@pytest.mark.parametrize(("header", "expected"),
+                         [
+                             (True, pd.DataFrame({
+                                 "col1": ["1", "2", "3"],
+                                 "col2": ["a", "b", "c"],
+                                 "col3": ["10.15", "20.2", "0.59"]
+                             })),
+                             (False, pd.DataFrame({
+                                 0: ["col1", "1", "2", "3"],
+                                 1: ["col2", "a", "b", "c"],
+                                 2: ["col3", "10.15", "20.2", "0.59"]
+                             }))
+                         ])
+def test_read_sheet_return_correct_values(sheet, header, expected):
+    result = sheet.read_sheet(id=test_sheet_id, range="download!A1:C", header=header)
+    assert_frame_equal(result, expected)

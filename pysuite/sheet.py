@@ -38,8 +38,21 @@ class Sheet:
     def clear(self, id: str, range: str):
         self._client.values().clear(spreadsheetId=id, range=range, body={}).execute()
 
-    def read_sheet(self, id: str, range: str):
-        pass
+    def read_sheet(self, id: str, range: str, header=True):
+        try:
+            import pandas as pd
+        except ModuleNotFoundError as e:
+            logging.critical("read_sheet() requires pandas.")
+            raise e
+
+        values = self.download(id=id, range=range)
+        if values == []:
+            return pd.DataFrame()
+
+        columns = values.pop(0) if header else None
+        df = pd.DataFrame(values, columns=columns)
+        return df
+
 
     def to_sheet(self, id: str, range: str):
         pass
