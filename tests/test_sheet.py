@@ -65,26 +65,32 @@ def clear_sheet(sheet):
     clear()
 
 
-@pytest.mark.parametrize(("header", "dtypes", "expected"),
+@pytest.mark.parametrize(("header", "dtypes", "columns", "expected"),
                          [
-                             (True, None, pd.DataFrame({
+                             (True, None, None, pd.DataFrame({
                                  "col1": ["1", "2", "3"],
                                  "col2": ["a", "b", "c"],
                                  "col3": ["10.15", "20.2", "0.59"]
                              })),
-                             (False, None, pd.DataFrame({
+                             (False, None, ["new_col1", "new_col2", "new_col3"], pd.DataFrame({
+                                 "new_col1": ["col1", "1", "2", "3"],
+                                 "new_col2": ["col2", "a", "b", "c"],
+                                 "new_col3": ["col3", "10.15", "20.2", "0.59"]
+                             })),
+                             (False, None, None, pd.DataFrame({
                                  0: ["col1", "1", "2", "3"],
                                  1: ["col2", "a", "b", "c"],
                                  2: ["col3", "10.15", "20.2", "0.59"]
                              })),
-                             (True, {"col1": "int32", "col3": "float64"}, pd.DataFrame({
+                             (True, {"col1": "int32", "col3": "float64"}, ["new_col1", "new_col2", "new_col3"],
+                              pd.DataFrame({
                                  "col1": pd.Series([1, 2, 3], dtype="int32"),
                                  "col2": ["a", "b", "c"],
                                  "col3": [10.15, 20.2, 0.59]
                              })),
                          ])
-def test_read_sheet_return_correct_values(sheet, header, dtypes, expected):
-    result = sheet.read_sheet(id=test_sheet_id, range="download!A1:C", header=header, dtypes=dtypes)
+def test_read_sheet_return_correct_values(sheet, header, dtypes, columns, expected):
+    result = sheet.read_sheet(id=test_sheet_id, range="download!A1:C", header=header, dtypes=dtypes, columns=columns)
     assert_frame_equal(result, expected)
 
 

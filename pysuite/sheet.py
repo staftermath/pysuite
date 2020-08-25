@@ -64,13 +64,17 @@ class Sheet:
         """
         self._client.values().clear(spreadsheetId=id, range=range, body={}).execute()
 
-    def read_sheet(self, id: str, range: str, header=True, dtypes: Optional[dict]=None):
+    def read_sheet(self, id: str, range: str, header=True, dtypes: Optional[dict]=None, columns: Optional[list]=None):
         """download the target sheet range into a pandas datafrme. this method will fail if pandas cannot be imported.
 
         :param id: id of the target spreadsheet
         :param range: range in the target spreadsheet.  for example, 'sheet!A1:D'. this means selecting from tab "sheet"
           and download column A to D and rows from 1 to the last row with non-empty values.
         :param header: whether first row is used as column names in the output dataframe.
+        :param dtypes: a mapping from column name to the type. if not None, type conversions will be applied to columns
+          requested in the dictionary.
+        :param columns: a list of column names. If not None and `header` is False, this will be used as columns of the
+          output dataframe
         :return: a pandas dataframe containing target spreadsheet values.
         """
         try:
@@ -86,7 +90,7 @@ class Sheet:
         if values == []:
             return pd.DataFrame()
 
-        columns = values.pop(0) if header else None
+        columns = values.pop(0) if header else columns
         df = pd.DataFrame(values, columns=columns)
 
         if dtypes is not None:
