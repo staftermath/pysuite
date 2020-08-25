@@ -1,6 +1,7 @@
 """implement api to access google sheet
 """
 import logging
+from typing import Optional
 
 from googleapiclient.discovery import Resource
 
@@ -63,7 +64,7 @@ class Sheet:
         """
         self._client.values().clear(spreadsheetId=id, range=range, body={}).execute()
 
-    def read_sheet(self, id: str, range: str, header=True):
+    def read_sheet(self, id: str, range: str, header=True, dtypes: Optional[dict]=None):
         """download the target sheet range into a pandas datafrme. this method will fail if pandas cannot be imported.
 
         :param id: id of the target spreadsheet
@@ -78,12 +79,20 @@ class Sheet:
             logging.critical("read_sheet() requires pandas.")
             raise e
 
+        if dtypes is not None and not isinstance(dtypes, dict):
+            raise TypeError(f"dtypes must be dictionary. got {type(dtypes)}")
+
         values = self.download(id=id, range=range)
         if values == []:
             return pd.DataFrame()
 
         columns = values.pop(0) if header else None
         df = pd.DataFrame(values, columns=columns)
+
+        if dtypes is not None:
+            for col, type in dtypes.items():
+                df[col] = df[col].astype(type)
+
         return df
 
     def to_sheet(self, df, id: str, range: str):
