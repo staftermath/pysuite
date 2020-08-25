@@ -1,11 +1,9 @@
 import pytest
-from pathlib import Path
 
 import pandas as pd
 from pandas.testing import assert_frame_equal
 
 from pysuite.sheet import Sheet
-from googleapiclient.errors import HttpError
 from tests.test_auth import sheet_client
 
 test_sheet_id = "1CNOH3o2Zz05mharkLXuwX72FpRka8-KFpIm9bEaja50"
