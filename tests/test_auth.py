@@ -9,7 +9,7 @@ from pysuite.auth import GoogleDriveClient, GoogleSheetClient
 
 
 credential_folder = Path(".").resolve().parent / "credentials"
-gdrive_credential = credential_folder / "gdrive.json"
+gdrive_credential = credential_folder / "credential.json"
 gdrive_token = credential_folder / "token.pickle"
 
 
