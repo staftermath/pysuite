@@ -81,3 +81,16 @@ def clear_sheet(sheet):
 def test_read_sheet_return_correct_values(sheet, header, expected):
     result = sheet.read_sheet(id=test_sheet_id, range="download!A1:C", header=header)
     assert_frame_equal(result, expected)
+
+
+def test_to_sheet_update_values_correctly(sheet, clear_sheet):
+    df = pd.DataFrame({
+        "col1": ["a", None, "c"],
+        "col2": [1, 2, 3]
+    })
+    range = "upload!A1:B"
+    sheet.to_sheet(df, id=test_sheet_id, range=range)
+
+    result = sheet.download(id=test_sheet_id, range=range)
+    expected = [["col1", "col2"], ["a", "1"], ["", "2"], ["c", "3"]]
+    assert result == expected

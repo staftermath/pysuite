@@ -54,5 +54,15 @@ class Sheet:
         return df
 
 
-    def to_sheet(self, id: str, range: str):
-        pass
+    def to_sheet(self, df, id: str, range: str):
+        """
+
+        :param df:
+        :type df: pandas.DataFrame
+        :param id:
+        :param range:
+        :return: None
+        """
+        values = df.fillna('').values.tolist()
+        values.insert(0, list(df.columns))
+        self.upload(values, id=id, range=range)
