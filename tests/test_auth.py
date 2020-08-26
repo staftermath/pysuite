@@ -5,7 +5,7 @@ import pickle
 from google.oauth2.credentials import Credentials
 from googleapiclient.discovery import Resource
 
-from pysuite.auth import GoogleDriveClient, GoogleSheetClient
+from pysuite.auth import GoogleDriveAuth, GoogleSheetAuth
 
 
 credential_folder = Path(".").resolve().parent / "credentials"
@@ -16,7 +16,7 @@ token = credential_folder / "token.pickle"
 @pytest.mark.skip("this will prompt browser")
 def test_gdrive_load_from_file_correctly(tmpdir):
     token_path = Path(tmpdir.join("test_load_from_file_token.pickle"))
-    result = GoogleDriveClient(credential=credential_file, token=token_path)
+    result = GoogleDriveAuth(credential=credential_file, token=token_path)
     assert result._credential.valid
     assert not result._credential.expired
 
@@ -27,25 +27,25 @@ def test_gdrive_load_from_file_correctly(tmpdir):
 
 
 @pytest.fixture()
-def drive_client():
-    return GoogleDriveClient(credential=credential_file, token=token)
+def drive_auth():
+    return GoogleDriveAuth(credential=credential_file, token=token)
 
 
-def test_gdrive_load_from_token_correctly(drive_client):
-    assert drive_client._credential.valid
-    assert not drive_client._credential.expired
+def test_gdrive_load_from_token_correctly(drive_auth):
+    assert drive_auth._credential.valid
+    assert not drive_auth._credential.expired
 
 
-def test_gdrive_get_client_return_correct_values(drive_client):
-    result = drive_client.get_client()
+def test_gdrive_get_client_return_correct_values(drive_auth):
+    result = drive_auth.get_client()
     assert isinstance(result, Resource)
 
 
 @pytest.fixture()
-def sheet_client():
-    return GoogleSheetClient(credential=None, token=token)
+def sheet_auth():
+    return GoogleSheetAuth(credential=None, token=token)
 
 
-def test_google_sheet_client_get_client_return_correct_values(sheet_client):
-    result = sheet_client.get_client()
+def test_google_sheet_client_get_client_return_correct_values(sheet_auth):
+    result = sheet_auth.get_client()
     assert isinstance(result, Resource)

@@ -4,14 +4,14 @@ import pandas as pd
 from pandas.testing import assert_frame_equal
 
 from pysuite.sheet import Sheet
-from tests.test_auth import sheet_client
+from tests.test_auth import sheet_auth
 
 test_sheet_id = "1CNOH3o2Zz05mharkLXuwX72FpRka8-KFpIm9bEaja50"
 
 
 @pytest.fixture()
-def sheet(sheet_client):
-    return Sheet(client=sheet_client.get_client())
+def sheet(sheet_auth):
+    return Sheet(client=sheet_auth.get_client())
 
 
 @pytest.mark.parametrize(("dimension", "expected"),
