@@ -55,17 +55,17 @@ class Authentication:
         with open(self._token_path, 'wb') as token:
             pickle.dump(self._credential, token)
 
-    def get_service(self):
+    def get_service(self, version: str):
         raise NotImplementedError
 
 
 class GoogleDriveAuth(Authentication):
     SCOPE = [SCOPES["drive"]]
-    def get_service(self):
-        return build('drive', 'v3', credentials=self._credential, cache_discovery=True)
+    def get_service(self, version="v3"):
+        return build('drive', version, credentials=self._credential, cache_discovery=True)
 
 
 class GoogleSheetAuth(Authentication):
     SCOPE = [SCOPES["spreadsheet"]]
-    def get_service(self):
-        return build('sheets', 'v4', credentials=self._credential, cache_discovery=True)
+    def get_service(self, version="v4"):
+        return build('sheets', version, credentials=self._credential, cache_discovery=True)
