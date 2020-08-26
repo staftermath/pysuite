@@ -11,8 +11,8 @@ from googleapiclient.http import MediaIoBaseDownload, MediaFileUpload
 
 class Drive:
 
-    def __init__(self, client: Resource):
-        self._client = client
+    def __init__(self, service: Resource):
+        self._service = service
 
     def download(self, id: str, to_file: Union[str, PosixPath]):
         """download the google drive file with the requested id to target local file.
@@ -21,7 +21,7 @@ class Drive:
         :param to_file: local file path
         :return: None
         """
-        request = self._client.files().get_media(fileId=id)
+        request = self._service.files().get_media(fileId=id)
         with open(to_file, 'wb') as fh:
             downloader = MediaIoBaseDownload(fh, request)
             done = False
@@ -55,9 +55,9 @@ class Drive:
                                 mimetype=mimetype,
                                 resumable=True)
 
-        file = self._client.files().create(body=file_metadata,
-                                           media_body=media,
-                                           fields='id').execute()
+        file = self._service.files().create(body=file_metadata,
+                                            media_body=media,
+                                            fields='id').execute()
         return file.get("id")
 
     def update(self, id: str, from_file: Union[str, PosixPath]):
@@ -70,7 +70,7 @@ class Drive:
         media = MediaFileUpload(str(from_file),
                                 resumable=True)
 
-        self._client.files().update(body=dict(), fileId=id, media_body=media).execute()
+        self._service.files().update(body=dict(), fileId=id, media_body=media).execute()
 
     def get_id(self, name: str, parent_id: Optional[str]=None):
         """get the id of the file with specified name. if more than one file are found, an error will be raised.
@@ -83,9 +83,9 @@ class Drive:
         if parent_id is not None:
             q += f" and '{parent_id}' in parents"
 
-        response = self._client.files().list(pageSize=10,
-                                             fields=self._get_fields_query_string(),
-                                             q=q).execute()
+        response = self._service.files().list(pageSize=10,
+                                              fields=self._get_fields_query_string(),
+                                              q=q).execute()
 
         item = response.get('files', None)
         if item is None:
@@ -106,10 +106,10 @@ class Drive:
         result = []
         page_token = ""  # place holder to start the loop
         while page_token is not None:
-            response = self._client.files().list(q=q,
-                                                 spaces='drive',
-                                                 fields=self._get_fields_query_string(),
-                                                 pageToken=page_token).execute()
+            response = self._service.files().list(q=q,
+                                                  spaces='drive',
+                                                  fields=self._get_fields_query_string(),
+                                                  pageToken=page_token).execute()
             result.extend(response.get("files", []))
             page_token = response.get("nextPageToken", None)
 
@@ -123,7 +123,7 @@ class Drive:
         :param recursive: if True and target id represents a folder, remove all nested files and folders.
         :return: None
         """
-        self._client.files().delete(fileId=id).execute()
+        self._service.files().delete(fileId=id).execute()
 
     def create_folder(self, name: str, parent_ids: Optional[list]=None) -> str:
         """create a folder on google drive by the given name.
@@ -145,7 +145,7 @@ class Drive:
 
             file_metadata["parents"] = parent_ids
 
-        folder = self._client.files().create(body=file_metadata, fields='id').execute()
+        folder = self._service.files().create(body=file_metadata, fields='id').execute()
         return folder.get("id")
 
     def share(self, id: str, emails: List[str], role: str= "reader", notify=True):  # pragma: no cover
@@ -159,7 +159,7 @@ class Drive:
         :return: name of the object shared.
         """
         call_back = None
-        batch = self._client.new_batch_http_request(callback=call_back)
+        batch = self._service.new_batch_http_request(callback=call_back)
 
         for email in emails:
             user_permission = {
@@ -167,7 +167,7 @@ class Drive:
                 "role": role,
                 "emailAddress": email
             }
-            batch.add(self._client.permissions().create(
+            batch.add(self._service.permissions().create(
                 fileId=id,
                 body=user_permission,
                 fields='id',
@@ -199,5 +199,5 @@ class Drive:
         :param id: id of the target Google drive object
         :return: name of the object
         """
-        file = self._client.files().get(fileId=id).execute()
+        file = self._service.files().get(fileId=id).execute()
         return file['name']
