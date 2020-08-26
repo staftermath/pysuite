@@ -1,0 +1,173 @@
+.. _user_manual:
+
+User Manual
+===========
+
+
+Authentication
+--------------
+
+Get credentials
++++++++++++++++
+
+You need to get a credential from `Google API Console <https://console.developers.google.com/apis/dashboard>`_. The
+credential looks like:
+
+.. code-block:: json
+
+    {
+      "installed": {
+        "client_id": "xxxxxxxxxxxxxxxxx.apps.googleusercontent.com",
+        "project_id": "xxxxxxxxxxxxx-xxxxxxxxxxxx",
+        "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+        "token_uri": "https://oauth2.googleapis.com/token",
+        "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
+        "client_secret": "xxxxxxxxxxxxxxxx",
+        "redirect_uris": [
+          "urn:ietf:wg:oauth:2.0:oob",
+          "http://localhost"
+        ]
+      }
+    }
+
+You need to save this credential to a json file and pass to `Authentication` class (For example, `GoogleDriveClient`).
+In addition, you need to have a file to store refresh token. A pickle object will be written to the token file when
+needed.
+
+.. code-block:: python
+
+    from pysuite.auth import GoogleDriveAuth
+
+    credential_json_file = "/tmp/credential.json"
+    token_path_file = "/tmp/refresh_token.pickle"
+    client = GoogleDriveAuth(credential=credential_json_file, token=token_path_file)
+
+Authenticate
+++++++++++++
+
+Subclasses of `Authentication` can help authenticate your credential and provide clients for API class such as `Drive` and
+`Sheet`.
+
+.. code-block:: python
+
+    from pysuite.auth import GoogleDriveAuth
+
+    credential_file = "./credentials/credentials.json"
+    token_file = "./credentials/token.pickle"
+
+    drive_auth = GoogleDriveAuth(credentials=credential_file, token_file=token_file)
+
+this may prompt web browser confirmation for the first time if token_file is not created or is expired. Once you confirm
+access, the token will be created/overwritten.
+
+You can generate a gdrive client now from authentication object.
+
+.. code-block:: python
+
+    service = drive_auth.get_service()
+
+Drive
+-----
+This class provides APIs used to access and operate with Google drive files
+
+instantiate
++++++++++++
+You may utilize `Authentication` class to create an authenticated API class:
+
+.. code-block:: python
+
+    from pysuite.drive import Drive
+
+    drive = Drive(service=drive_auth.get_service()) # drive_auth is an GoogleDriveAuth class
+
+If you prefer different method to create gdrive client, you may switch :code:`drive_auth.get_service()` with a gdrive service
+(See `Google Drive API V3 <https://developers.google.com/drive/api/v3/quickstart/python>`_ for detail):
+
+.. code-block:: python
+
+    service = build('drive', 'v3', credentials=creds)
+
+download
+++++++++
+
+.. code-block:: python
+
+    drive.download(id="google drive object id", to_file="/tmp/test_file")
+
+upload
+++++++
+
+.. code-block:: python
+
+    drive.upload(from_file="path/to/your/file/to/be/uploaded", name="google_drive_file_name",
+                 parent_ids=["google drive folder id 1", "google drive folder id 2"])
+
+list
+++++
+
+.. code-block:: python
+
+    list_of_objects = drive.list(id="google drive folder id")
+
+Sheet
+-----
+This class provides APIs used to access and operate with Google spreadsheet files
+
+instantiate
++++++++++++
+
+.. code-block:: python
+
+    from pysuite.sheet import Sheet
+    sheet = Sheet(service=sheet_auth.get_service())  # sheet_auth is an GoogleSheetAuth class
+
+If you prefer different method to create gdrive client, you may switch :code:`sheet_auth.get_client()` with a google
+sheet service (See `Google Drive API V4 <https://developers.google.com/sheets/api/quickstart/python>`_ for details):
+
+.. code-block:: python
+
+    service = build('sheets', 'v4', credentials=creds, cache_discovery=True)
+
+to_sheet
+++++++++
+Upload a pandas dataframe to a specified range of sheet. This will clear the target range before uploading.
+
+.. code-block:: python
+
+    import pandas as pd
+    df = pd.DataFrame({"col1": [1, 2], "col2": ['a', 'b']})
+    sheet.to_sheet(df, id="your_sheet_id", range="yourtab!A1:B")
+
+read_sheet
+++++++++++
+This api requires pandas.
+
+.. code-block:: python
+
+    df = sheet.read_sheet(id="your_sheet_id", range="yourtab!A1:D")
+
+download
+++++++++
+Download sheet into a list of values either in **ROWS** format or in **COLUMNS** format. This is useful when you do not
+want to add pandas as dependency.
+
+.. code-block:: python
+
+    values = sheet.download(id="your_sheet_id", range="yourtab!A1:D", dimension="ROWS")
+
+upload
+++++++
+Upload a list of lists to specified google sheet range. This is useful when you do not want to add pandas as dependency.
+
+.. code-block:: python
+
+    values = [[1, 2, 3], ["a", "b", "c"]]
+    sheet.upload(values, id="your_sheet_id", range="yourtab!A1:B", dimension="ROWS")
+
+clear
++++++
+Remove contents of specified Goolge sheet range.
+
+.. code-block:: python
+
+    sheet.clear(id="your_sheet_id", range="yourtab!A1:B")

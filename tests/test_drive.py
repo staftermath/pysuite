@@ -3,12 +3,12 @@ from pathlib import Path
 
 from pysuite.drive import Drive
 from googleapiclient.errors import HttpError
-from tests.test_auth import drive_client
+from tests.test_auth import drive_auth
 
 
 @pytest.fixture()
-def drive(drive_client):
-    return Drive(client=drive_client.get_client())
+def drive(drive_auth):
+    return Drive(service=drive_auth.get_service())
 
 def test_get_id_return_correct_value(drive):
     result = drive.get_id("drive_test_file")

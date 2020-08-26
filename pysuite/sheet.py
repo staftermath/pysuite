@@ -11,8 +11,8 @@ VALID_DIMENSION = {"COLUMNS", "ROWS"}
 class Sheet:
     """provide api to operate google spreadsheet. An authenticated google api client is needed.
     """
-    def __init__(self, client: Resource):
-        self._client = client.spreadsheets()
+    def __init__(self, service: Resource):
+        self._service = service.spreadsheets()
 
     def download(self, id: str, range: str, dimension: str="ROWS") -> list:
         """download target sheet range by specified dimension. All entries will be considered as strings.
@@ -27,9 +27,9 @@ class Sheet:
         if dimension not in VALID_DIMENSION:
             raise ValueError(f"{dimension} is not a valid dimension. expecting {VALID_DIMENSION}.")
 
-        result = self._client.values().get(spreadsheetId=id,
-                                           range=range,
-                                           majorDimension=dimension).execute()
+        result = self._service.values().get(spreadsheetId=id,
+                                            range=range,
+                                            majorDimension=dimension).execute()
         values = result.get('values', [])
         return values
 
@@ -45,10 +45,10 @@ class Sheet:
         self.clear(id=id, range=range)
         body = {"values": values}
         logging.info(f"Updating sheet '{id}' range '{range}'")
-        request = self._client.values().update(spreadsheetId=id,
-                                              range=range,
-                                              valueInputOption="RAW",
-                                              body=body)
+        request = self._service.values().update(spreadsheetId=id,
+                                                range=range,
+                                                valueInputOption="RAW",
+                                                body=body)
         result = request.execute()
         msg = f"{result.get('updatedRange')} has been updated ({result.get('updatedRows')} rows " \
               f"and {result.get('updatedColumns')} columns)"
@@ -62,7 +62,7 @@ class Sheet:
           and download column A to D and rows from 1 to the last row with non-empty values.
         :return: None
         """
-        self._client.values().clear(spreadsheetId=id, range=range, body={}).execute()
+        self._service.values().clear(spreadsheetId=id, range=range, body={}).execute()
 
     def read_sheet(self, id: str, range: str, header=True, dtypes: Optional[dict]=None, columns: Optional[list]=None):
         """download the target sheet range into a pandas datafrme. this method will fail if pandas cannot be imported.

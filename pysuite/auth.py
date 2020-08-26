@@ -1,7 +1,6 @@
 from typing import Union, Optional
 from pathlib import Path, PosixPath
 import pickle
-import logging
 
 from googleapiclient.discovery import build
 from google.oauth2.credentials import Credentials
@@ -56,17 +55,17 @@ class Authentication:
         with open(self._token_path, 'wb') as token:
             pickle.dump(self._credential, token)
 
-    def get_client(self):
+    def get_service(self, version: str):
         raise NotImplementedError
 
 
-class GoogleDriveClient(Authentication):
+class GoogleDriveAuth(Authentication):
     SCOPE = [SCOPES["drive"]]
-    def get_client(self):
-        return build('drive', 'v3', credentials=self._credential, cache_discovery=True)
+    def get_service(self, version="v3"):
+        return build('drive', version, credentials=self._credential, cache_discovery=True)
 
 
-class GoogleSheetClient(Authentication):
+class GoogleSheetAuth(Authentication):
     SCOPE = [SCOPES["spreadsheet"]]
-    def get_client(self):
-        return build('sheets', 'v4', credentials=self._credential, cache_discovery=True)
+    def get_service(self, version="v4"):
+        return build('sheets', version, credentials=self._credential, cache_discovery=True)
