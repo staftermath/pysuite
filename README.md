@@ -88,13 +88,13 @@ list_of_objects = drive.list(id="google drive folder id")
 
 ### Sheet
 ```python
-from pysuite.drive import Sheet
+from pysuite.sheet import Sheet
 
 sheet = Sheet(service=sheet_auth.get_service())  # sheet_auth is an GoogleSheetAuth class
 ```
 
-If you prefer different method to create gdrive client, you may switch `drive_auth.get_client()` with a gdrive service 
-(See <a href=https://developers.google.com/drive/api/v3/quickstart/python>Google Drive API V3</a> for detail):
+If you prefer different method to create gdrive client, you may switch `sheet_auth.get_client()` with a gsheet service 
+(See <a href=https://developers.google.com/sheets/api/quickstart/python>Google Drive API V3</a> for detail):
 ```python
 service = build('sheets', 'v4', credentials=creds, cache_discovery=True)
 ```
