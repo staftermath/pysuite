@@ -37,7 +37,7 @@ def test_gdrive_load_from_token_correctly(drive_auth):
 
 
 def test_gdrive_get_client_return_correct_values(drive_auth):
-    result = drive_auth.get_client()
+    result = drive_auth.get_service()
     assert isinstance(result, Resource)
 
 
@@ -47,5 +47,5 @@ def sheet_auth():
 
 
 def test_google_sheet_client_get_client_return_correct_values(sheet_auth):
-    result = sheet_auth.get_client()
+    result = sheet_auth.get_service()
     assert isinstance(result, Resource)
