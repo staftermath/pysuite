@@ -22,15 +22,15 @@ You need to get a credential from
   }
 }
 ```
-You need to save this credential to a json file and pass to `Authentication` class (For example, `GoogleDriveClient`). 
+You need to save this credential to a json file and pass to `Authentication` class (For example, `DriveAuth`). 
 In addition, you need to have a file to store refresh token. A pickle object will be written to the token file when 
 needed.
 ```python
-from pysuite.auth import GoogleDriveAuth
+from pysuite import DriveAuth
 
 credential_json_file = "/tmp/credential.json"
 token_path_file = "/tmp/refresh_token.pickle"
-client = GoogleDriveAuth(credential=credential_json_file, token=token_path_file)
+client = DriveAuth(credential=credential_json_file, token=token_path_file)
 ```
 
 ## Authenticate
@@ -38,12 +38,12 @@ client = GoogleDriveAuth(credential=credential_json_file, token=token_path_file)
 Subclasses of `Authentication` can help authenticate your credential and provide clients for API class such as `Drive` and 
 `Sheet`. 
 ```python
-from pysuite.auth import GoogleDriveAuth
+from pysuite import DriveAuth
 
 credential_file = "./credentials/credentials.json"
 token_file = "./credentials/token.pickle"
 
-drive_auth = GoogleDriveAuth(credentials=credential_file, token_file=token_file)
+drive_auth = DriveAuth(credentials=credential_file, token_file=token_file)
 ```
 this may prompt web browser confirmation for the first time if token_file is not created or is expired. Once you confirm
 access, the token will be created/overwritten.
@@ -59,7 +59,7 @@ API classes aim to provide quick and simple access to Google Suite App such as G
 ### Drive
 
 ```python
-from pysuite.drive import Drive
+from pysuite import Drive
 
 drive = Drive(service=drive_auth.get_service()) # drive_auth is an GoogleDriveAuth class
 ```
@@ -88,13 +88,13 @@ list_of_objects = drive.list(id="google drive folder id")
 
 ### Sheet
 ```python
-from pysuite.sheet import Sheet
+from pysuite import Sheet
 
 sheet = Sheet(service=sheet_auth.get_service())  # sheet_auth is an GoogleSheetAuth class
 ```
 
 If you prefer different method to create gdrive client, you may switch `sheet_auth.get_client()` with a gsheet service 
-(See <a href=https://developers.google.com/sheets/api/quickstart/python>Google Drive API V3</a> for detail):
+(See <a href=https://developers.google.com/sheets/api/quickstart/python>Google Sheet API V4</a> for detail):
 ```python
 service = build('sheets', 'v4', credentials=creds, cache_discovery=True)
 ```
