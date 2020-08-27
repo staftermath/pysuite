@@ -1,7 +1,6 @@
 """implement api to access google drive
 """
 import logging
-
 from pathlib import PosixPath, Path
 from typing import Union, Optional, List
 

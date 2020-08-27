@@ -1,0 +1,321 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Sheet &mdash; pysuite 0.1 documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+
+  
+  
+  
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/doctools.js"></script>
+        <script src="_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="prev" title="Drive" href="drive.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="index.html" class="icon icon-home" alt="Documentation Home"> pysuite
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="user_manual.html">User Manual</a></li>
+<li class="toctree-l1"><a class="reference internal" href="auth.html">Auth</a></li>
+<li class="toctree-l1"><a class="reference internal" href="drive.html">Drive</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Sheet</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">pysuite</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
+        
+      <li>Sheet</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="_sources/sheet.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="sheet">
+<span id="id1"></span><h1>Sheet<a class="headerlink" href="#sheet" title="Permalink to this headline">¶</a></h1>
+<span class="target" id="module-pysuite.sheet"></span><p>implement api to access google sheet</p>
+<dl class="py class">
+<dt id="pysuite.sheet.Sheet">
+<em class="property">class </em><code class="sig-prename descclassname">pysuite.sheet.</code><code class="sig-name descname">Sheet</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">service</span><span class="p">:</span> <span class="n">googleapiclient.discovery.Resource</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pysuite/sheet.html#Sheet"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pysuite.sheet.Sheet" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>provide api to operate google spreadsheet. An authenticated google api client is needed.</p>
+<dl class="py method">
+<dt id="pysuite.sheet.Sheet.clear">
+<code class="sig-name descname">clear</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">id</span><span class="p">:</span> <span class="n">str</span></em>, <em class="sig-param"><span class="n">range</span><span class="p">:</span> <span class="n">str</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pysuite/sheet.html#Sheet.clear"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pysuite.sheet.Sheet.clear" title="Permalink to this definition">¶</a></dt>
+<dd><p>remove content in the target sheet range.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>id</strong> – id of the target spreadsheet</p></li>
+<li><p><strong>range</strong> – range in the target spreadsheet.  for example, ‘sheet!A1:D’. this means selecting from tab “sheet”
+and download column A to D and rows from 1 to the last row with non-empty values.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>None</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pysuite.sheet.Sheet.download">
+<code class="sig-name descname">download</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">id</span><span class="p">:</span> <span class="n">str</span></em>, <em class="sig-param"><span class="n">range</span><span class="p">:</span> <span class="n">str</span></em>, <em class="sig-param"><span class="n">dimension</span><span class="p">:</span> <span class="n">str</span> <span class="o">=</span> <span class="default_value">'ROWS'</span></em><span class="sig-paren">)</span> &#x2192; list<a class="reference internal" href="_modules/pysuite/sheet.html#Sheet.download"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pysuite.sheet.Sheet.download" title="Permalink to this definition">¶</a></dt>
+<dd><p>download target sheet range by specified dimension. All entries will be considered as strings.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>id</strong> – id of the target spreadsheet.</p></li>
+<li><p><strong>range</strong> – range in the target spreadsheet. for example, ‘sheet!A1:D’. this means selecting from tab “sheet”
+and download column A to D and rows from 1 to the last row with non-empty values.</p></li>
+<li><p><strong>dimension</strong> – “ROW” or “COLUMNS”. If “ROWS”, each entry in the output list would be one row in the
+spreadsheet. If “COLUMNS”, each entry in the output list would be one column in the spreadsheet.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>content of target sheet range in a list of lists.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pysuite.sheet.Sheet.read_sheet">
+<code class="sig-name descname">read_sheet</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">id</span><span class="p">:</span> <span class="n">str</span></em>, <em class="sig-param"><span class="n">range</span><span class="p">:</span> <span class="n">str</span></em>, <em class="sig-param"><span class="n">header</span><span class="o">=</span><span class="default_value">True</span></em>, <em class="sig-param"><span class="n">dtypes</span><span class="p">:</span> <span class="n">Optional<span class="p">[</span>dict<span class="p">]</span></span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="n">columns</span><span class="p">:</span> <span class="n">Optional<span class="p">[</span>list<span class="p">]</span></span> <span class="o">=</span> <span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pysuite/sheet.html#Sheet.read_sheet"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pysuite.sheet.Sheet.read_sheet" title="Permalink to this definition">¶</a></dt>
+<dd><p>download the target sheet range into a pandas datafrme. this method will fail if pandas cannot be imported.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>id</strong> – id of the target spreadsheet</p></li>
+<li><p><strong>range</strong> – range in the target spreadsheet.  for example, ‘sheet!A1:D’. this means selecting from tab “sheet”
+and download column A to D and rows from 1 to the last row with non-empty values.</p></li>
+<li><p><strong>header</strong> – whether first row is used as column names in the output dataframe.</p></li>
+<li><p><strong>dtypes</strong> – a mapping from column name to the type. if not None, type conversions will be applied to columns
+requested in the dictionary.</p></li>
+<li><p><strong>columns</strong> – a list of column names. If not None and <cite>header</cite> is False, this will be used as columns of the
+output dataframe</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>a pandas dataframe containing target spreadsheet values.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pysuite.sheet.Sheet.to_sheet">
+<code class="sig-name descname">to_sheet</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">df</span></em>, <em class="sig-param"><span class="n">id</span><span class="p">:</span> <span class="n">str</span></em>, <em class="sig-param"><span class="n">range</span><span class="p">:</span> <span class="n">str</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pysuite/sheet.html#Sheet.to_sheet"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pysuite.sheet.Sheet.to_sheet" title="Permalink to this definition">¶</a></dt>
+<dd><p>upload pandas dataframe to target sheet range. the number of columns must fit the range. more columns or
+fewer columns will both raise exception.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>df</strong> (<em>pandas.DataFrame</em>) – pandas dataframe to be uploaded</p></li>
+<li><p><strong>id</strong> – id of the target spreadsheet</p></li>
+<li><p><strong>range</strong> – range in the target spreadsheet.  for example, ‘sheet!A1:D’. this means selecting from tab “sheet”
+and download column A to D and rows from 1 to the last row with non-empty values.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>None</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pysuite.sheet.Sheet.upload">
+<code class="sig-name descname">upload</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">values</span><span class="p">:</span> <span class="n">list</span></em>, <em class="sig-param"><span class="n">id</span><span class="p">:</span> <span class="n">str</span></em>, <em class="sig-param"><span class="n">range</span><span class="p">:</span> <span class="n">str</span></em><span class="sig-paren">)</span> &#x2192; None<a class="reference internal" href="_modules/pysuite/sheet.html#Sheet.upload"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pysuite.sheet.Sheet.upload" title="Permalink to this definition">¶</a></dt>
+<dd><p>upload a list of lists to target sheet range.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>values</strong> – a list of lists of objects that can be converted to str.</p></li>
+<li><p><strong>id</strong> – id of the target spreadsheet</p></li>
+<li><p><strong>range</strong> – range in the target spreadsheet. for example, ‘sheet!A1:D’. this means selecting from tab “sheet”
+and download column A to D and rows from 1 to the last row with non-empty values.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>None</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+      
+        <a href="drive.html" class="btn btn-neutral float-left" title="Drive" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        
+        &copy; Copyright 2020, Weiwen Gu
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

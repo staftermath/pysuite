@@ -1,0 +1,296 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Auth &mdash; pysuite 0.1 documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+
+  
+  
+  
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/doctools.js"></script>
+        <script src="_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Drive" href="drive.html" />
+    <link rel="prev" title="User Manual" href="user_manual.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="index.html" class="icon icon-home" alt="Documentation Home"> pysuite
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="user_manual.html">User Manual</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Auth</a></li>
+<li class="toctree-l1"><a class="reference internal" href="drive.html">Drive</a></li>
+<li class="toctree-l1"><a class="reference internal" href="sheet.html">Sheet</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">pysuite</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
+        
+      <li>Auth</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="_sources/auth.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="auth">
+<span id="id1"></span><h1>Auth<a class="headerlink" href="#auth" title="Permalink to this headline">¶</a></h1>
+<span class="target" id="module-pysuite.auth"></span><p>classes used to authenticate credentials and create service for Google Suite Apps</p>
+<dl class="py class">
+<dt id="pysuite.auth.Authentication">
+<em class="property">class </em><code class="sig-prename descclassname">pysuite.auth.</code><code class="sig-name descname">Authentication</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">credential</span><span class="p">:</span> <span class="n">Optional<span class="p">[</span>Union<span class="p">[</span>pathlib.PosixPath<span class="p">, </span>str<span class="p">, </span>dict<span class="p">]</span><span class="p">]</span></span></em>, <em class="sig-param"><span class="n">token</span><span class="p">:</span> <span class="n">Union<span class="p">[</span>pathlib.PosixPath<span class="p">, </span>str<span class="p">]</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pysuite/auth.html#Authentication"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pysuite.auth.Authentication" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<dl class="py attribute">
+<dt id="pysuite.auth.Authentication.SCOPE">
+<code class="sig-name descname">SCOPE</code><em class="property"> = None</em><a class="headerlink" href="#pysuite.auth.Authentication.SCOPE" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="pysuite.auth.Authentication.get_service">
+<code class="sig-name descname">get_service</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">version</span><span class="p">:</span> <span class="n">str</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pysuite/auth.html#Authentication.get_service"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pysuite.auth.Authentication.get_service" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="pysuite.auth.Authentication.load_credential">
+<code class="sig-name descname">load_credential</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">credential</span><span class="p">:</span> <span class="n">Optional<span class="p">[</span>Union<span class="p">[</span>pathlib.PosixPath<span class="p">, </span>str<span class="p">]</span><span class="p">]</span></span></em><span class="sig-paren">)</span> &#x2192; google.oauth2.credentials.Credentials<a class="reference internal" href="_modules/pysuite/auth.html#Authentication.load_credential"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pysuite.auth.Authentication.load_credential" title="Permalink to this definition">¶</a></dt>
+<dd><p>load credential json file needed to authenticate Google Suite Apps. If None is provided, token is loaded
+instead from self._token_path</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>credential</strong> – path to the credential json file.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>a Credential object</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pysuite.auth.Authentication.refresh">
+<code class="sig-name descname">refresh</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pysuite/auth.html#Authentication.refresh"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pysuite.auth.Authentication.refresh" title="Permalink to this definition">¶</a></dt>
+<dd><p>refresh token if not valid or has expired. This will overwrite the token file.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>None</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pysuite.auth.Authentication.write_token">
+<code class="sig-name descname">write_token</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pysuite/auth.html#Authentication.write_token"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pysuite.auth.Authentication.write_token" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="pysuite.auth.DriveAuth">
+<em class="property">class </em><code class="sig-prename descclassname">pysuite.auth.</code><code class="sig-name descname">DriveAuth</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">credential</span><span class="p">:</span> <span class="n">Optional<span class="p">[</span>Union<span class="p">[</span>pathlib.PosixPath<span class="p">, </span>str<span class="p">, </span>dict<span class="p">]</span><span class="p">]</span></span></em>, <em class="sig-param"><span class="n">token</span><span class="p">:</span> <span class="n">Union<span class="p">[</span>pathlib.PosixPath<span class="p">, </span>str<span class="p">]</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pysuite/auth.html#DriveAuth"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pysuite.auth.DriveAuth" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#pysuite.auth.Authentication" title="pysuite.auth.Authentication"><code class="xref py py-class docutils literal notranslate"><span class="pre">pysuite.auth.Authentication</span></code></a></p>
+<dl class="py attribute">
+<dt id="pysuite.auth.DriveAuth.SCOPE">
+<code class="sig-name descname">SCOPE</code><em class="property"> = ['https://www.googleapis.com/auth/drive']</em><a class="headerlink" href="#pysuite.auth.DriveAuth.SCOPE" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="pysuite.auth.DriveAuth.get_service">
+<code class="sig-name descname">get_service</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">version</span><span class="o">=</span><span class="default_value">'v3'</span></em><span class="sig-paren">)</span> &#x2192; googleapiclient.discovery.Resource<a class="reference internal" href="_modules/pysuite/auth.html#DriveAuth.get_service"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pysuite.auth.DriveAuth.get_service" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="pysuite.auth.SheetAuth">
+<em class="property">class </em><code class="sig-prename descclassname">pysuite.auth.</code><code class="sig-name descname">SheetAuth</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">credential</span><span class="p">:</span> <span class="n">Optional<span class="p">[</span>Union<span class="p">[</span>pathlib.PosixPath<span class="p">, </span>str<span class="p">, </span>dict<span class="p">]</span><span class="p">]</span></span></em>, <em class="sig-param"><span class="n">token</span><span class="p">:</span> <span class="n">Union<span class="p">[</span>pathlib.PosixPath<span class="p">, </span>str<span class="p">]</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pysuite/auth.html#SheetAuth"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pysuite.auth.SheetAuth" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#pysuite.auth.Authentication" title="pysuite.auth.Authentication"><code class="xref py py-class docutils literal notranslate"><span class="pre">pysuite.auth.Authentication</span></code></a></p>
+<dl class="py attribute">
+<dt id="pysuite.auth.SheetAuth.SCOPE">
+<code class="sig-name descname">SCOPE</code><em class="property"> = ['https://www.googleapis.com/auth/spreadsheets']</em><a class="headerlink" href="#pysuite.auth.SheetAuth.SCOPE" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="pysuite.auth.SheetAuth.get_service">
+<code class="sig-name descname">get_service</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">version</span><span class="o">=</span><span class="default_value">'v4'</span></em><span class="sig-paren">)</span> &#x2192; googleapiclient.discovery.Resource<a class="reference internal" href="_modules/pysuite/auth.html#SheetAuth.get_service"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pysuite.auth.SheetAuth.get_service" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="drive.html" class="btn btn-neutral float-right" title="Drive" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="user_manual.html" class="btn btn-neutral float-left" title="User Manual" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        
+        &copy; Copyright 2020, Weiwen Gu
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

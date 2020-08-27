@@ -133,3 +133,6 @@ dmypy.json
 
 # credential folder
 credentials
+
+# include docs html
+!docs/build
