@@ -47,6 +47,7 @@ about = {'__version__': VERSION}
 setup(
     name=NAME,
     version=about['__version__'],
+    license='bsd-3-clause',
     description=DESCRIPTION,
     long_description=long_description,
     long_description_content_type='text/markdown',
@@ -54,6 +55,7 @@ setup(
     author_email=EMAIL,
     python_requires=REQUIRES_PYTHON,
     url=URL,
+    download_url = 'https://github.com/staftermath/pysuite/archive/0.1.0.tar.gz',
     packages=find_packages(exclude=["tests", "*.tests", "*.tests.*", "tests.*"]),
     install_requires=REQUIRED,
     include_package_data=True,
