@@ -155,7 +155,8 @@
             
   <div class="section" id="auth">
 <span id="id1"></span><h1>Auth<a class="headerlink" href="#auth" title="Permalink to this headline">¶</a></h1>
-<span class="target" id="module-pysuite.auth"></span><dl class="py class">
+<span class="target" id="module-pysuite.auth"></span><p>classes used to authenticate credentials and create service for Google Suite Apps</p>
+<dl class="py class">
 <dt id="pysuite.auth.Authentication">
 <em class="property">class </em><code class="sig-prename descclassname">pysuite.auth.</code><code class="sig-name descname">Authentication</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">credential</span><span class="p">:</span> <span class="n">Optional<span class="p">[</span>Union<span class="p">[</span>pathlib.PosixPath<span class="p">, </span>str<span class="p">, </span>dict<span class="p">]</span><span class="p">]</span></span></em>, <em class="sig-param"><span class="n">token</span><span class="p">:</span> <span class="n">Union<span class="p">[</span>pathlib.PosixPath<span class="p">, </span>str<span class="p">]</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pysuite/auth.html#Authentication"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pysuite.auth.Authentication" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
@@ -171,13 +172,29 @@
 
 <dl class="py method">
 <dt id="pysuite.auth.Authentication.load_credential">
-<code class="sig-name descname">load_credential</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">credential</span><span class="p">:</span> <span class="n">Optional<span class="p">[</span>Union<span class="p">[</span>pathlib.PosixPath<span class="p">, </span>str<span class="p">, </span>dict<span class="p">]</span><span class="p">]</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pysuite/auth.html#Authentication.load_credential"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pysuite.auth.Authentication.load_credential" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<code class="sig-name descname">load_credential</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">credential</span><span class="p">:</span> <span class="n">Optional<span class="p">[</span>Union<span class="p">[</span>pathlib.PosixPath<span class="p">, </span>str<span class="p">]</span><span class="p">]</span></span></em><span class="sig-paren">)</span> &#x2192; google.oauth2.credentials.Credentials<a class="reference internal" href="_modules/pysuite/auth.html#Authentication.load_credential"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pysuite.auth.Authentication.load_credential" title="Permalink to this definition">¶</a></dt>
+<dd><p>load credential json file needed to authenticate Google Suite Apps. If None is provided, token is loaded
+instead from self._token_path</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>credential</strong> – path to the credential json file.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>a Credential object</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py method">
 <dt id="pysuite.auth.Authentication.refresh">
 <code class="sig-name descname">refresh</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pysuite/auth.html#Authentication.refresh"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pysuite.auth.Authentication.refresh" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>refresh token if not valid or has expired. This will overwrite the token file.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>None</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py method">
 <dt id="pysuite.auth.Authentication.write_token">
@@ -197,7 +214,7 @@
 
 <dl class="py method">
 <dt id="pysuite.auth.DriveAuth.get_service">
-<code class="sig-name descname">get_service</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">version</span><span class="o">=</span><span class="default_value">'v3'</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pysuite/auth.html#DriveAuth.get_service"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pysuite.auth.DriveAuth.get_service" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_service</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">version</span><span class="o">=</span><span class="default_value">'v3'</span></em><span class="sig-paren">)</span> &#x2192; googleapiclient.discovery.Resource<a class="reference internal" href="_modules/pysuite/auth.html#DriveAuth.get_service"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pysuite.auth.DriveAuth.get_service" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
@@ -213,7 +230,7 @@
 
 <dl class="py method">
 <dt id="pysuite.auth.SheetAuth.get_service">
-<code class="sig-name descname">get_service</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">version</span><span class="o">=</span><span class="default_value">'v4'</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pysuite/auth.html#SheetAuth.get_service"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pysuite.auth.SheetAuth.get_service" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_service</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">version</span><span class="o">=</span><span class="default_value">'v4'</span></em><span class="sig-paren">)</span> &#x2192; googleapiclient.discovery.Resource<a class="reference internal" href="_modules/pysuite/auth.html#SheetAuth.get_service"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pysuite.auth.SheetAuth.get_service" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
