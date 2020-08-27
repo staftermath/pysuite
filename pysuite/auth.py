@@ -59,13 +59,13 @@ class Authentication:
         raise NotImplementedError
 
 
-class GoogleDriveAuth(Authentication):
+class DriveAuth(Authentication):
     SCOPE = [SCOPES["drive"]]
     def get_service(self, version="v3"):
         return build('drive', version, credentials=self._credential, cache_discovery=True)
 
 
-class GoogleSheetAuth(Authentication):
+class SheetAuth(Authentication):
     SCOPE = [SCOPES["spreadsheet"]]
     def get_service(self, version="v4"):
         return build('sheets', version, credentials=self._credential, cache_discovery=True)
