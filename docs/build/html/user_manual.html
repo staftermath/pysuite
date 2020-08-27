@@ -1,0 +1,384 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>User Manual &mdash; pysuite 0.1 documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+
+  
+  
+  
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/doctools.js"></script>
+        <script src="_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Auth" href="auth.html" />
+    <link rel="prev" title="Welcome to pysuite’s documentation!" href="index.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="index.html" class="icon icon-home" alt="Documentation Home"> pysuite
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="#">User Manual</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#authentication">Authentication</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#get-credentials">Get credentials</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#authenticate">Authenticate</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#drive">Drive</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#instantiate">instantiate</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#download">download</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#upload">upload</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#list">list</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#sheet">Sheet</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#id2">instantiate</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#to-sheet">to_sheet</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#read-sheet">read_sheet</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id3">download</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id4">upload</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#clear">clear</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="auth.html">Auth</a></li>
+<li class="toctree-l1"><a class="reference internal" href="drive.html">Drive</a></li>
+<li class="toctree-l1"><a class="reference internal" href="sheet.html">Sheet</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">pysuite</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
+        
+      <li>User Manual</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="_sources/user_manual.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="user-manual">
+<span id="id1"></span><h1>User Manual<a class="headerlink" href="#user-manual" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="authentication">
+<h2>Authentication<a class="headerlink" href="#authentication" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="get-credentials">
+<h3>Get credentials<a class="headerlink" href="#get-credentials" title="Permalink to this headline">¶</a></h3>
+<p>You need to get a credential from <a class="reference external" href="https://console.developers.google.com/apis/dashboard">Google API Console</a>. The
+credential looks like:</p>
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+  <span class="nt">&quot;installed&quot;</span><span class="p">:</span> <span class="p">{</span>
+    <span class="nt">&quot;client_id&quot;</span><span class="p">:</span> <span class="s2">&quot;xxxxxxxxxxxxxxxxx.apps.googleusercontent.com&quot;</span><span class="p">,</span>
+    <span class="nt">&quot;project_id&quot;</span><span class="p">:</span> <span class="s2">&quot;xxxxxxxxxxxxx-xxxxxxxxxxxx&quot;</span><span class="p">,</span>
+    <span class="nt">&quot;auth_uri&quot;</span><span class="p">:</span> <span class="s2">&quot;https://accounts.google.com/o/oauth2/auth&quot;</span><span class="p">,</span>
+    <span class="nt">&quot;token_uri&quot;</span><span class="p">:</span> <span class="s2">&quot;https://oauth2.googleapis.com/token&quot;</span><span class="p">,</span>
+    <span class="nt">&quot;auth_provider_x509_cert_url&quot;</span><span class="p">:</span> <span class="s2">&quot;https://www.googleapis.com/oauth2/v1/certs&quot;</span><span class="p">,</span>
+    <span class="nt">&quot;client_secret&quot;</span><span class="p">:</span> <span class="s2">&quot;xxxxxxxxxxxxxxxx&quot;</span><span class="p">,</span>
+    <span class="nt">&quot;redirect_uris&quot;</span><span class="p">:</span> <span class="p">[</span>
+      <span class="s2">&quot;urn:ietf:wg:oauth:2.0:oob&quot;</span><span class="p">,</span>
+      <span class="s2">&quot;http://localhost&quot;</span>
+    <span class="p">]</span>
+  <span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>You need to save this credential to a json file and pass to <code class="code docutils literal notranslate"><span class="pre">Authentication</span></code> class (For example, <code class="code docutils literal notranslate"><span class="pre">DriveAuth</span></code>).
+In addition, you need to have a file to store refresh token. A pickle object will be written to the token file when
+needed.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">pysuite</span> <span class="kn">import</span> <span class="n">DriveAuth</span>
+
+<span class="n">credential_json_file</span> <span class="o">=</span> <span class="s2">&quot;/tmp/credential.json&quot;</span>
+<span class="n">token_path_file</span> <span class="o">=</span> <span class="s2">&quot;/tmp/refresh_token.pickle&quot;</span>
+<span class="n">client</span> <span class="o">=</span> <span class="n">DriveAuth</span><span class="p">(</span><span class="n">credential</span><span class="o">=</span><span class="n">credential_json_file</span><span class="p">,</span> <span class="n">token</span><span class="o">=</span><span class="n">token_path_file</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="authenticate">
+<h3>Authenticate<a class="headerlink" href="#authenticate" title="Permalink to this headline">¶</a></h3>
+<p>Subclasses of <code class="code docutils literal notranslate"><span class="pre">Authentication</span></code> can help authenticate your credential and provide clients for API class such as
+<code class="code docutils literal notranslate"><span class="pre">Drive</span></code> and <code class="code docutils literal notranslate"><span class="pre">Sheet</span></code>.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">pysuite</span> <span class="kn">import</span> <span class="n">DriveAuth</span>
+
+<span class="n">credential_file</span> <span class="o">=</span> <span class="s2">&quot;./credentials/credentials.json&quot;</span>
+<span class="n">token_file</span> <span class="o">=</span> <span class="s2">&quot;./credentials/token.pickle&quot;</span>
+
+<span class="n">drive_auth</span> <span class="o">=</span> <span class="n">DriveAuth</span><span class="p">(</span><span class="n">credentials</span><span class="o">=</span><span class="n">credential_file</span><span class="p">,</span> <span class="n">token_file</span><span class="o">=</span><span class="n">token_file</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>this may prompt web browser confirmation for the first time if token_file is not created or is expired. Once you confirm
+access, the token will be created/overwritten.</p>
+<p>You can generate a gdrive client now from authentication object.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">service</span> <span class="o">=</span> <span class="n">drive_auth</span><span class="o">.</span><span class="n">get_service</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="section" id="drive">
+<h2>Drive<a class="headerlink" href="#drive" title="Permalink to this headline">¶</a></h2>
+<p>This class provides APIs used to access and operate with Google drive files</p>
+<div class="section" id="instantiate">
+<h3>instantiate<a class="headerlink" href="#instantiate" title="Permalink to this headline">¶</a></h3>
+<p>You may utilize <code class="code docutils literal notranslate"><span class="pre">Authentication</span></code> class to create an authenticated API class:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">pysuite</span> <span class="kn">import</span> <span class="n">Drive</span>
+
+<span class="n">drive</span> <span class="o">=</span> <span class="n">Drive</span><span class="p">(</span><span class="n">service</span><span class="o">=</span><span class="n">drive_auth</span><span class="o">.</span><span class="n">get_service</span><span class="p">())</span> <span class="c1"># drive_auth is an DriveAuth object</span>
+</pre></div>
+</div>
+<p>If you prefer different method to create gdrive client, you may switch <code class="code docutils literal notranslate"><span class="pre">drive_auth.get_service()</span></code> with a gdrive service
+(See <a class="reference external" href="https://developers.google.com/drive/api/v3/quickstart/python">Google Drive API V3</a> for detail):</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">service</span> <span class="o">=</span> <span class="n">build</span><span class="p">(</span><span class="s1">&#39;drive&#39;</span><span class="p">,</span> <span class="s1">&#39;v3&#39;</span><span class="p">,</span> <span class="n">credentials</span><span class="o">=</span><span class="n">creds</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="download">
+<h3>download<a class="headerlink" href="#download" title="Permalink to this headline">¶</a></h3>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">drive</span><span class="o">.</span><span class="n">download</span><span class="p">(</span><span class="nb">id</span><span class="o">=</span><span class="s2">&quot;google drive object id&quot;</span><span class="p">,</span> <span class="n">to_file</span><span class="o">=</span><span class="s2">&quot;/tmp/test_file&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="upload">
+<h3>upload<a class="headerlink" href="#upload" title="Permalink to this headline">¶</a></h3>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">drive</span><span class="o">.</span><span class="n">upload</span><span class="p">(</span><span class="n">from_file</span><span class="o">=</span><span class="s2">&quot;path/to/your/file/to/be/uploaded&quot;</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;google_drive_file_name&quot;</span><span class="p">,</span>
+             <span class="n">parent_ids</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;google drive folder id 1&quot;</span><span class="p">,</span> <span class="s2">&quot;google drive folder id 2&quot;</span><span class="p">])</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="list">
+<h3>list<a class="headerlink" href="#list" title="Permalink to this headline">¶</a></h3>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">list_of_objects</span> <span class="o">=</span> <span class="n">drive</span><span class="o">.</span><span class="n">list</span><span class="p">(</span><span class="nb">id</span><span class="o">=</span><span class="s2">&quot;google drive folder id&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="section" id="sheet">
+<h2>Sheet<a class="headerlink" href="#sheet" title="Permalink to this headline">¶</a></h2>
+<p>This class provides APIs used to access and operate with Google spreadsheet files</p>
+<div class="section" id="id2">
+<h3>instantiate<a class="headerlink" href="#id2" title="Permalink to this headline">¶</a></h3>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">pysuite</span> <span class="kn">import</span> <span class="n">Sheet</span>
+<span class="n">sheet</span> <span class="o">=</span> <span class="n">Sheet</span><span class="p">(</span><span class="n">service</span><span class="o">=</span><span class="n">sheet_auth</span><span class="o">.</span><span class="n">get_service</span><span class="p">())</span>  <span class="c1"># sheet_auth is an SheetAuth object</span>
+</pre></div>
+</div>
+<p>If you prefer different method to create gdrive client, you may switch <code class="code docutils literal notranslate"><span class="pre">sheet_auth.get_client()</span></code> with a google
+sheet service (See <a class="reference external" href="https://developers.google.com/sheets/api/quickstart/python">Google Sheet API V4</a> for details):</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">service</span> <span class="o">=</span> <span class="n">build</span><span class="p">(</span><span class="s1">&#39;sheets&#39;</span><span class="p">,</span> <span class="s1">&#39;v4&#39;</span><span class="p">,</span> <span class="n">credentials</span><span class="o">=</span><span class="n">creds</span><span class="p">,</span> <span class="n">cache_discovery</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="to-sheet">
+<h3>to_sheet<a class="headerlink" href="#to-sheet" title="Permalink to this headline">¶</a></h3>
+<p>Upload a pandas dataframe to a specified range of sheet. This will clear the target range before uploading.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+<span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span><span class="s2">&quot;col1&quot;</span><span class="p">:</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">],</span> <span class="s2">&quot;col2&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;a&#39;</span><span class="p">,</span> <span class="s1">&#39;b&#39;</span><span class="p">]})</span>
+<span class="n">sheet</span><span class="o">.</span><span class="n">to_sheet</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="nb">id</span><span class="o">=</span><span class="s2">&quot;your_sheet_id&quot;</span><span class="p">,</span> <span class="nb">range</span><span class="o">=</span><span class="s2">&quot;yourtab!A1:B&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="read-sheet">
+<h3>read_sheet<a class="headerlink" href="#read-sheet" title="Permalink to this headline">¶</a></h3>
+<p>This api requires pandas.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">df</span> <span class="o">=</span> <span class="n">sheet</span><span class="o">.</span><span class="n">read_sheet</span><span class="p">(</span><span class="nb">id</span><span class="o">=</span><span class="s2">&quot;your_sheet_id&quot;</span><span class="p">,</span> <span class="nb">range</span><span class="o">=</span><span class="s2">&quot;yourtab!A1:D&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="id3">
+<h3>download<a class="headerlink" href="#id3" title="Permalink to this headline">¶</a></h3>
+<p>Download sheet into a list of values either in <strong>ROWS</strong> format or in <strong>COLUMNS</strong> format. This is useful when you do not
+want to add pandas as dependency.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">values</span> <span class="o">=</span> <span class="n">sheet</span><span class="o">.</span><span class="n">download</span><span class="p">(</span><span class="nb">id</span><span class="o">=</span><span class="s2">&quot;your_sheet_id&quot;</span><span class="p">,</span> <span class="nb">range</span><span class="o">=</span><span class="s2">&quot;yourtab!A1:D&quot;</span><span class="p">,</span> <span class="n">dimension</span><span class="o">=</span><span class="s2">&quot;ROWS&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="id4">
+<h3>upload<a class="headerlink" href="#id4" title="Permalink to this headline">¶</a></h3>
+<p>Upload a list of lists to specified google sheet range. This is useful when you do not want to add pandas as dependency.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">values</span> <span class="o">=</span> <span class="p">[[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">],</span> <span class="p">[</span><span class="s2">&quot;a&quot;</span><span class="p">,</span> <span class="s2">&quot;b&quot;</span><span class="p">,</span> <span class="s2">&quot;c&quot;</span><span class="p">]]</span>
+<span class="n">sheet</span><span class="o">.</span><span class="n">upload</span><span class="p">(</span><span class="n">values</span><span class="p">,</span> <span class="nb">id</span><span class="o">=</span><span class="s2">&quot;your_sheet_id&quot;</span><span class="p">,</span> <span class="nb">range</span><span class="o">=</span><span class="s2">&quot;yourtab!A1:B&quot;</span><span class="p">,</span> <span class="n">dimension</span><span class="o">=</span><span class="s2">&quot;ROWS&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="clear">
+<h3>clear<a class="headerlink" href="#clear" title="Permalink to this headline">¶</a></h3>
+<p>Remove contents of specified Goolge sheet range.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">sheet</span><span class="o">.</span><span class="n">clear</span><span class="p">(</span><span class="nb">id</span><span class="o">=</span><span class="s2">&quot;your_sheet_id&quot;</span><span class="p">,</span> <span class="nb">range</span><span class="o">=</span><span class="s2">&quot;yourtab!A1:B&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="auth.html" class="btn btn-neutral float-right" title="Auth" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="index.html" class="btn btn-neutral float-left" title="Welcome to pysuite’s documentation!" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        
+        &copy; Copyright 2020, Weiwen Gu
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>
