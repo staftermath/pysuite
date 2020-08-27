@@ -64,7 +64,7 @@ from pysuite import Drive
 drive = Drive(service=drive_auth.get_service()) # drive_auth is an DriveAuth class
 ```
 
-If you prefer different method to create gdrive client, you may switch `drive_auth.get_client()` with a gdrive service 
+If you prefer different method to create gdrive client, you may switch `drive_auth.get_service()` with a gdrive service 
 (See <a href=https://developers.google.com/drive/api/v3/quickstart/python>Google Drive API V3</a> for detail):
 ```python
 service = build('drive', 'v3', credentials=creds)
@@ -93,7 +93,7 @@ from pysuite import Sheet
 sheet = Sheet(service=sheet_auth.get_service())  # sheet_auth is an SheetAuth class
 ```
 
-If you prefer different method to create gdrive client, you may switch `sheet_auth.get_client()` with a gsheet service 
+If you prefer different method to create gdrive client, you may switch `sheet_auth.get_service()` with a gsheet service 
 (See <a href=https://developers.google.com/sheets/api/quickstart/python>Google Sheet API V4</a> for detail):
 ```python
 service = build('sheets', 'v4', credentials=creds, cache_discovery=True)
