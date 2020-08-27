@@ -61,7 +61,7 @@ API classes aim to provide quick and simple access to Google Suite App such as G
 ```python
 from pysuite import Drive
 
-drive = Drive(service=drive_auth.get_service()) # drive_auth is an GoogleDriveAuth class
+drive = Drive(service=drive_auth.get_service()) # drive_auth is an DriveAuth class
 ```
 
 If you prefer different method to create gdrive client, you may switch `drive_auth.get_client()` with a gdrive service 
@@ -90,7 +90,7 @@ list_of_objects = drive.list(id="google drive folder id")
 ```python
 from pysuite import Sheet
 
-sheet = Sheet(service=sheet_auth.get_service())  # sheet_auth is an GoogleSheetAuth class
+sheet = Sheet(service=sheet_auth.get_service())  # sheet_auth is an SheetAuth class
 ```
 
 If you prefer different method to create gdrive client, you may switch `sheet_auth.get_client()` with a gsheet service 
