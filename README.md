@@ -1,7 +1,7 @@
 # pysuite: A data scientist's toolbox for Google Suite App
 
-[![PyPi version](https://pypip.in/v/pysuite/badge.png)](https://crate.io/packages/pysuite/)
-[![PyPi downloads](https://pypip.in/d/pysuite/badge.png)](https://crate.io/packages/pysuite/)
+[![PyPi version](https://pypip.in/v/pysuite/badge.png)](https://pypi.org/project/pysuite/)
+[![PyPi downloads](https://pypip.in/d/pysuite/badge.png)](https://pypi.org/project/pysuite/)
 
 A python wrapper for google suite API. This provides a few classes with user friendly apis to operate with Google Suite
 applications such as Google Drive and Google Spreadsheet.
