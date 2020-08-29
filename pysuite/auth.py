@@ -2,7 +2,7 @@
 """
 from typing import Union, Optional
 from pathlib import Path, PosixPath
-import pickle
+from copy import copy
 import json
 import logging
 
@@ -24,13 +24,15 @@ DEFAULT_VERSIONS = {
 
 class Authentication:
     """read from credential file and token file and authenticate with Google service for requested services. if token
-    file does not exists, confirmation is needed from browser prompt and the token file will be created.
+    file does not exists, confirmation is needed from browser prompt and the token file will be created. You can pass
+    a list of services or one service.
     """
-    def __init__(self, credential: Optional[Union[PosixPath, str, dict]], token: Union[PosixPath, str], services: list):
+    def __init__(self, credential: Optional[Union[PosixPath, str, dict]], token: Union[PosixPath, str],
+                 service: str):
         self._token_path = Path(token)
         self._credential_path = Path(credential)
-        self._scopes = [SCOPES[service] for service in services]
-        self._credential = self.load_credential(credential)
+        self._service = service
+        self._credential = self.load_credential()
         self.refresh()
 
     def load_credential(self) -> Credentials:
@@ -44,11 +46,21 @@ class Authentication:
             return self._load_credential_from_file(self._credential_path)
 
         with open(self._credential_path, 'r') as f:
-            cred_json = json.load(f)
+            try:
+                cred_json = json.load(f)["installed"]
+            except KeyError as e:
+                raise KeyError(f"check credential json format. {e}")
+
 
         with open(self._token_path, 'r') as f:
             token_json = json.load(f)
+            try:
+                assert token_json["service"] == self._service
+            except AssertionError:
+                raise ValueError(f"token file does not contain token for the requested service. "
+                                 f"Requested {self._service}. Got {token_json['service']}")
 
+        scopes = self._get_scopes(self._service)
         try:
             credential = Credentials(token=token_json.get("token"),
                                      refresh_token=token_json.get("refresh_token"),
@@ -56,7 +68,7 @@ class Authentication:
                                      token_uri=cred_json.get("token_uri"),
                                      client_id=cred_json.get("client_id"),
                                      client_secret=cred_json.get("client_secret"),
-                                     scopes=self._scopes)
+                                     scopes=scopes)
         except KeyError as e:
             logging.critical("missing key value in credential")
             raise e
@@ -69,12 +81,14 @@ class Authentication:
         :param file_path: path to the credential json file.
         :return: a Credential object
         """
-        flow = InstalledAppFlow.from_client_secrets_file(file_path, self._scopes)
+        scopes = self._get_scopes(self._service)
+        flow = InstalledAppFlow.from_client_secrets_file(file_path, scopes)
         credential = flow.run_local_server(port=9999)
         return credential
 
     def refresh(self):
         """refresh token if not valid or has expired. In addition token file is overwritten.
+        TODO: check scope of token/refresh_token to prevent accidental use of tokens with mismatching scope.
 
         :return: None
         """
@@ -87,12 +101,13 @@ class Authentication:
     def write_token(self):
         token_json = {
             "token": self._credential.token,
-            "refresh_token": self._credential.refresh_token
+            "refresh_token": self._credential.refresh_token,
+            "service": self._service
         }
         with open(self._token_path, 'w') as token:
             json.dump(token_json, token)
 
-    def get_service(self, service: str, version: Optional[str]=None):
+    def get_service(self, service: Optional[str]=None, version: Optional[str]=None):
         """get a service object for requested service. This service must be within authorized scope set up at
         initiation stage.
 
@@ -100,13 +115,32 @@ class Authentication:
         :param version: version of target service. if None, default version will be used. it varies with service.
         :return: a service object used to access API for that service.
         """
-        if service not in DEFAULT_VERSIONS.keys():
-            raise ValueError(f"service {version} not in {DEFAULT_VERSIONS.keys()}")
+        if service is not None and not isinstance(service, str):
+            raise TypeError("service must be a str or None")
 
-        if SCOPES[service] not in self._scopes:
-            raise RuntimeError(f"Selected service has not been authorized. You need authenticate again with desires service")
+        if service is None:
+            if isinstance(self._service, str):
+                service = self._service
+            else:
+                raise ValueError("more than 1 service was authorized. service cannot be None")
+        else:
+            if service not in DEFAULT_VERSIONS.keys():
+                raise ValueError(f"service {version} not in {DEFAULT_VERSIONS.keys()}")
+
+            if (isinstance(self._service, list) and service not in self._service) or \
+               (isinstance(self._service, str) and service != self._service):
+                raise RuntimeError(f"Selected service has not been authorized. "
+                                   f"You need authenticate again with desires service")
 
         if version is None:
             version = DEFAULT_VERSIONS[service]
 
         return build(service, version, credentials=self._credential, cache_discovery=True)
+
+    def _get_scopes(self, service: str):
+        try:
+            scope = SCOPES[service]
+            return scope
+        except KeyError as e:
+            logging.critical(f"{service} is not a valid service. expecting {SCOPES.keys()}")
+            raise e

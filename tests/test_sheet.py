@@ -11,7 +11,7 @@ test_sheet_id = "1CNOH3o2Zz05mharkLXuwX72FpRka8-KFpIm9bEaja50"
 
 @pytest.fixture()
 def sheet(sheet_auth):
-    return Sheet(service=sheet_auth.get_service("sheets"))
+    return Sheet(service=sheet_auth.get_service())
 
 
 @pytest.mark.parametrize(("dimension", "expected"),
