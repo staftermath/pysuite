@@ -1,5 +1,5 @@
 from .auth import Authentication
 from .drive import Drive
-from .sheet import Sheet
+from .sheets import Sheets
 
 __version__ = "0.1.0"

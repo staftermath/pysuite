@@ -26,35 +26,47 @@ You need to get a credential from
   }
 }
 ```
-You need to save this credential to a json file and pass to `Authentication` class (For example, `DriveAuth`). 
-In addition, you need to have a file to store refresh token. A pickle object will be written to the token file when 
-needed.
+
+You can also provide a token json file if possible, the token file looks like:
+
+```json
+{
+     "token": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+     "refresh_token": "xxxxxxxxx"
+}
+```
+
+If token file doesn't exist, a confirmation is needed from browser prompt. Then the token file will be created.
 ```python
-from pysuite import DriveAuth
+from pysuite import Authentication
 
 credential_json_file = "/tmp/credential.json"
-token_path_file = "/tmp/refresh_token.pickle"
-client = DriveAuth(credential=credential_json_file, token=token_path_file)
+token_path_file = "/tmp/token.json"
+client = Authentication(credential=credential_json_file, token=token_path_file, service="sheets")
 ```
 
 ## Authenticate
 
-Subclasses of `Authentication` can help authenticate your credential and provide clients for API class such as `Drive` and 
-`Sheet`. 
+`Authentication` blass can help authenticate your credential and provide service client for API. Such as "drive" and 
+"sheets". 
 ```python
-from pysuite import DriveAuth
+from pysuite import Authentication
 
 credential_file = "./credentials/credentials.json"
-token_file = "./credentials/token.pickle"
+token_file = "./credentials/token.json"
 
-drive_auth = DriveAuth(credentials=credential_file, token_file=token_file)
+drive_auth = Authentication(credentials=credential_file, token_file=token_file, service="drive")
+sheets_auth = Authentication(credentials=credential_file, token_file=token_file, service="sheets")
 ```
-this may prompt web browser confirmation for the first time if token_file is not created or is expired. Once you confirm
-access, the token will be created/overwritten.
+
+If token file has already been created, no credential file is needed. In this case, `service` is not needed.  
+```python
+drive_auth = Authentication(token_file=token_file)
+```
 
 You can generate a gdrive client now from authentication object.
 ```python
-service = drive_auth.get_service()
+service = drive_auth.get_service(service="drive")  # 'service' needed if not provided when initiating Authenciation object 
 ```
 
 ## API
@@ -65,7 +77,7 @@ API classes aim to provide quick and simple access to Google Suite App such as G
 ```python
 from pysuite import Drive
 
-drive = Drive(service=drive_auth.get_service()) # drive_auth is an DriveAuth class
+drive = Drive(service=drive_auth.get_service())  # drive_auth is an Authenticaion class with `service='drive'`
 ```
 
 If you prefer different method to create gdrive client, you may switch `drive_auth.get_service()` with a gdrive service 
@@ -90,14 +102,14 @@ drive.upload(from_file="path/to/your/file/to/be/uploaded", name="google_drive_fi
 list_of_objects = drive.list(id="google drive folder id")
 ```
 
-### Sheet
+### Sheets
 ```python
-from pysuite import Sheet
+from pysuite import Sheets
 
-sheet = Sheet(service=sheet_auth.get_service())  # sheet_auth is an SheetAuth class
+sheets = Sheets(service=sheets_auth.get_service())  # sheets_auth is an Authenticaion class with `service='sheets'`
 ```
 
-If you prefer different method to create gdrive client, you may switch `sheet_auth.get_service()` with a gsheet service 
+If you prefer different method to create gdrive client, you may switch `sheets_auth.get_service()` with a gsheet service 
 (See <a href=https://developers.google.com/sheets/api/quickstart/python>Google Sheet API V4</a> for detail):
 ```python
 service = build('sheets', 'v4', credentials=creds, cache_discovery=True)
@@ -109,11 +121,11 @@ Some examples can be found below:
 ```python
 import pandas as pd 
 df = pd.DataFrame({"col1": [1, 2], "col2": ['a', 'b']})
-sheet.to_sheet(df, id="your_sheet_id", range="yourtab!A1:B")
+sheets.to_sheet(df, id="your_sheet_id", range="yourtab!A1:B")
 ```
 
 #### download sheet to dataframe
 This api requires pandas.
 ```python
-df = sheet.read_sheet(id="your_sheet_id", range="yourtab!A1:D")
+df = sheets.read_sheet(id="your_sheet_id", range="yourtab!A1:D")
 ```

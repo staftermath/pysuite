@@ -53,10 +53,10 @@ def test_get_client_no_service_provided_return_correct_values(drive_auth):
 
 
 @pytest.fixture()
-def sheet_auth():
+def sheets_auth():
     return Authentication(token=sheet_token_file, service="sheets")
 
 
-def test_get_client_service_authorized_return_correct_values(sheet_auth):
-    result = sheet_auth.get_service()
+def test_get_client_service_authorized_return_correct_values(sheets_auth):
+    result = sheets_auth.get_service()
     assert isinstance(result, Resource)
