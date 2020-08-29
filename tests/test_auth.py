@@ -1,6 +1,6 @@
 import pytest
 from pathlib import Path
-import pickle
+import json
 
 from google.oauth2.credentials import Credentials
 from googleapiclient.discovery import Resource
@@ -22,9 +22,30 @@ def test_load_from_file_correctly(tmpdir):
     assert not result._credential.expired
 
 
+def test_when_token_not_exists_and_service_is_none_raise_exception(tmpdir):
+    with pytest.raises(ValueError):
+        Authentication(credential=credential_file, token=Path(tmpdir.join("not_exist.json")))
+
+
+@pytest.mark.parametrize(
+    ("token_dict"),
+    [
+        {"token": "aaa", "missing_refresh_token": "bbb", "service": "drive"},  # need "refresh_token" key
+        {"missing_token": "aaa", "refresh_token": "bbb", "service": "drive"},  # need "token" key
+    ]
+)
+def test_when_credential_file_has_incorrect_format_raise_exception(tmpdir, token_dict):
+    temp_token_file = Path(tmpdir.join("temp_token.json"))
+    with open(temp_token_file, 'w') as f:
+        json.dump(token_dict, f)
+
+    with pytest.raises(KeyError):
+        Authentication(token=temp_token_file, service="drive")
+
+
 @pytest.fixture()
 def drive_auth():
-    return Authentication(credential=credential_file, token=drive_token_file, service="drive")
+    return Authentication(token=drive_token_file, service="drive")
 
 
 def test_get_client_no_service_provided_return_correct_values(drive_auth):
@@ -34,7 +55,7 @@ def test_get_client_no_service_provided_return_correct_values(drive_auth):
 
 @pytest.fixture()
 def sheet_auth():
-    return Authentication(credential=credential_file, token=sheet_token_file, service="sheets")
+    return Authentication(token=sheet_token_file, service="sheets")
 
 
 def test_get_client_service_authorized_return_correct_values(sheet_auth):

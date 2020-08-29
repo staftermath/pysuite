@@ -2,11 +2,10 @@
 """
 from typing import Union, Optional
 from pathlib import Path, PosixPath
-from copy import copy
 import json
 import logging
 
-from googleapiclient.discovery import build, Resource
+from googleapiclient.discovery import build
 from google.oauth2.credentials import Credentials
 from google.auth.transport.requests import Request
 from google_auth_oauthlib.flow import InstalledAppFlow
@@ -27,10 +26,9 @@ class Authentication:
     file does not exists, confirmation is needed from browser prompt and the token file will be created. You can pass
     a list of services or one service.
     """
-    def __init__(self, credential: Optional[Union[PosixPath, str, dict]], token: Union[PosixPath, str],
-                 service: str):
+    def __init__(self, token: Union[PosixPath, str], credential: Optional[Union[PosixPath, str]]=None, service: Optional[str]=None):
         self._token_path = Path(token)
-        self._credential_path = Path(credential)
+        self._credential_path = Path(credential) if credential is not None else None
         self._service = service
         self._credential = self.load_credential()
         self.refresh()
@@ -43,14 +41,10 @@ class Authentication:
         :return: a Credential object
         """
         if not Path(self._token_path).exists():
+            if self._service is None:
+                raise ValueError("service must not be None when token file does not exists")
+
             return self._load_credential_from_file(self._credential_path)
-
-        with open(self._credential_path, 'r') as f:
-            try:
-                cred_json = json.load(f)["installed"]
-            except KeyError as e:
-                raise KeyError(f"check credential json format. {e}")
-
 
         with open(self._token_path, 'r') as f:
             token_json = json.load(f)
@@ -62,12 +56,8 @@ class Authentication:
 
         scopes = self._get_scopes(self._service)
         try:
-            credential = Credentials(token=token_json.get("token"),
-                                     refresh_token=token_json.get("refresh_token"),
-                                     id_token=cred_json.get("id_token", None),
-                                     token_uri=cred_json.get("token_uri"),
-                                     client_id=cred_json.get("client_id"),
-                                     client_secret=cred_json.get("client_secret"),
+            credential = Credentials(token=token_json["token"],
+                                     refresh_token=token_json["refresh_token"],
                                      scopes=scopes)
         except KeyError as e:
             logging.critical("missing key value in credential")
