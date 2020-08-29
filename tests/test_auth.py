@@ -2,7 +2,6 @@ import pytest
 from pathlib import Path
 import json
 
-from google.oauth2.credentials import Credentials
 from googleapiclient.discovery import Resource
 
 from pysuite.auth import Authentication
@@ -10,7 +9,7 @@ from pysuite.auth import Authentication
 
 credential_folder = Path(".").resolve().parent / "credentials"
 credential_file = credential_folder / "credential.json"
-drive_token_file = credential_folder / "drive_token.json"  # "token.pickle"
+drive_token_file = credential_folder / "drive_token.json"
 sheet_token_file = credential_folder / "sheet_token.json"
 
 
@@ -59,10 +58,5 @@ def sheet_auth():
 
 
 def test_get_client_service_authorized_return_correct_values(sheet_auth):
-    result = sheet_auth.get_service("sheets")
+    result = sheet_auth.get_service()
     assert isinstance(result, Resource)
-
-
-def test_get_client_service_unauthorized_raise_exception_correctly():
-    with pytest.raises(ValueError):
-        Authentication(credential=credential_file, token=sheet_token_file, service="drive")
