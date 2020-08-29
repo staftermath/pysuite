@@ -10,7 +10,7 @@ from pysuite.auth import Authentication
 credential_folder = Path(".").resolve().parent / "credentials"
 credential_file = credential_folder / "credential.json"
 drive_token_file = credential_folder / "drive_token.json"
-sheet_token_file = credential_folder / "sheet_token.json"
+sheet_token_file = credential_folder / "sheets_token.json"
 
 
 @pytest.mark.skip("this will prompt browser")
