@@ -1,51 +1,62 @@
 import pytest
 from pathlib import Path
-import pickle
+import json
 
-from google.oauth2.credentials import Credentials
 from googleapiclient.discovery import Resource
 
-from pysuite.auth import DriveAuth, SheetAuth
+from pysuite.auth import Authentication
 
 
 credential_folder = Path(".").resolve().parent / "credentials"
 credential_file = credential_folder / "credential.json"
-token = credential_folder / "token.pickle"
+drive_token_file = credential_folder / "drive_token.json"
+sheet_token_file = credential_folder / "sheets_token.json"
 
 
 @pytest.mark.skip("this will prompt browser")
-def test_drive_auth_load_from_file_correctly(tmpdir):
-    token_path = Path(tmpdir.join("test_load_from_file_token.pickle"))
-    result = DriveAuth(credential=credential_file, token=token_path)
+def test_load_from_file_correctly(tmpdir):
+    token_path = Path(tmpdir.join("test_load_from_file_token.json"))
+    result = Authentication(credential=credential_file, token=token_path, service="drive")
     assert result._credential.valid
     assert not result._credential.expired
 
-    with open(token_path, 'rb') as token:
-        credential = pickle.load(token)
 
-    assert isinstance(credential, Credentials)
+def test_when_token_not_exists_and_service_is_none_raise_exception(tmpdir):
+    with pytest.raises(ValueError):
+        Authentication(credential=credential_file, token=Path(tmpdir.join("not_exist.json")))
+
+
+@pytest.mark.parametrize(
+    ("token_dict"),
+    [
+        {"token": "aaa", "missing_refresh_token": "bbb", "service": "drive"},  # need "refresh_token" key
+        {"missing_token": "aaa", "refresh_token": "bbb", "service": "drive"},  # need "token" key
+    ]
+)
+def test_when_credential_file_has_incorrect_format_raise_exception(tmpdir, token_dict):
+    temp_token_file = Path(tmpdir.join("temp_token.json"))
+    with open(temp_token_file, 'w') as f:
+        json.dump(token_dict, f)
+
+    with pytest.raises(KeyError):
+        Authentication(token=temp_token_file, service="drive")
 
 
 @pytest.fixture()
 def drive_auth():
-    return DriveAuth(credential=credential_file, token=token)
+    return Authentication(token=drive_token_file, service="drive")
 
 
-def test_drive_auth_load_from_token_correctly(drive_auth):
-    assert drive_auth._credential.valid
-    assert not drive_auth._credential.expired
-
-
-def test_drive_auth_get_client_return_correct_values(drive_auth):
+def test_get_client_no_service_provided_return_correct_values(drive_auth):
     result = drive_auth.get_service()
     assert isinstance(result, Resource)
 
 
 @pytest.fixture()
-def sheet_auth():
-    return SheetAuth(credential=None, token=token)
+def sheets_auth():
+    return Authentication(token=sheet_token_file, service="sheets")
 
 
-def test_sheet_auth_get_client_return_correct_values(sheet_auth):
-    result = sheet_auth.get_service()
+def test_get_client_service_authorized_return_correct_values(sheets_auth):
+    result = sheets_auth.get_service()
     assert isinstance(result, Resource)

@@ -85,7 +85,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../user_manual.html">User Manual</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../auth.html">Auth</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../drive.html">Drive</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../sheet.html">Sheet</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../sheets.html">Sheets</a></li>
 </ul>
 
             
@@ -154,41 +154,59 @@
 <span class="sd">&quot;&quot;&quot;</span>
 <span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Union</span><span class="p">,</span> <span class="n">Optional</span>
 <span class="kn">from</span> <span class="nn">pathlib</span> <span class="kn">import</span> <span class="n">Path</span><span class="p">,</span> <span class="n">PosixPath</span>
-<span class="kn">import</span> <span class="nn">pickle</span>
+<span class="kn">import</span> <span class="nn">json</span>
+<span class="kn">import</span> <span class="nn">logging</span>
 
-<span class="kn">from</span> <span class="nn">googleapiclient.discovery</span> <span class="kn">import</span> <span class="n">build</span><span class="p">,</span> <span class="n">Resource</span>
+<span class="kn">from</span> <span class="nn">googleapiclient.discovery</span> <span class="kn">import</span> <span class="n">build</span>
 <span class="kn">from</span> <span class="nn">google.oauth2.credentials</span> <span class="kn">import</span> <span class="n">Credentials</span>
 <span class="kn">from</span> <span class="nn">google.auth.transport.requests</span> <span class="kn">import</span> <span class="n">Request</span>
 <span class="kn">from</span> <span class="nn">google_auth_oauthlib.flow</span> <span class="kn">import</span> <span class="n">InstalledAppFlow</span>
 
 <span class="n">SCOPES</span> <span class="o">=</span> <span class="p">{</span>
     <span class="s2">&quot;drive&quot;</span><span class="p">:</span> <span class="s2">&quot;https://www.googleapis.com/auth/drive&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;spreadsheet&quot;</span><span class="p">:</span> <span class="s2">&quot;https://www.googleapis.com/auth/spreadsheets&quot;</span>
+    <span class="s2">&quot;sheets&quot;</span><span class="p">:</span> <span class="s2">&quot;https://www.googleapis.com/auth/spreadsheets&quot;</span>
+<span class="p">}</span>
+
+<span class="n">DEFAULT_VERSIONS</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;drive&quot;</span><span class="p">:</span> <span class="s2">&quot;v3&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;sheets&quot;</span><span class="p">:</span> <span class="s2">&quot;v4&quot;</span>
 <span class="p">}</span>
 
 
 <div class="viewcode-block" id="Authentication"><a class="viewcode-back" href="../../auth.html#pysuite.auth.Authentication">[docs]</a><span class="k">class</span> <span class="nc">Authentication</span><span class="p">:</span>
-    <span class="n">SCOPE</span> <span class="o">=</span> <span class="kc">None</span>  <span class="c1"># overload in child class</span>
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">credential</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Union</span><span class="p">[</span><span class="n">PosixPath</span><span class="p">,</span> <span class="nb">str</span><span class="p">,</span> <span class="nb">dict</span><span class="p">]],</span> <span class="n">token</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">PosixPath</span><span class="p">,</span> <span class="nb">str</span><span class="p">]):</span>
+    <span class="sd">&quot;&quot;&quot;read from credential file and token file and authenticate with Google service for requested services. if token</span>
+<span class="sd">    file does not exists, confirmation is needed from browser prompt and the token file will be created. You can pass</span>
+<span class="sd">    a list of services or one service.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">token</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">PosixPath</span><span class="p">,</span> <span class="nb">str</span><span class="p">],</span> <span class="n">credential</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Union</span><span class="p">[</span><span class="n">PosixPath</span><span class="p">,</span> <span class="nb">str</span><span class="p">]]</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                 <span class="n">service</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_token_path</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">token</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_credential</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">load_credential</span><span class="p">(</span><span class="n">credential</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_credential_path</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">credential</span><span class="p">)</span> <span class="k">if</span> <span class="n">credential</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_service</span> <span class="o">=</span> <span class="n">service</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_credential</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">load_credential</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">refresh</span><span class="p">()</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">write_token</span><span class="p">()</span>
 
-<div class="viewcode-block" id="Authentication.load_credential"><a class="viewcode-back" href="../../auth.html#pysuite.auth.Authentication.load_credential">[docs]</a>    <span class="k">def</span> <span class="nf">load_credential</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">credential</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Union</span><span class="p">[</span><span class="n">PosixPath</span><span class="p">,</span> <span class="nb">str</span><span class="p">]])</span> <span class="o">-&gt;</span> <span class="n">Credentials</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;load credential json file needed to authenticate Google Suite Apps. If None is provided, token is loaded</span>
-<span class="sd">        instead from self._token_path</span>
+<div class="viewcode-block" id="Authentication.load_credential"><a class="viewcode-back" href="../../auth.html#pysuite.auth.Authentication.load_credential">[docs]</a>    <span class="k">def</span> <span class="nf">load_credential</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Credentials</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;load credential json file needed to authenticate Google Suite Apps. If token file does not exists,</span>
+<span class="sd">        confirmation is needed from browser prompt and the token file will be created.</span>
 
 <span class="sd">        :param credential: path to the credential json file.</span>
 <span class="sd">        :return: a Credential object</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_token_path</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
-            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_load_token</span><span class="p">()</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">Path</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_token_path</span><span class="p">)</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_load_credential_from_file</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_credential_path</span><span class="p">)</span>
 
-        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">credential</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
-            <span class="n">credential</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">credential</span><span class="p">)</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_token_path</span><span class="p">,</span> <span class="s1">&#39;r&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+            <span class="n">token_json</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
 
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_load_credential_from_file</span><span class="p">(</span><span class="n">credential</span><span class="p">)</span></div>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">credential</span> <span class="o">=</span> <span class="n">Credentials</span><span class="p">(</span><span class="n">token</span><span class="o">=</span><span class="n">token_json</span><span class="p">[</span><span class="s2">&quot;token&quot;</span><span class="p">],</span>
+                                     <span class="n">refresh_token</span><span class="o">=</span><span class="n">token_json</span><span class="p">[</span><span class="s2">&quot;refresh_token&quot;</span><span class="p">])</span>
+        <span class="k">except</span> <span class="ne">KeyError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="n">logging</span><span class="o">.</span><span class="n">critical</span><span class="p">(</span><span class="s2">&quot;missing key value in credential&quot;</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="n">e</span>
+
+        <span class="k">return</span> <span class="n">credential</span></div>
 
     <span class="k">def</span> <span class="nf">_load_credential_from_file</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">file_path</span><span class="p">:</span> <span class="n">PosixPath</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Credentials</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;load credential json file and open web browser for confirmation.</span>
@@ -196,25 +214,16 @@
 <span class="sd">        :param file_path: path to the credential json file.</span>
 <span class="sd">        :return: a Credential object</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">flow</span> <span class="o">=</span> <span class="n">InstalledAppFlow</span><span class="o">.</span><span class="n">from_client_secrets_file</span><span class="p">(</span><span class="n">file_path</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">SCOPE</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_service</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;service must not be None when token file does not exists&quot;</span><span class="p">)</span>
+
+        <span class="n">scopes</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_scopes</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_service</span><span class="p">)</span>
+        <span class="n">flow</span> <span class="o">=</span> <span class="n">InstalledAppFlow</span><span class="o">.</span><span class="n">from_client_secrets_file</span><span class="p">(</span><span class="n">file_path</span><span class="p">,</span> <span class="n">scopes</span><span class="p">)</span>
         <span class="n">credential</span> <span class="o">=</span> <span class="n">flow</span><span class="o">.</span><span class="n">run_local_server</span><span class="p">(</span><span class="n">port</span><span class="o">=</span><span class="mi">9999</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">credential</span>
 
-    <span class="k">def</span> <span class="nf">_load_token</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Credentials</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;load Credential object from token.</span>
-
-<span class="sd">        :return: a Credential object</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_token_path</span><span class="p">,</span> <span class="s1">&#39;rb&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
-            <span class="n">credentials</span> <span class="o">=</span> <span class="n">pickle</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
-
-        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">credentials</span><span class="p">,</span> <span class="n">Credentials</span><span class="p">):</span>
-            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;expecting Credentials type object from token file. got </span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">credentials</span><span class="p">)</span><span class="si">}</span><span class="s2"> instead.&quot;</span><span class="p">)</span>
-
-        <span class="k">return</span> <span class="n">credentials</span>
-
 <div class="viewcode-block" id="Authentication.refresh"><a class="viewcode-back" href="../../auth.html#pysuite.auth.Authentication.refresh">[docs]</a>    <span class="k">def</span> <span class="nf">refresh</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;refresh token if not valid or has expired. This will overwrite the token file.</span>
+        <span class="sd">&quot;&quot;&quot;refresh token if not valid or has expired. In addition token file is overwritten.</span>
 
 <span class="sd">        :return: None</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -225,23 +234,46 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">write_token</span><span class="p">()</span></div>
 
 <div class="viewcode-block" id="Authentication.write_token"><a class="viewcode-back" href="../../auth.html#pysuite.auth.Authentication.write_token">[docs]</a>    <span class="k">def</span> <span class="nf">write_token</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_token_path</span><span class="p">,</span> <span class="s1">&#39;wb&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">token</span><span class="p">:</span>
-            <span class="n">pickle</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_credential</span><span class="p">,</span> <span class="n">token</span><span class="p">)</span></div>
+        <span class="n">token_json</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s2">&quot;token&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_credential</span><span class="o">.</span><span class="n">token</span><span class="p">,</span>
+            <span class="s2">&quot;refresh_token&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_credential</span><span class="o">.</span><span class="n">refresh_token</span>
+        <span class="p">}</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_token_path</span><span class="p">,</span> <span class="s1">&#39;w&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">token</span><span class="p">:</span>
+            <span class="n">json</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="n">token_json</span><span class="p">,</span> <span class="n">token</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="Authentication.get_service"><a class="viewcode-back" href="../../auth.html#pysuite.auth.Authentication.get_service">[docs]</a>    <span class="k">def</span> <span class="nf">get_service</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">version</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
-        <span class="k">raise</span> <span class="ne">NotImplementedError</span></div></div>
+<div class="viewcode-block" id="Authentication.get_service"><a class="viewcode-back" href="../../auth.html#pysuite.auth.Authentication.get_service">[docs]</a>    <span class="k">def</span> <span class="nf">get_service</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">service</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">version</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;get a service object for requested service. This service must be within authorized scope set up at</span>
+<span class="sd">        initiation stage.</span>
 
+<span class="sd">        :param service: service type. &quot;drive&quot; or &quot;sheets&quot;. If None, it will be inferred from self._service.</span>
+<span class="sd">        :param version: version of target service. if None, default version will be used. it varies with service.</span>
+<span class="sd">        :return: a service object used to access API for that service.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">service</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_service</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;service cannot be inferred. &quot;</span>
+                                 <span class="sa">f</span><span class="s2">&quot;please provide a valid service </span><span class="si">{</span><span class="n">DEFAULT_VERSIONS</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 
-<div class="viewcode-block" id="DriveAuth"><a class="viewcode-back" href="../../auth.html#pysuite.auth.DriveAuth">[docs]</a><span class="k">class</span> <span class="nc">DriveAuth</span><span class="p">(</span><span class="n">Authentication</span><span class="p">):</span>
-    <span class="n">SCOPE</span> <span class="o">=</span> <span class="p">[</span><span class="n">SCOPES</span><span class="p">[</span><span class="s2">&quot;drive&quot;</span><span class="p">]]</span>
-<div class="viewcode-block" id="DriveAuth.get_service"><a class="viewcode-back" href="../../auth.html#pysuite.auth.DriveAuth.get_service">[docs]</a>    <span class="k">def</span> <span class="nf">get_service</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">version</span><span class="o">=</span><span class="s2">&quot;v3&quot;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Resource</span><span class="p">:</span>
-        <span class="k">return</span> <span class="n">build</span><span class="p">(</span><span class="s1">&#39;drive&#39;</span><span class="p">,</span> <span class="n">version</span><span class="p">,</span> <span class="n">credentials</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_credential</span><span class="p">,</span> <span class="n">cache_discovery</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span></div></div>
+            <span class="n">service</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_service</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">_service</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">service</span> <span class="o">!=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_service</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;attemptting to get mismatching service (</span><span class="si">{</span><span class="n">service</span><span class="si">}</span><span class="s2">) &quot;</span>
+                             <span class="sa">f</span><span class="s2">&quot;with authorized service </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_service</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 
+        <span class="k">if</span> <span class="n">service</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">DEFAULT_VERSIONS</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;service </span><span class="si">{</span><span class="n">version</span><span class="si">}</span><span class="s2"> not in </span><span class="si">{</span><span class="n">DEFAULT_VERSIONS</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 
-<div class="viewcode-block" id="SheetAuth"><a class="viewcode-back" href="../../auth.html#pysuite.auth.SheetAuth">[docs]</a><span class="k">class</span> <span class="nc">SheetAuth</span><span class="p">(</span><span class="n">Authentication</span><span class="p">):</span>
-    <span class="n">SCOPE</span> <span class="o">=</span> <span class="p">[</span><span class="n">SCOPES</span><span class="p">[</span><span class="s2">&quot;spreadsheet&quot;</span><span class="p">]]</span>
-<div class="viewcode-block" id="SheetAuth.get_service"><a class="viewcode-back" href="../../auth.html#pysuite.auth.SheetAuth.get_service">[docs]</a>    <span class="k">def</span> <span class="nf">get_service</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">version</span><span class="o">=</span><span class="s2">&quot;v4&quot;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Resource</span><span class="p">:</span>
-        <span class="k">return</span> <span class="n">build</span><span class="p">(</span><span class="s1">&#39;sheets&#39;</span><span class="p">,</span> <span class="n">version</span><span class="p">,</span> <span class="n">credentials</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_credential</span><span class="p">,</span> <span class="n">cache_discovery</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span></div></div>
+        <span class="k">if</span> <span class="n">version</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">version</span> <span class="o">=</span> <span class="n">DEFAULT_VERSIONS</span><span class="p">[</span><span class="n">service</span><span class="p">]</span>
+
+        <span class="k">return</span> <span class="n">build</span><span class="p">(</span><span class="n">service</span><span class="p">,</span> <span class="n">version</span><span class="p">,</span> <span class="n">credentials</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_credential</span><span class="p">,</span> <span class="n">cache_discovery</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span></div>
+
+    <span class="k">def</span> <span class="nf">_get_scopes</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">service</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">scope</span> <span class="o">=</span> <span class="n">SCOPES</span><span class="p">[</span><span class="n">service</span><span class="p">]</span>
+            <span class="k">return</span> <span class="n">scope</span>
+        <span class="k">except</span> <span class="ne">KeyError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="n">logging</span><span class="o">.</span><span class="n">critical</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">service</span><span class="si">}</span><span class="s2"> is not a valid service. expecting </span><span class="si">{</span><span class="n">SCOPES</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="n">e</span></div>
 </pre></div>
 
            </div>

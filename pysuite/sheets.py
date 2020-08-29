@@ -8,7 +8,7 @@ from googleapiclient.discovery import Resource
 VALID_DIMENSION = {"COLUMNS", "ROWS"}
 
 
-class Sheet:
+class Sheets:
     """provide api to operate google spreadsheet. An authenticated google api client is needed.
     """
     def __init__(self, service: Resource):
