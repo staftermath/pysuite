@@ -8,7 +8,8 @@ from tests.test_auth import drive_auth
 
 @pytest.fixture()
 def drive(drive_auth):
-    return Drive(service=drive_auth.get_service())
+    return Drive(service=drive_auth.get_service("drive"))
+
 
 def test_get_id_return_correct_value(drive):
     result = drive.get_id("drive_test_file")

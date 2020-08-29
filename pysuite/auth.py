@@ -3,6 +3,8 @@
 from typing import Union, Optional
 from pathlib import Path, PosixPath
 import pickle
+import json
+import logging
 
 from googleapiclient.discovery import build, Resource
 from google.oauth2.credentials import Credentials
@@ -11,32 +13,55 @@ from google_auth_oauthlib.flow import InstalledAppFlow
 
 SCOPES = {
     "drive": "https://www.googleapis.com/auth/drive",
-    "spreadsheet": "https://www.googleapis.com/auth/spreadsheets"
+    "sheets": "https://www.googleapis.com/auth/spreadsheets"
+}
+
+DEFAULT_VERSIONS = {
+    "drive": "v3",
+    "sheets": "v4"
 }
 
 
 class Authentication:
-    SCOPE = None  # overload in child class
-    def __init__(self, credential: Optional[Union[PosixPath, str, dict]], token: Union[PosixPath, str]):
+    """read from credential file and token file and authenticate with Google service for requested services. if token
+    file does not exists, confirmation is needed from browser prompt and the token file will be created.
+    """
+    def __init__(self, credential: Optional[Union[PosixPath, str, dict]], token: Union[PosixPath, str], services: list):
         self._token_path = Path(token)
+        self._credential_path = Path(credential)
+        self._scopes = [SCOPES[service] for service in services]
         self._credential = self.load_credential(credential)
         self.refresh()
-        self.write_token()
 
-    def load_credential(self, credential: Optional[Union[PosixPath, str]]) -> Credentials:
-        """load credential json file needed to authenticate Google Suite Apps. If None is provided, token is loaded
-        instead from self._token_path
+    def load_credential(self) -> Credentials:
+        """load credential json file needed to authenticate Google Suite Apps. If token file does not exists,
+        confirmation is needed from browser prompt and the token file will be created.
 
         :param credential: path to the credential json file.
         :return: a Credential object
         """
-        if self._token_path.exists():
-            return self._load_token()
+        if not Path(self._token_path).exists():
+            return self._load_credential_from_file(self._credential_path)
 
-        if isinstance(credential, str):
-            credential = Path(credential)
+        with open(self._credential_path, 'r') as f:
+            cred_json = json.load(f)
 
-        return self._load_credential_from_file(credential)
+        with open(self._token_path, 'r') as f:
+            token_json = json.load(f)
+
+        try:
+            credential = Credentials(token=token_json.get("token"),
+                                     refresh_token=token_json.get("refresh_token"),
+                                     id_token=cred_json.get("id_token", None),
+                                     token_uri=cred_json.get("token_uri"),
+                                     client_id=cred_json.get("client_id"),
+                                     client_secret=cred_json.get("client_secret"),
+                                     scopes=self._scopes)
+        except KeyError as e:
+            logging.critical("missing key value in credential")
+            raise e
+
+        return credential
 
     def _load_credential_from_file(self, file_path: PosixPath) -> Credentials:
         """load credential json file and open web browser for confirmation.
@@ -44,25 +69,12 @@ class Authentication:
         :param file_path: path to the credential json file.
         :return: a Credential object
         """
-        flow = InstalledAppFlow.from_client_secrets_file(file_path, self.SCOPE)
+        flow = InstalledAppFlow.from_client_secrets_file(file_path, self._scopes)
         credential = flow.run_local_server(port=9999)
         return credential
 
-    def _load_token(self) -> Credentials:
-        """load Credential object from token.
-
-        :return: a Credential object
-        """
-        with open(self._token_path, 'rb') as f:
-            credentials = pickle.load(f)
-
-        if not isinstance(credentials, Credentials):
-            raise TypeError(f"expecting Credentials type object from token file. got {type(credentials)} instead.")
-
-        return credentials
-
     def refresh(self):
-        """refresh token if not valid or has expired. This will overwrite the token file.
+        """refresh token if not valid or has expired. In addition token file is overwritten.
 
         :return: None
         """
@@ -73,20 +85,28 @@ class Authentication:
         self.write_token()
 
     def write_token(self):
-        with open(self._token_path, 'wb') as token:
-            pickle.dump(self._credential, token)
+        token_json = {
+            "token": self._credential.token,
+            "refresh_token": self._credential.refresh_token
+        }
+        with open(self._token_path, 'w') as token:
+            json.dump(token_json, token)
 
-    def get_service(self, version: str):
-        raise NotImplementedError
+    def get_service(self, service: str, version: Optional[str]=None):
+        """get a service object for requested service. This service must be within authorized scope set up at
+        initiation stage.
 
+        :param service: service type. "drive" or "sheets"
+        :param version: version of target service. if None, default version will be used. it varies with service.
+        :return: a service object used to access API for that service.
+        """
+        if service not in DEFAULT_VERSIONS.keys():
+            raise ValueError(f"service {version} not in {DEFAULT_VERSIONS.keys()}")
 
-class DriveAuth(Authentication):
-    SCOPE = [SCOPES["drive"]]
-    def get_service(self, version="v3") -> Resource:
-        return build('drive', version, credentials=self._credential, cache_discovery=True)
+        if SCOPES[service] not in self._scopes:
+            raise RuntimeError(f"Selected service has not been authorized. You need authenticate again with desires service")
 
+        if version is None:
+            version = DEFAULT_VERSIONS[service]
 
-class SheetAuth(Authentication):
-    SCOPE = [SCOPES["spreadsheet"]]
-    def get_service(self, version="v4") -> Resource:
-        return build('sheets', version, credentials=self._credential, cache_discovery=True)
+        return build(service, version, credentials=self._credential, cache_discovery=True)

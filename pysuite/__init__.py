@@ -1,4 +1,4 @@
-from .auth import DriveAuth, SheetAuth
+from .auth import Authentication
 from .drive import Drive
 from .sheet import Sheet
 
