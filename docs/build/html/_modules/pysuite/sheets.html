@@ -7,7 +7,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>pysuite.sheet &mdash; pysuite 0.1 documentation</title>
+  <title>pysuite.sheets &mdash; pysuite 0.1 documentation</title>
   
 
   
@@ -85,7 +85,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../user_manual.html">User Manual</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../auth.html">Auth</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../drive.html">Drive</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../sheet.html">Sheet</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../sheets.html">Sheets</a></li>
 </ul>
 
             
@@ -134,7 +134,7 @@
         
           <li><a href="../index.html">Module code</a> &raquo;</li>
         
-      <li>pysuite.sheet</li>
+      <li>pysuite.sheets</li>
     
     
       <li class="wy-breadcrumbs-aside">
@@ -149,7 +149,7 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
             
-  <h1>Source code for pysuite.sheet</h1><div class="highlight"><pre>
+  <h1>Source code for pysuite.sheets</h1><div class="highlight"><pre>
 <span></span><span class="sd">&quot;&quot;&quot;implement api to access google sheet</span>
 <span class="sd">&quot;&quot;&quot;</span>
 <span class="kn">import</span> <span class="nn">logging</span>
@@ -160,13 +160,13 @@
 <span class="n">VALID_DIMENSION</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;COLUMNS&quot;</span><span class="p">,</span> <span class="s2">&quot;ROWS&quot;</span><span class="p">}</span>
 
 
-<div class="viewcode-block" id="Sheet"><a class="viewcode-back" href="../../sheet.html#pysuite.sheet.Sheet">[docs]</a><span class="k">class</span> <span class="nc">Sheet</span><span class="p">:</span>
+<div class="viewcode-block" id="Sheets"><a class="viewcode-back" href="../../sheets.html#pysuite.sheets.Sheets">[docs]</a><span class="k">class</span> <span class="nc">Sheets</span><span class="p">:</span>
     <span class="sd">&quot;&quot;&quot;provide api to operate google spreadsheet. An authenticated google api client is needed.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">service</span><span class="p">:</span> <span class="n">Resource</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_service</span> <span class="o">=</span> <span class="n">service</span><span class="o">.</span><span class="n">spreadsheets</span><span class="p">()</span>
 
-<div class="viewcode-block" id="Sheet.download"><a class="viewcode-back" href="../../sheet.html#pysuite.sheet.Sheet.download">[docs]</a>    <span class="k">def</span> <span class="nf">download</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">id</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="nb">range</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">dimension</span><span class="p">:</span> <span class="nb">str</span><span class="o">=</span><span class="s2">&quot;ROWS&quot;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">:</span>
+<div class="viewcode-block" id="Sheets.download"><a class="viewcode-back" href="../../sheets.html#pysuite.sheets.Sheets.download">[docs]</a>    <span class="k">def</span> <span class="nf">download</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">id</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="nb">range</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">dimension</span><span class="p">:</span> <span class="nb">str</span><span class="o">=</span><span class="s2">&quot;ROWS&quot;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;download target sheet range by specified dimension. All entries will be considered as strings.</span>
 
 <span class="sd">        :param id: id of the target spreadsheet.</span>
@@ -185,7 +185,7 @@
         <span class="n">values</span> <span class="o">=</span> <span class="n">result</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;values&#39;</span><span class="p">,</span> <span class="p">[])</span>
         <span class="k">return</span> <span class="n">values</span></div>
 
-<div class="viewcode-block" id="Sheet.upload"><a class="viewcode-back" href="../../sheet.html#pysuite.sheet.Sheet.upload">[docs]</a>    <span class="k">def</span> <span class="nf">upload</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">values</span><span class="p">:</span> <span class="nb">list</span><span class="p">,</span> <span class="nb">id</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="nb">range</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<div class="viewcode-block" id="Sheets.upload"><a class="viewcode-back" href="../../sheets.html#pysuite.sheets.Sheets.upload">[docs]</a>    <span class="k">def</span> <span class="nf">upload</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">values</span><span class="p">:</span> <span class="nb">list</span><span class="p">,</span> <span class="nb">id</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="nb">range</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;upload a list of lists to target sheet range.</span>
 
 <span class="sd">        :param values: a list of lists of objects that can be converted to str.</span>
@@ -206,7 +206,7 @@
               <span class="sa">f</span><span class="s2">&quot;and </span><span class="si">{</span><span class="n">result</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;updatedColumns&#39;</span><span class="p">)</span><span class="si">}</span><span class="s2"> columns)&quot;</span>
         <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="Sheet.clear"><a class="viewcode-back" href="../../sheet.html#pysuite.sheet.Sheet.clear">[docs]</a>    <span class="k">def</span> <span class="nf">clear</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">id</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="nb">range</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+<div class="viewcode-block" id="Sheets.clear"><a class="viewcode-back" href="../../sheets.html#pysuite.sheets.Sheets.clear">[docs]</a>    <span class="k">def</span> <span class="nf">clear</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">id</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="nb">range</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;remove content in the target sheet range.</span>
 
 <span class="sd">        :param id: id of the target spreadsheet</span>
@@ -216,7 +216,7 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_service</span><span class="o">.</span><span class="n">values</span><span class="p">()</span><span class="o">.</span><span class="n">clear</span><span class="p">(</span><span class="n">spreadsheetId</span><span class="o">=</span><span class="nb">id</span><span class="p">,</span> <span class="nb">range</span><span class="o">=</span><span class="nb">range</span><span class="p">,</span> <span class="n">body</span><span class="o">=</span><span class="p">{})</span><span class="o">.</span><span class="n">execute</span><span class="p">()</span></div>
 
-<div class="viewcode-block" id="Sheet.read_sheet"><a class="viewcode-back" href="../../sheet.html#pysuite.sheet.Sheet.read_sheet">[docs]</a>    <span class="k">def</span> <span class="nf">read_sheet</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">id</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="nb">range</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">header</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">dtypes</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">dict</span><span class="p">]</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">columns</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">list</span><span class="p">]</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<div class="viewcode-block" id="Sheets.read_sheet"><a class="viewcode-back" href="../../sheets.html#pysuite.sheets.Sheets.read_sheet">[docs]</a>    <span class="k">def</span> <span class="nf">read_sheet</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">id</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="nb">range</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">header</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">dtypes</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">dict</span><span class="p">]</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">columns</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">list</span><span class="p">]</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;download the target sheet range into a pandas datafrme. this method will fail if pandas cannot be imported.</span>
 
 <span class="sd">        :param id: id of the target spreadsheet</span>
@@ -251,7 +251,7 @@
 
         <span class="k">return</span> <span class="n">df</span></div>
 
-<div class="viewcode-block" id="Sheet.to_sheet"><a class="viewcode-back" href="../../sheet.html#pysuite.sheet.Sheet.to_sheet">[docs]</a>    <span class="k">def</span> <span class="nf">to_sheet</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">df</span><span class="p">,</span> <span class="nb">id</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="nb">range</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+<div class="viewcode-block" id="Sheets.to_sheet"><a class="viewcode-back" href="../../sheets.html#pysuite.sheets.Sheets.to_sheet">[docs]</a>    <span class="k">def</span> <span class="nf">to_sheet</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">df</span><span class="p">,</span> <span class="nb">id</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="nb">range</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;upload pandas dataframe to target sheet range. the number of columns must fit the range. more columns or</span>
 <span class="sd">        fewer columns will both raise exception.</span>
 

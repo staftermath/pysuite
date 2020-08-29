@@ -1,9 +1,9 @@
-.. _sheet:
+.. _sheets:
 
-Sheet
-=====
+Sheets
+======
 
-.. automodule:: pysuite.sheet
+.. automodule:: pysuite.sheets
     :members:
     :undoc-members:
     :show-inheritance:

@@ -3,7 +3,6 @@
 User Manual
 ===========
 
-
 Authentication
 --------------
 
@@ -30,41 +29,61 @@ credential looks like:
       }
     }
 
-You need to save this credential to a json file and pass to :code:`Authentication` class (For example, :code:`DriveAuth`).
-In addition, you need to have a file to store refresh token. A pickle object will be written to the token file when
-needed.
+You need to save this credential to a json file and pass to :code:`Authentication` class.
+In addition, you need to have a file to store refresh token. A json object will be written to the token file every time
+Authentication file is instantiated.
 
-.. code-block:: python
+Credential file is not needed if token file already exists and is of the following format.
 
-    from pysuite import DriveAuth
+.. code-block:: json
 
-    credential_json_file = "/tmp/credential.json"
-    token_path_file = "/tmp/refresh_token.pickle"
-    client = DriveAuth(credential=credential_json_file, token=token_path_file)
+    {
+        "token": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+        "refresh_token": "xxxxxxxxxxxx"
+    }
 
 Authenticate
 ++++++++++++
 
-Subclasses of :code:`Authentication` can help authenticate your credential and provide clients for API class such as
-:code:`Drive` and :code:`Sheet`.
+:code:`Authentication` can help authenticate your credential and provide clients for API class such as
+:code:`Drive` and :code:`Sheets`. There are two ways to authenticate
+
+1. If token file has not been created:
+
+   .. code-block:: python
+
+      from pysuite import Authentication
+
+      credential_file = "./credentials/credentials.json"
+      token_file = "./credentials/token.json"
+
+      drive_auth = Authentication(credentials=credential_file, token_file=token_file, service="drive")
+
+   this may prompt web browser confirmation for the first time if token_file is not created or is expired. Once you confirm
+   access, the token will be created/overwritten. In this case, service is needed to provide proper scope for the
+   authentication.
+
+2. If token file has been created:
+
+  .. code-block:: python
+
+      token_path_file = "/tmp/token.json"
+      sheets_auth = Authentication(token=token_path_file)
+
+  In this case, :code:`service` is not needed at instantiation. However, if it's not provided, you need to specifiy it
+  when you generate a client. See next paragraph
+
+You can generate a gdrive service object or sheets service object now from authentication object.
 
 .. code-block:: python
 
-    from pysuite import DriveAuth
+    drive_service = drive_auth.get_service()
 
-    credential_file = "./credentials/credentials.json"
-    token_file = "./credentials/token.pickle"
-
-    drive_auth = DriveAuth(credentials=credential_file, token_file=token_file)
-
-this may prompt web browser confirmation for the first time if token_file is not created or is expired. Once you confirm
-access, the token will be created/overwritten.
-
-You can generate a gdrive client now from authentication object.
+If service is not provided at instantiation, you need to specifically pass it when call :code:`get_service`
 
 .. code-block:: python
 
-    service = drive_auth.get_service()
+    sheets_service = sheets_auth.get_service(service="sheets")
 
 Drive
 -----
@@ -78,7 +97,7 @@ You may utilize :code:`Authentication` class to create an authenticated API clas
 
     from pysuite import Drive
 
-    drive = Drive(service=drive_auth.get_service()) # drive_auth is an DriveAuth object
+    drive = Drive(service=drive_auth.get_service())  # drive_auth is an Authentication object with service='drive'
 
 If you prefer different method to create gdrive client, you may switch :code:`drive_auth.get_service()` with a gdrive service
 (See `Google Drive API V3 <https://developers.google.com/drive/api/v3/quickstart/python>`_ for detail):
@@ -109,8 +128,8 @@ list
 
     list_of_objects = drive.list(id="google drive folder id")
 
-Sheet
------
+Sheets
+------
 This class provides APIs used to access and operate with Google spreadsheet files
 
 instantiate
@@ -118,10 +137,10 @@ instantiate
 
 .. code-block:: python
 
-    from pysuite import Sheet
-    sheet = Sheet(service=sheet_auth.get_service())  # sheet_auth is an SheetAuth object
+    from pysuite import Sheets
+    sheets = Sheets(service=sheets_auth.get_service())  # sheets_auth is an Authentication object with service='sheets'
 
-If you prefer different method to create gdrive client, you may switch :code:`sheet_auth.get_client()` with a google
+If you prefer different method to create gdrive client, you may switch :code:`sheets_auth.get_client()` with a google
 sheet service (See `Google Sheet API V4 <https://developers.google.com/sheets/api/quickstart/python>`_ for details):
 
 .. code-block:: python
@@ -136,7 +155,7 @@ Upload a pandas dataframe to a specified range of sheet. This will clear the tar
 
     import pandas as pd
     df = pd.DataFrame({"col1": [1, 2], "col2": ['a', 'b']})
-    sheet.to_sheet(df, id="your_sheet_id", range="yourtab!A1:B")
+    sheets.to_sheet(df, id="your_sheet_id", range="yourtab!A1:B")
 
 read_sheet
 ++++++++++
@@ -144,7 +163,7 @@ This api requires pandas.
 
 .. code-block:: python
 
-    df = sheet.read_sheet(id="your_sheet_id", range="yourtab!A1:D")
+    df = sheets.read_sheet(id="your_sheet_id", range="yourtab!A1:D")
 
 download
 ++++++++
@@ -153,7 +172,7 @@ want to add pandas as dependency.
 
 .. code-block:: python
 
-    values = sheet.download(id="your_sheet_id", range="yourtab!A1:D", dimension="ROWS")
+    values = sheets.download(id="your_sheet_id", range="yourtab!A1:D", dimension="ROWS")
 
 upload
 ++++++
@@ -162,7 +181,7 @@ Upload a list of lists to specified google sheet range. This is useful when you 
 .. code-block:: python
 
     values = [[1, 2, 3], ["a", "b", "c"]]
-    sheet.upload(values, id="your_sheet_id", range="yourtab!A1:B", dimension="ROWS")
+    sheets.upload(values, id="your_sheet_id", range="yourtab!A1:B", dimension="ROWS")
 
 clear
 +++++
@@ -170,4 +189,4 @@ Remove contents of specified Goolge sheet range.
 
 .. code-block:: python
 
-    sheet.clear(id="your_sheet_id", range="yourtab!A1:B")
+    sheets.clear(id="your_sheet_id", range="yourtab!A1:B")

@@ -13,7 +13,7 @@ Welcome to pysuite's documentation!
    user_manual
    auth
    drive
-   sheet
+   sheets
 
 
 Indices and tables
