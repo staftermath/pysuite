@@ -87,7 +87,7 @@
 <li class="toctree-l1"><a class="reference internal" href="user_manual.html">User Manual</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Auth</a></li>
 <li class="toctree-l1"><a class="reference internal" href="drive.html">Drive</a></li>
-<li class="toctree-l1"><a class="reference internal" href="sheets.html">Sheet</a></li>
+<li class="toctree-l1"><a class="reference internal" href="sheets.html">Sheets</a></li>
 </ul>
 
             
@@ -158,20 +158,21 @@
 <span class="target" id="module-pysuite.auth"></span><p>classes used to authenticate credentials and create service for Google Suite Apps</p>
 <dl class="py class">
 <dt id="pysuite.auth.Authentication">
-<em class="property">class </em><code class="sig-prename descclassname">pysuite.auth.</code><code class="sig-name descname">Authentication</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">token</span><span class="p">:</span> <span class="n">Union<span class="p">[</span>pathlib.PosixPath<span class="p">, </span>str<span class="p">]</span></span></em>, <em class="sig-param"><span class="n">credential</span><span class="p">:</span> <span class="n">Optional<span class="p">[</span>Union<span class="p">[</span>pathlib.PosixPath<span class="p">, </span>str<span class="p">]</span><span class="p">]</span></span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="n">service</span><span class="p">:</span> <span class="n">Optional<span class="p">[</span>str<span class="p">]</span></span> <span class="o">=</span> <span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pysuite/auth.html#Authentication"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pysuite.auth.Authentication" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-prename descclassname">pysuite.auth.</code><code class="sig-name descname">Authentication</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">credential</span><span class="p">:</span> <span class="n">Union<span class="p">[</span>pathlib.PosixPath<span class="p">, </span>str<span class="p">]</span></span></em>, <em class="sig-param"><span class="n">token</span><span class="p">:</span> <span class="n">Union<span class="p">[</span>pathlib.PosixPath<span class="p">, </span>str<span class="p">]</span></span></em>, <em class="sig-param"><span class="n">services</span><span class="p">:</span> <span class="n">Union<span class="p">[</span>list<span class="p">, </span>str<span class="p">]</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pysuite/auth.html#Authentication"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pysuite.auth.Authentication" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>read from credential file and token file and authenticate with Google service for requested services. if token
 file does not exists, confirmation is needed from browser prompt and the token file will be created. You can pass
 a list of services or one service.</p>
 <dl class="py method">
-<dt id="pysuite.auth.Authentication.get_service">
-<code class="sig-name descname">get_service</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">service</span><span class="p">:</span> <span class="n">Optional<span class="p">[</span>str<span class="p">]</span></span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="n">version</span><span class="p">:</span> <span class="n">Optional<span class="p">[</span>str<span class="p">]</span></span> <span class="o">=</span> <span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pysuite/auth.html#Authentication.get_service"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pysuite.auth.Authentication.get_service" title="Permalink to this definition">¶</a></dt>
+<dt id="pysuite.auth.Authentication.get_service_client">
+<code class="sig-name descname">get_service_client</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">service</span><span class="p">:</span> <span class="n">Optional<span class="p">[</span>str<span class="p">]</span></span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="n">version</span><span class="p">:</span> <span class="n">Optional<span class="p">[</span>str<span class="p">]</span></span> <span class="o">=</span> <span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pysuite/auth.html#Authentication.get_service_client"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pysuite.auth.Authentication.get_service_client" title="Permalink to this definition">¶</a></dt>
 <dd><p>get a service object for requested service. This service must be within authorized scope set up at
 initiation stage.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>service</strong> – service type. “drive” or “sheets”. If None, it will be inferred from self._service.</p></li>
+<li><p><strong>service</strong> – type of service, “drive” or “sheets”. If None and self._services has more than 1 items, an
+exception will be raised.</p></li>
 <li><p><strong>version</strong> – version of target service. if None, default version will be used. it varies with service.</p></li>
 </ul>
 </dd>

@@ -42,7 +42,7 @@ from pysuite import Authentication
 
 credential_json_file = "/tmp/credential.json"
 token_path_file = "/tmp/token.json"
-client = Authentication(credential=credential_json_file, token=token_path_file, service="sheets")
+client = Authentication(credential=credential_json_file, token=token_path_file, services="sheets")
 ```
 
 ## Authenticate
@@ -55,18 +55,13 @@ from pysuite import Authentication
 credential_file = "./credentials/credentials.json"
 token_file = "./credentials/token.json"
 
-drive_auth = Authentication(credentials=credential_file, token_file=token_file, service="drive")
-sheets_auth = Authentication(credentials=credential_file, token_file=token_file, service="sheets")
-```
-
-If token file has already been created, no credential file is needed. In this case, `service` is not needed.  
-```python
-drive_auth = Authentication(token_file=token_file)
+drive_auth = Authentication(credential=credential_file, token=token_file, services="drive")
+sheets_auth = Authentication(credential=credential_file, token=token_file, services="sheets")
 ```
 
 You can generate a gdrive client now from authentication object.
 ```python
-service = drive_auth.get_service(service="drive")  # 'service' needed if not provided when initiating Authenciation object 
+service = drive_auth.get_service_client()  # 'service' needed if not provided when initiating Authenciation object 
 ```
 
 ## API
@@ -77,7 +72,7 @@ API classes aim to provide quick and simple access to Google Suite App such as G
 ```python
 from pysuite import Drive
 
-drive = Drive(service=drive_auth.get_service())  # drive_auth is an Authenticaion class with `service='drive'`
+drive = Drive(service=drive_auth.get_service_client())  # drive_auth is an Authenticaion class with `service='drive'`
 ```
 
 If you prefer different method to create gdrive client, you may switch `drive_auth.get_service()` with a gdrive service 
@@ -106,7 +101,7 @@ list_of_objects = drive.list(id="google drive folder id")
 ```python
 from pysuite import Sheets
 
-sheets = Sheets(service=sheets_auth.get_service())  # sheets_auth is an Authenticaion class with `service='sheets'`
+sheets = Sheets(service=sheets_auth.get_service_client())  # sheets_auth is an Authenticaion class with `service='sheets'`
 ```
 
 If you prefer different method to create gdrive client, you may switch `sheets_auth.get_service()` with a gsheet service 

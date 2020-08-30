@@ -33,7 +33,7 @@ You need to save this credential to a json file and pass to :code:`Authenticatio
 In addition, you need to have a file to store refresh token. A json object will be written to the token file every time
 Authentication file is instantiated.
 
-Credential file is not needed if token file already exists and is of the following format.
+The token file will be written in the following json format:
 
 .. code-block:: json
 
@@ -46,44 +46,34 @@ Authenticate
 ++++++++++++
 
 :code:`Authentication` can help authenticate your credential and provide clients for API class such as
-:code:`Drive` and :code:`Sheets`. There are two ways to authenticate
+:code:`Drive` and :code:`Sheets`. If token file has not been created, it can be instantiated as follows:
 
-1. If token file has not been created:
+.. code-block:: python
 
-   .. code-block:: python
+  from pysuite import Authentication
 
-      from pysuite import Authentication
+  credential_file = "./credentials/credentials.json"
+  token_file = "./credentials/token.json"
 
-      credential_file = "./credentials/credentials.json"
-      token_file = "./credentials/token.json"
+  drive_auth = Authentication(credential=credential_file, token=token_file, services="drive")
 
-      drive_auth = Authentication(credentials=credential_file, token_file=token_file, service="drive")
-
-   this may prompt web browser confirmation for the first time if token_file is not created or is expired. Once you confirm
-   access, the token will be created/overwritten. In this case, service is needed to provide proper scope for the
-   authentication.
-
-2. If token file has been created:
-
-  .. code-block:: python
-
-      token_path_file = "/tmp/token.json"
-      sheets_auth = Authentication(token=token_path_file)
-
-  In this case, :code:`service` is not needed at instantiation. However, if it's not provided, you need to specifiy it
-  when you generate a client. See next paragraph
+this will prompt web browser confirmation for the first time if :code:`token` file is not created. Once
+you confirm access, the token will be created/overwritten. You may provide a string or a list of services. Currently
+accepted services are 'drive' or 'sheets'.
 
 You can generate a gdrive service object or sheets service object now from authentication object.
 
 .. code-block:: python
 
-    drive_service = drive_auth.get_service()
+    drive_service = drive_auth.get_service_client()
 
-If service is not provided at instantiation, you need to specifically pass it when call :code:`get_service`
+If more than one service was authorized at instantiation, you must specify service type in :code:`get_service_client`:
 
 .. code-block:: python
 
-    sheets_service = sheets_auth.get_service(service="sheets")
+    auth = Authentication(credential=credential_file, token=token_file, services=["drive", "sheets"])
+    drive_service = auth.get_service_client("drive")
+
 
 Drive
 -----
@@ -97,9 +87,9 @@ You may utilize :code:`Authentication` class to create an authenticated API clas
 
     from pysuite import Drive
 
-    drive = Drive(service=drive_auth.get_service())  # drive_auth is an Authentication object with service='drive'
+    drive = Drive(service=drive_auth.get_service_client())  # drive_auth is an Authentication object with service='drive'
 
-If you prefer different method to create gdrive client, you may switch :code:`drive_auth.get_service()` with a gdrive service
+If you prefer different method to create gdrive client, you may switch :code:`drive_auth.get_service_client()` with a gdrive service
 (See `Google Drive API V3 <https://developers.google.com/drive/api/v3/quickstart/python>`_ for detail):
 
 .. code-block:: python
@@ -138,10 +128,10 @@ instantiate
 .. code-block:: python
 
     from pysuite import Sheets
-    sheets = Sheets(service=sheets_auth.get_service())  # sheets_auth is an Authentication object with service='sheets'
+    sheets = Sheets(service=sheets_auth.get_service_client())  # sheets_auth is an Authentication object with service='sheets'
 
-If you prefer different method to create gdrive client, you may switch :code:`sheets_auth.get_client()` with a google
-sheet service (See `Google Sheet API V4 <https://developers.google.com/sheets/api/quickstart/python>`_ for details):
+If you prefer different method to create gdrive client, you may switch :code:`sheets_auth.get_service_client()` with a
+google sheet service (See `Google Sheet API V4 <https://developers.google.com/sheets/api/quickstart/python>`_ for details):
 
 .. code-block:: python
 
