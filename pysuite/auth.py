@@ -26,10 +26,9 @@ class Authentication:
     file does not exists, confirmation is needed from browser prompt and the token file will be created. You can pass
     a list of services or one service.
     """
-    def __init__(self, token: Union[PosixPath, str], credential: Optional[Union[PosixPath, str]]=None,
-                 service: Optional[str]=None):
+    def __init__(self, credential: Union[PosixPath, str], token: Union[PosixPath, str], service: Optional[str]=None):
         self._token_path = Path(token)
-        self._credential_path = Path(credential) if credential is not None else None
+        self._credential_path = Path(credential)
         self._service = service
         self._credential = self.load_credential()
         self.refresh()
@@ -47,11 +46,24 @@ class Authentication:
         with open(self._token_path, 'r') as f:
             token_json = json.load(f)
 
+        with open(self._credential_path, 'r') as f:
+            try:
+                cred_json = json.load(f)["installed"]
+            except KeyError:
+                raise KeyError("'installed' does not exist in credential file. please check the format")
+
+        scope = self._get_scopes(self._service)
+
         try:
             credential = Credentials(token=token_json["token"],
-                                     refresh_token=token_json["refresh_token"])
+                                     refresh_token=token_json["refresh_token"],
+                                     token_uri=cred_json["token_uri"],
+                                     client_id=cred_json["client_id"],
+                                     client_secret=cred_json["client_secret"],
+                                     scopes=[scope],
+                                     )
         except KeyError as e:
-            logging.critical("missing key value in credential")
+            logging.critical("missing key value in credential or token file")
             raise e
 
         return credential
