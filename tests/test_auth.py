@@ -7,7 +7,7 @@ from googleapiclient.discovery import Resource
 from pysuite.auth import Authentication
 
 
-credential_folder = Path(".").resolve().parent / "credentials"
+credential_folder = Path(__file__).resolve().parent.parent / "credentials"
 credential_file = credential_folder / "credential.json"
 drive_token_file = credential_folder / "drive_token.json"
 sheet_token_file = credential_folder / "sheets_token.json"
