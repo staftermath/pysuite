@@ -55,18 +55,13 @@ from pysuite import Authentication
 credential_file = "./credentials/credentials.json"
 token_file = "./credentials/token.json"
 
-drive_auth = Authentication(credentials=credential_file, token_file=token_file, service="drive")
-sheets_auth = Authentication(credentials=credential_file, token_file=token_file, service="sheets")
-```
-
-If token file has already been created, no credential file is needed. In this case, `service` is not needed.  
-```python
-drive_auth = Authentication(token_file=token_file)
+drive_auth = Authentication(credential=credential_file, token=token_file, service="drive")
+sheets_auth = Authentication(credential=credential_file, token=token_file, service="sheets")
 ```
 
 You can generate a gdrive client now from authentication object.
 ```python
-service = drive_auth.get_service(service="drive")  # 'service' needed if not provided when initiating Authenciation object 
+service = drive_auth.get_service()  # 'service' needed if not provided when initiating Authenciation object 
 ```
 
 ## API
