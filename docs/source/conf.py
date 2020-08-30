@@ -11,7 +11,21 @@
 # documentation root, use os.path.abspath to make it absolute, like shown here.
 import os
 import sys
+from pathlib import Path
+
 sys.path.insert(0, os.path.abspath('../..'))
+
+here = Path(__file__).resolve().parent.parent.parent
+
+def get_version():
+    init_file = here / "pysuite" / "__init__.py"
+    with open(init_file, 'r') as f:
+        for l in f.readlines():
+            if l.startswith("__version__"):
+                version = eval(l.strip().split(" ")[-1])
+                return version
+
+    raise RuntimeError("version not found")
 
 # -- Project information -----------------------------------------------------
 
@@ -20,7 +34,7 @@ copyright = '2020, Weiwen Gu'
 author = 'Weiwen Gu'
 
 # The full version, including alpha/beta/rc tags
-release = '0.1'
+release = get_version()
 
 
 # -- General configuration ---------------------------------------------------

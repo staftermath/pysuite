@@ -55,7 +55,7 @@ setup(
     author_email=EMAIL,
     python_requires=REQUIRES_PYTHON,
     url=URL,
-    download_url = 'https://github.com/staftermath/pysuite/archive/0.1.0.tar.gz',
+    download_url = f'https://github.com/staftermath/pysuite/archive/{VERSION}.tar.gz',
     packages=find_packages(exclude=["tests", "*.tests", "*.tests.*", "tests.*"]),
     install_requires=REQUIRED,
     include_package_data=True,
