@@ -1,0 +1,55 @@
+branches:
+  only:
+  - "/.*/"
+before_install:
+- ".ci/dependencies.sh"
+install:
+- ".ci/install.sh"
+before_script:
+- ".ci/create_credentials.sh"
+script:
+- ".ci/test.sh"
+env:
+  global:
+  - secure: 4FSEc0lcWT8bYlqso3NXgULmIsxHZC58aOADcf1SCMJbQjyzmH2PRoJl4m6Ejk6YUNZgoASjwa4ICDiA+hzNN49Eg8fmRPJJxg9DmLa8+ZbBxpjwl9f0ZAqZNXDE2VbDO8SJB/SmbrbaprzkKkcwIvLosIpmwxYjP1o5PoyiBJ5EIEMkYqCSm+1aLg4qYQ4W3ucuEPZNeY1yY6J9AQ250GT93wmwi3pNs7P+Ah94IqXxQuPImHB6GLB1qiIUxXMAJ3LFW24i5ZbxjRuTau2MjLPsolo5jdg9pDaP5yGI6eJRAfWzogpy7SaGkTCFBcfOXa7H6qz8MUT/4xc4EewUQ4ELepOA/9SlAka+YU1019fHpwhi84Ebf1emnDuGuwzg9k2FZkz3Ch+CexJX0RIXnJvhLgHri3XCdxEaFk5g/XFNOJ/6mgCSwC91iQFjlmAva4oNoPyDSfGyIMf/iW85fxCNrNGSE6DgVlceaOoY/NwLh8pSLboIgg3X+JR4oZ/Er8ydHCU5nxE6bV33o7JFG88bOI4wLIA/fTOYqRxFbL2eFsTVWnxeCOoq0cf6QqYISdQIlIP1Pv5oYKRzlM0IlJlT6imuFDQfrn0eaJuZvG2ToXL/Pk99muf2jb3dKANleUzriI0iwPsjJHlIk3ZdXP6q9Ym7E+GaTcVs6lNs+n4=
+  - secure: bsd8VfK7ZQdQhvVtUW63jItshVkJ6QIT+VPX/kVP6w0xx0H14l1ZHyGYnOSN+9MVgL47QmOLte9Dyir/yPsLopPVtLU7TXG0nBBnV8OiStH9NKb3xfLRsrQ0EfuroFERXyJPh+Xq/dRNY+YZGqjuW0oEN4QBcVTY511iW1CVMqmxO5xjJ5Lu1l0OSpGUQLKe6MiiLoBHF6qWPKUJombobvCPJ14UAEaspTXV7aVK9OX2+tHvf+DqaXf6aA9rxMdAb0jHsCmmFZneShg+2YpTZ1Z/fxCcLQWoqHYv2Z6p+Azz7TTc81UUkW5gUOEv1FkO2C4l8L7K7y1L1YOwuXfOhX0f3PXCqrUPQ1khwU9H4lPn9H5bjMhEeWc+8nNGuxbqN3rn7mEz03COERp1xRpBrAk3blfmq4KS8yTNcrNycb6576sXM5Jh8+LZAnU0VOCo81KgJggxqPlaofjaVFlceWTq2Dgj1Powx1/Vm3z4+AnxCZnzX2ARZIM3YHkxGM8ZWYjLOBwjj+mal40ppfSCYXeTRmgDDaQ6eUnF/Ny5FWsHhk9+KAwwcx1bZR3mpeZlwi9kQLPADXKWTIO6Qsrl9baE+OA025pI3XvoWIxLsKrU+doU+BezlXFWoxbxBYx8yfKgrCL9tMrz+RaEnNnvErr1QcS/eIlX2jJfNbTte1s=
+  - secure: kMByTb3og3Om+bLkYvHVXbs7rSxnq7wbDd+DtxrpNp/XAWjvr+K0PQbw1H6k/OeBXlFrsH16gDt6m/dLeHu3oWnOc1qou+oFW5FyA5zwoXV+2Obdi/i5qEprMUi6oKn6XnqHbGNYxW+Uuu5lRRa6UNPM0n8NSh7i/iyfu5T1Dwe8o6WZWBaRfKYz6qgZvdYZFh0jrbdmc65r664i2z+/X0d6mLgjdih+9U5bD6nnvl3rutrN99LiU4PrqSHebdf1iiFHzTXwstKRkmljw83wX0ZuwyRb2HP8To/mzZoYHZOymO1vo3ccMRS2lpgBMJTEYxS8W8lHg8sptgjx7JzpjNjLVaQCa/WxfUdp/qc0xAyR2NwhYnsLpSXRZt3ZRm4o3kgFveYVXBKwX3I6H4l2VfkSKiVfv819NnSaD19rQA6nBvbILBHHE+rB479ccY8IuzyFJrLahKFvAau43dNfUG2KVX8DUk8C4dgnJWH8aDPwVrRJahd/dT5adlz/TUKLVDpT6tLdL6kUepQ7DmN+Vwoh9eWSaatYPbF44COk5MBC3jg2F7C5LUVUZfaqGkjeY+nJ41XpH4+CqRQUTBXG9/f+JOH1Zw6IiwIYUPcfwv0d1+D9ohuT3ZoeH3IgESL0e2Ls1bLgMnvn6BQZUKF164ZBjln2tAHv8vv7AOPloLk=
+  - secure: lIRKmfwK9Aw7o1phRtFvULN+A14T6D3HjPbwNYJ01I2u3oQxYum/g7WFnwrO4f0Txt5K/mKJqGuMs1o6vbbMLlauI7mEZiO5zEZHIvywFuEZEq2e63MjyKmkylDHnWStous99XrkXKbFVaMapx6V+O5v9cm+az0EkD5dZZh5zATV+5w0HfM4NfZx5xw/tN8fxtkOGG1FWhe6Dfansp0Tj4gWfSxq1O0kq1sNdGhL3TTAH5XwuKmcOGMJfDDCTWcgb1wD3MFYNUGYpehObtkVfoAk3SpRUvvx8SlRHKD74coYsiIURK8EHiwmtlDx0rf3uWHKpsHzIyOpC8sJ7+UvSyG5PeMl4djjpXaWfvfCTPLSDq2TqSyGbaRJYMejS85OIk1lI1zly8uOBMBOV21ln2huzXwo2sGDjsqBclSkK+cWPkqVm8PmLpQomhPZ+YR6QsLypNJ4wwJ0yloTDdXuX3cVjwt3UWjxXsO/scyD2iC/Nc/3kt825Ix9+RKBz3pkVY8fg1mM755ISfnDqoF+KByHJEGFSLZGA17t+x2tkzKtVk0JUimhUJhABdBnDYlV6BzIMourtW3nl5T5rKLRCd/m4hSxJPRlhK/irDB5RRYiS7rTnjTtxbkYHGTzmPKMQpyBo4nmL66DI9a2kIn4+NmDc/SFY1iUYejcSyJy7Dc=
+  - secure: 5Og3fOXXWoqctl3LuYuc8U/q7XSwb5YZGgh5VM45l8nbi4BjbGBprjWNIkdo/3VSlNeAlVzOSDE4yk5Bi0ISqsLdLiPn2u1arVsKgu2TA9GSZcORN6aPGcmse37A856UcF/vuO7jS+/Ng/AnNM3NsEl0WKNGJ8b68vKT4gc42EpCJUr0PPSkBFxbRdW/x4TZ3PCt47yPYDHDU+eyaJYLIwKW48z/0LtRprVWtvQRrs7AQcNnK3k96JzDSLVL2NNRI6ErBvhl6moq6ggSz87l3ukeplJRj6GLYIQKwANsyGqpW4U3DGNdJ9XkRozdskUx1yyf4xv9NUPUBOvJaw0+Y5MM1s9tqguHdhUsKmcvrS5OBQ7k376wr6mapcxfVZZnvA3EylwXpvJpTi2U7X+LCCO8GNKBw3CaW7zcUor0jPM6kOWj9NH0lcxyXOq0d2jvC5//Cf+ENt2NlUpYljwaIfbKHIswhifQkrlgjFVS6AV+iP5qtBRsMyK6Oydv3hA4bkAMdXuz0LI8EG9+PNsFB5EHP6oiHt2FxCcOV9NQkoKlQ3xtrHhCEjkQcNs74EboFJNsbCtWpSqb/H0/c8npCLM5GfyqEFrpLUPkaVRN2hq6rh5UniZ910Rk36TMzLXxT7nyD5JQcDIQ3eVkbOYb0E1tQHqmk94DfHy85dkcOu4=
+  - secure: 0qW2aX8/7bHxd2rFu+acjjXuc5jmbO7ccgUtnGfH9bqbNsbmrTxYR2qUDIqNm3rq94F4oJ8nsZw9renAgRx0lq8GmKyzDXrnKBWyHEF/8WgepWycl3bWHs70XR52kRcRH50JbNtr6YmPz6SzQH+QGLdsqroeoj8n2BHljN4EXSbsMaB8n86Mf7d+zPvewzSH8vY3ZseXwsOHiSGJYQCRret+WLHSPXAbD8kexyirTrRMDvAUWHauziGXNj0wciBR0ZNLOvNjkiYE6QABHENU/PknfoutLO1Utp+3SRIFh508gtGKYwWsOWMR3re2R+6m7ugoiv5MATYUp5ns+PcjqlNSnQt6QDG7517EX3nOjD0hVjF9/VFRkwRyJLxVPYj0KncY3LQd2hOklsxlYKlrjt3Oajv6mzQxnulFimBd/BrvR2xOSkD1J6dDQE4jtRa/Xx3veU5Q+fdMjBbYdgWErhOoTSBxuD8D9sxH0cbIEeakB0Nx4MUFop9OtyTWPXkIeto6/FsGkZxF1md8uhc0rnzGW2HbeNLi85+r71CFMWzAvRJp0QzHfytAtPkolfhkFGLQojpCfTSb20dMhdN+dqdBM/eNz5g6WXu3fFj+OUIbIVrCGC1sWbTQR74x+D4y9Y6Ful34pv9m/8ImtD5vcbx1aJjJjbdvXX9VbmhAniw=
+  - secure: wsFdwKScjicevxdjlCmOVRGzwXGIppPaw3qVCsbW7acor5ScQsi8tYySb1gU0clFQ0MfnC72Fztd+VZ1GzKs/j584X6MUg9d0O8yrfDZ1L3vvT8r2TWWXYX5+nj2ru9VJR4sY/BPgHVkz1Q1yS349ryQhOYCnHaUi4xTVsp/8EaDeNfmbM+8cidHISrVELdIGEgHNjvO+JftcHamkPotR7teuAYyxxQ/losgf8v5QzHLrEgaw8qcz6LBB4IWVbkXUE11C3lLcAaoAkEmOXUIEtsY3xhXvIIja0KyXaPWEB2RK8MRG5Fqv9ry05K3k/acob8hB5h69aB8gIwoyNTZCJRWQn6dVp6gywLagzKE4F+BOyxjd0li0OYCpMmA2Y747KJM9FfCh/Wx2iFFWcTggBMJV4pelErGmRciGlG67m57pcUWtBCPCriWggQvdAEQZf/9bMfOChrADQMYsuZOWSQ9Tg8U27RN8UkpXrBRbx6B7Qsh2Ie2uyxR8wIbYFmiuSw/2XNE62D0QZYMf5S4X8mT1vqgxN6ECjauX22yL/CpaA9fa3pbEhDzPUqCMHkPFJKwHeNm73bMzsu7fw4+mA1tEaPLrPVFWs1YRTNQyuBQs/UX2HXer1D3iZBf+RmaKurTF5eU6stu2HgbnYQWQ6q65KUT/IcGj6cGsPmglDs=
+  - secure: Ep3FVRTZnSUFqS4tsZzGO1t8mXp5KAlAzbSC/vOGtbuhN5F2vHXzL2mVEnhAF6Mrf72mbJMw+XWiq6SPOL0bGZLe2ERs3p5CNMYH7Ejz0B6FJQjt1pL/GGczyvfdrruVrLQUafm+tC1Dg+M/o8e/s0WtXGq2oC7Xd2vCjR6pmAN21EJorw+Kiaj9wW8HZuNYfy/IwisoutcThHZ9j1CQD+xlUc2D606hMeU8vJKTzM6TwD0BiWE+HM9aoqe7m1Mp/qSX6L/cwANMejDlvVQ/+uAcLTE7JzTZ5+/oRCsvat9AQMrZMeNzodANiRP694D4gcTtjMbEvUm3lntOZL973NAIU0k6dNAoX5sVzY4OjTWDc+GVJ8IKqhDWCI0iXgXl83qeevFzv84NHgk+bwUsrQUFuN/tEst2nmu9vkukPFhFlPhsnqwGSRZ36NGhPBrzopnSZsjagfQUs5JGj/HoORCGoernkJHuqbCqwgcB5AmIeWKB/u4l9sD5wjfImtjiXynHsw0hF1Rgw7+O5e0dP5IdUtwbBsk+O9QEJqmwiBq2KohEWcyC6vuPrRwUvq9nR8HgjqtiNX+7V9MpbNXx304IoovXTWJY8w2NzcPFWt5srV7e1ds2t2PIZdy16Pdbv/KQXJYvodhjoYol9XBmDFglaJIuUoZOmj3Wnk5MTng=
+  - pd_version=1.0
+
+matrix:
+  include:
+    - language: python
+      python: 3.6
+      if: branch != master
+      env:
+        - sleep=0
+    - language: python
+      python: 3.7
+      if: branch != master
+      env:
+        - sleep=5
+    - language: python
+      python: 3.8
+      if: branch != master
+      env:
+        - sleep=10
+    - language: python
+      python: 3.6
+      if: branch = master
+      env:
+        - sleep=15
+    - language: python
+      python: 3.7
+      if: branch = master
+      env:
+        - sleep=20
+    - language: python
+      python: 3.8
+      if: branch = master
+      env:
+        - sleep=25
