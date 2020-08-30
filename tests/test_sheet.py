@@ -4,14 +4,14 @@ import pandas as pd
 from pandas.testing import assert_frame_equal
 
 from pysuite.sheets import Sheets
-from tests.test_auth import sheets_auth
+from tests.test_auth import sheets_auth, multi_auth
 
 test_sheet_id = "1CNOH3o2Zz05mharkLXuwX72FpRka8-KFpIm9bEaja50"
 
 
 @pytest.fixture()
 def sheets(sheets_auth):
-    return Sheets(service=sheets_auth.get_service())
+    return Sheets(service=sheets_auth.get_service_client())
 
 
 @pytest.mark.parametrize(("dimension", "expected"),
@@ -103,3 +103,14 @@ def test_to_sheet_update_values_correctly(sheets, clear_sheet):
     result = sheets.download(id=test_sheet_id, range=range)
     expected = [["col1", "col2"], ["a", "1"], ["", "2"], ["c", "3"]]
     assert result == expected
+
+
+def test_multi_auth_token(multi_auth):
+    sheets = Sheets(multi_auth.get_service_client("sheets"))
+    result = sheets.read_sheet(id=test_sheet_id, range="download!A1:C")
+    expected = pd.DataFrame({
+        "col1": ["1", "2", "3"],
+        "col2": ["a", "b", "c"],
+        "col3": ["10.15", "20.2", "0.59"]
+    })
+    assert_frame_equal(result, expected)

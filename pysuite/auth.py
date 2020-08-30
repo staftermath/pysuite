@@ -26,10 +26,10 @@ class Authentication:
     file does not exists, confirmation is needed from browser prompt and the token file will be created. You can pass
     a list of services or one service.
     """
-    def __init__(self, credential: Union[PosixPath, str], token: Union[PosixPath, str], service: str):
+    def __init__(self, credential: Union[PosixPath, str], token: Union[PosixPath, str], services: Union[list, str]):
         self._token_path = Path(token)
         self._credential_path = Path(credential)
-        self._service = self._get_service(service)
+        self._services = self._get_services(services)
         self._scopes = self._get_scopes()
         self._credential = self.load_credential()
         self.refresh()
@@ -73,7 +73,7 @@ class Authentication:
         :param file_path: path to the credential json file.
         :return: a Credential object
         """
-        if self._service is None:
+        if self._services is None:
             raise ValueError("service must not be None when token file does not exists")
 
         flow = InstalledAppFlow.from_client_secrets_file(file_path, self._scopes)
@@ -99,28 +99,40 @@ class Authentication:
         with open(self._token_path, 'w') as token:
             json.dump(token_json, token)
 
-    def get_service(self, version: Optional[str]=None):
+    def get_service_client(self, service: Optional[str]=None, version: Optional[str]=None):
         """get a service object for requested service. This service must be within authorized scope set up at
         initiation stage.
 
+        :param service: type of service, "drive" or "sheets". If None and self._services has more than 1 items, an
+          exception will be raised.
         :param version: version of target service. if None, default version will be used. it varies with service.
         :return: a service object used to access API for that service.
         """
-        if version is None:
-            version = DEFAULT_VERSIONS[self._service]
+        if service is None:
+            if len(self._services) > 1:
+                raise ValueError(f"service cannot be inferred. the authorized services are {self._services}")
 
-        return build(self._service, version, credentials=self._credential, cache_discovery=True)
+            service = self._services[0]
+        elif service not in self._services:
+            raise ValueError(f"service {service} is not among authorized services: {self._services}")
+
+        if version is None:
+            version = DEFAULT_VERSIONS[service]
+
+        return build(service, version, credentials=self._credential, cache_discovery=True)
 
     def _get_scopes(self) -> list:
         try:
-            scope = SCOPES[self._service]
-            return [scope]
+            scopes = [SCOPES[service] for service in self._services]
+            return scopes
         except KeyError as e:
-            logging.critical(f"{self._service} is not a valid service. expecting {SCOPES.keys()}")
+            logging.critical(f"{self._services} is not a valid service. expecting {SCOPES.keys()}")
             raise e
 
-    def _get_service(self, service: str) -> str:
-        if service not in SCOPES.keys():
-            raise ValueError(f"invalid service. got {service}, expecting {SCOPES.keys()}")
+    def _get_services(self, services: Union[list, str]) -> list:
+        if isinstance(services, str):
+            services = [services]
+        if not set(services).issubset(SCOPES.keys()):
+            raise ValueError(f"invalid services. got {services}, expecting {SCOPES.keys()}")
 
-        return service
+        return services

@@ -11,19 +11,20 @@ credential_folder = Path(".").resolve().parent / "credentials"
 credential_file = credential_folder / "credential.json"
 drive_token_file = credential_folder / "drive_token.json"
 sheet_token_file = credential_folder / "sheets_token.json"
+both_token_file = credential_folder / "token.json"
 
 
 @pytest.mark.skip("this will prompt browser")
 def test_load_from_file_correctly(tmpdir):
     token_path = Path(tmpdir.join("test_load_from_file_token.json"))
-    result = Authentication(credential=credential_file, token=token_path, service="drive")
+    result = Authentication(credential=credential_file, token=token_path, services="drive")
     assert result._credential.valid
     assert not result._credential.expired
 
 
 def test_invalid_service_raise_exception(tmpdir):
     with pytest.raises(ValueError):
-        Authentication(credential=credential_file, token=Path(tmpdir.join("not_exist.json")), service="bad_service")
+        Authentication(credential=credential_file, token=Path(tmpdir.join("not_exist.json")), services="bad_service")
 
 
 @pytest.mark.parametrize(
@@ -39,7 +40,7 @@ def test_when_token_file_has_incorrect_format_raise_exception(tmpdir, token_dict
         json.dump(token_dict, f)
 
     with pytest.raises(KeyError):
-        Authentication(credential=credential_file, token=temp_token_file, service="drive")
+        Authentication(credential=credential_file, token=temp_token_file, services="drive")
 
 
 @pytest.mark.parametrize(
@@ -57,24 +58,48 @@ def test_when_credential_file_has_incorrect_format_raise_exception(tmpdir, crede
         json.dump(credential_dict, f)
 
     with pytest.raises(KeyError):
-        Authentication(credential=temp_credential_file, token=drive_token_file, service="drive")
+        Authentication(credential=temp_credential_file, token=drive_token_file, services="drive")
 
 
 @pytest.fixture()
 def drive_auth():
-    return Authentication(credential=credential_file, token=drive_token_file, service="drive")
+    return Authentication(credential=credential_file, token=drive_token_file, services="drive")
 
 
 def test_get_client_no_service_provided_return_correct_values(drive_auth):
-    result = drive_auth.get_service()
+    result = drive_auth.get_service_client()
     assert isinstance(result, Resource)
 
 
 @pytest.fixture()
 def sheets_auth():
-    return Authentication(credential=credential_file, token=sheet_token_file, service="sheets")
+    return Authentication(credential=credential_file, token=sheet_token_file, services="sheets")
 
 
 def test_get_client_service_authorized_return_correct_values(sheets_auth):
-    result = sheets_auth.get_service()
+    result = sheets_auth.get_service_client()
     assert isinstance(result, Resource)
+
+
+@pytest.fixture()
+def multi_auth():
+    return Authentication(credential=credential_file, token=both_token_file, services=["drive", "sheets"])
+
+
+@pytest.mark.parametrize("service",
+                         ["drive", "sheets"])
+def test_get_service_when_multiple_service_authorized_return_service_correctly(multi_auth, service):
+    result = multi_auth.get_service_client(service=service)
+    assert isinstance(result, Resource)
+
+
+def test_get_service_when_multiple_service_authorized_and_no_service_arg_passed_raise_exception(multi_auth):
+    with pytest.raises(ValueError):
+        multi_auth.get_service_client()
+
+
+@pytest.mark.parametrize("service",
+                         [None, "invalid_service"])
+def test_get_service_when_service_not_authorized_raise_exception(multi_auth, service):
+    with pytest.raises(ValueError):
+        multi_auth.get_service_client(service=service)
