@@ -26,10 +26,11 @@ class Authentication:
     file does not exists, confirmation is needed from browser prompt and the token file will be created. You can pass
     a list of services or one service.
     """
-    def __init__(self, credential: Union[PosixPath, str], token: Union[PosixPath, str], service: Optional[str]=None):
+    def __init__(self, credential: Union[PosixPath, str], token: Union[PosixPath, str], service: str):
         self._token_path = Path(token)
         self._credential_path = Path(credential)
-        self._service = service
+        self._service = self._get_service(service)
+        self._scopes = self._get_scopes()
         self._credential = self.load_credential()
         self.refresh()
 
@@ -52,15 +53,13 @@ class Authentication:
             except KeyError:
                 raise KeyError("'installed' does not exist in credential file. please check the format")
 
-        scope = self._get_scopes(self._service)
-
         try:
             credential = Credentials(token=token_json["token"],
                                      refresh_token=token_json["refresh_token"],
                                      token_uri=cred_json["token_uri"],
                                      client_id=cred_json["client_id"],
                                      client_secret=cred_json["client_secret"],
-                                     scopes=[scope],
+                                     scopes=self._scopes,
                                      )
         except KeyError as e:
             logging.critical("missing key value in credential or token file")
@@ -77,8 +76,7 @@ class Authentication:
         if self._service is None:
             raise ValueError("service must not be None when token file does not exists")
 
-        scopes = self._get_scopes(self._service)
-        flow = InstalledAppFlow.from_client_secrets_file(file_path, scopes)
+        flow = InstalledAppFlow.from_client_secrets_file(file_path, self._scopes)
         credential = flow.run_local_server(port=9999)
         return credential
 
@@ -101,36 +99,28 @@ class Authentication:
         with open(self._token_path, 'w') as token:
             json.dump(token_json, token)
 
-    def get_service(self, service: Optional[str]=None, version: Optional[str]=None):
+    def get_service(self, version: Optional[str]=None):
         """get a service object for requested service. This service must be within authorized scope set up at
         initiation stage.
 
-        :param service: service type. "drive" or "sheets". If None, it will be inferred from self._service.
         :param version: version of target service. if None, default version will be used. it varies with service.
         :return: a service object used to access API for that service.
         """
-        if service is None:
-            if self._service is None:
-                raise ValueError(f"service cannot be inferred. "
-                                 f"please provide a valid service {DEFAULT_VERSIONS.keys()}")
-
-            service = self._service
-        elif self._service is not None and service != self._service:
-            raise ValueError(f"attemptting to get mismatching service ({service}) "
-                             f"with authorized service {self._service}")
-
-        if service not in DEFAULT_VERSIONS.keys():
-            raise ValueError(f"service {version} not in {DEFAULT_VERSIONS.keys()}")
-
         if version is None:
-            version = DEFAULT_VERSIONS[service]
+            version = DEFAULT_VERSIONS[self._service]
 
-        return build(service, version, credentials=self._credential, cache_discovery=True)
+        return build(self._service, version, credentials=self._credential, cache_discovery=True)
 
-    def _get_scopes(self, service: str):
+    def _get_scopes(self) -> list:
         try:
-            scope = SCOPES[service]
-            return scope
+            scope = SCOPES[self._service]
+            return [scope]
         except KeyError as e:
-            logging.critical(f"{service} is not a valid service. expecting {SCOPES.keys()}")
+            logging.critical(f"{self._service} is not a valid service. expecting {SCOPES.keys()}")
             raise e
+
+    def _get_service(self, service: str) -> str:
+        if service not in SCOPES.keys():
+            raise ValueError(f"invalid service. got {service}, expecting {SCOPES.keys()}")
+
+        return service

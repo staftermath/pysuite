@@ -21,9 +21,9 @@ def test_load_from_file_correctly(tmpdir):
     assert not result._credential.expired
 
 
-def test_when_token_not_exists_and_service_is_none_raise_exception(tmpdir):
+def test_invalid_service_raise_exception(tmpdir):
     with pytest.raises(ValueError):
-        Authentication(credential=credential_file, token=Path(tmpdir.join("not_exist.json")))
+        Authentication(credential=credential_file, token=Path(tmpdir.join("not_exist.json")), service="bad_service")
 
 
 @pytest.mark.parametrize(
