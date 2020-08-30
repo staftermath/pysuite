@@ -15,17 +15,6 @@ def get_version():
 
     raise RuntimeError("version not found")
 
-def parse_requirements():
-    requirement_file = here / "requirements.txt"
-    requirements = []
-    with open(requirement_file, 'r') as f:
-        for l in f.readlines():
-            l = l.strip()
-            if not l.startswith("#"):
-                requirements.append(l)
-
-    return requirements
-
 NAME = 'pysuite'
 DESCRIPTION = "A data scientist's toolbox for Google Suite Apps"
 URL = 'https://github.com/staftermath/pysuite'
@@ -34,7 +23,14 @@ AUTHOR = 'Weiwen Gu'
 REQUIRES_PYTHON = '>=3.6.0'
 VERSION = get_version()
 
-REQUIRED = parse_requirements()
+REQUIRED = [
+    "google-api-python-client>=1.7.8",
+    "google-api-core>=1.22.1",
+    "google-auth>=1.20.1",
+    "google-auth-httplib2>=0.0.4",
+    "google-auth-oauthlib>=0.4.1",
+    "googleapis-common-protos>=1.6"
+]
 
 try:
     with open(here / 'README.md', encoding='utf-8') as f:
