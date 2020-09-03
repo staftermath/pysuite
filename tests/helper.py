@@ -17,7 +17,6 @@ def purge_temp_file(drive_auth):
         for object in temp_objects:
             drive.delete(object["id"])
 
-    purge()
     yield test_suffix
     purge()
 

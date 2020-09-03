@@ -113,3 +113,15 @@ class Sheets:
         values = df.fillna('').values.tolist()
         values.insert(0, list(df.columns))
         self.upload(values, id=id, range=range)
+
+    def create_spreadsheet(self, name: str) -> str:
+        """create a spreadsheet with requested name.
+
+        :param name: name of the created sheet.
+        :return: id of the spreadsheet
+        """
+        file_metadata = {
+            "properties": {"title": name}
+        }
+        response = self._service.create(body=file_metadata, fields="spreadsheetId").execute()
+        return response.get("spreadsheetId")
