@@ -5,8 +5,11 @@ from pandas.testing import assert_frame_equal
 
 from pysuite.sheets import Sheets
 from tests.test_auth import sheets_auth, multi_auth
+from tests.test_drive import drive, drive_auth
+from tests.helper import TEST_PREFIX, purge_temp_file
 
 test_sheet_id = "1CNOH3o2Zz05mharkLXuwX72FpRka8-KFpIm9bEaja50"
+test_sheet_folder = "1qqFJ-OaV1rdPSeFtdaf6lUwFIpupOiiF"
 
 
 @pytest.fixture()
@@ -114,3 +117,17 @@ def test_multi_auth_token(multi_auth):
         "col3": ["10.15", "20.2", "0.59"]
     })
     assert_frame_equal(result, expected)
+
+
+@pytest.fixture()
+def clean_up_created_spreadsheet(sheets, drive, purge_temp_file):
+    suffix = purge_temp_file
+    id = sheets.create_spreadsheet(f"{TEST_PREFIX}test_sheet{suffix}")
+    yield id
+    drive.delete(id)
+
+
+def test_create_spreadsheet_create_correctly(sheets, clean_up_created_spreadsheet):
+    id = clean_up_created_spreadsheet
+    result = sheets.download(id=id, range="Sheet1!A1:B2")
+    assert result == []  # file created correctly

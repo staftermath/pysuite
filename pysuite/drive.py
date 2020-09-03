@@ -3,6 +3,7 @@
 import logging
 from pathlib import PosixPath, Path
 from typing import Union, Optional, List
+import re
 
 from googleapiclient.discovery import Resource
 from googleapiclient.http import MediaIoBaseDownload, MediaFileUpload
@@ -95,11 +96,50 @@ class Drive:
 
         return item[0]['id']
 
-    def list(self, id: str) -> list:
+    def find(self, name_contains: Optional[str]=None, name_not_contains: Optional[str]=None,
+             parent_id: Optional[str]=None) -> list:
+        """find all files whose name contain specified string and do not contain specified string. Note that Google
+        API has unexpected behavior when searching for strings in name. It seems to search from first alphabetic
+        character and Assume there are the following files:
+        'positive_a', 'positive_b', 'a', '_a', 'ba'
+
+        :example:
+
+        >>> self.find(name_contains='a')  # this finds only 'a' and '_a', not 'positive_a' or 'ba'
+
+        :param name_contains: a string contained in the name
+        :param name_not_contains: a string that is not contained in the name
+        :param parent_id: parent folder id
+        :return: a list of dictionaries containing id and name of found files.
+        """
+        if name_contains is None and name_not_contains is None:
+            raise ValueError("name_contains and name_not_contains cannot both be None")
+
+        q_name_contains = ""
+        q_name_not_contains = ""
+        if name_contains is not None:
+            q_name_contains = f"and name contains '{name_contains}'"
+        if name_not_contains is not None:
+            q_name_not_contains = f"and not name contains '{name_not_contains}'"
+        q = f"trashed = false {q_name_contains} {q_name_not_contains}"
+
+        if parent_id is not None:
+            q += f" and '{parent_id}' in parents"
+        response = self._service.files().list(pageSize=100,
+                                              fields=self._get_fields_query_string(),
+                                              q=q).execute()
+        item = response.get('files', [])
+        return item
+
+    def list(self, id: str, regex: str=None, recursive: bool=False, depth: int=3) -> list:
         """list the content of the folder by the given id.
 
         :param id: id of the folder to be listed.
-        :return: a list of dictionaries containing id and name of the object contained in the target folder.
+        :param regex: an regular expression used to filter returned file and folders.
+        :param recursive: if True, children of the folder will also be listed.
+        :param depth: number of recursion if recursive is True. This is to prevent cyclic nesting or deep nested folders.
+        :return: a list of dictionaries containing id, name of the object contained in the target folder and list of
+          parent ids.
         """
         q = f"'{id}' in parents and trashed = false"
         result = []
@@ -107,10 +147,19 @@ class Drive:
         while page_token is not None:
             response = self._service.files().list(q=q,
                                                   spaces='drive',
-                                                  fields=self._get_fields_query_string(),
+                                                  fields=self._get_fields_query_string(["id", "name", "parents"]),
                                                   pageToken=page_token).execute()
             result.extend(response.get("files", []))
             page_token = response.get("nextPageToken", None)
+
+        if recursive and depth > 0:
+            for file in result:
+                children_id = file["id"]
+                result.extend(self.list(id=children_id, recursive=True, depth=depth-1))
+
+        if regex is not None:
+            pattern = re.compile(regex)
+            result = [f for f in result if pattern.match(f["name"])]
 
         return result
 

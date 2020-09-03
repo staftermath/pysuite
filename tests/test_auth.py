@@ -61,7 +61,7 @@ def test_when_credential_file_has_incorrect_format_raise_exception(tmpdir, crede
         Authentication(credential=temp_credential_file, token=drive_token_file, services="drive")
 
 
-@pytest.fixture()
+@pytest.fixture(scope="session")
 def drive_auth():
     return Authentication(credential=credential_file, token=drive_token_file, services="drive")
 
@@ -71,7 +71,7 @@ def test_get_client_no_service_provided_return_correct_values(drive_auth):
     assert isinstance(result, Resource)
 
 
-@pytest.fixture()
+@pytest.fixture(scope="session")
 def sheets_auth():
     return Authentication(credential=credential_file, token=sheet_token_file, services="sheets")
 
@@ -81,7 +81,7 @@ def test_get_client_service_authorized_return_correct_values(sheets_auth):
     assert isinstance(result, Resource)
 
 
-@pytest.fixture()
+@pytest.fixture(scope="session")
 def multi_auth():
     return Authentication(credential=credential_file, token=both_token_file, services=["drive", "sheets"])
 
