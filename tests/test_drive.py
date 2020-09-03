@@ -5,7 +5,7 @@ from pysuite.drive import Drive
 from googleapiclient.errors import HttpError
 
 from tests.test_auth import drive_auth, multi_auth
-from tests.helper import TEST_PREFIX, purge_temp_file
+from tests.helper import TEST_DRIVE_FOLDER_ID, purge_temp_file, prefix
 
 
 @pytest.fixture()
@@ -41,11 +41,16 @@ def test_download_create_file_correctly(drive, tmpdir):
     assert result == ["hello", "world"]
 
 
-def test_upload_and_delete_correctly_create_and_remove_file(drive, purge_temp_file, tmpdir):
+@pytest.fixture()
+def clean_up_upload_and_delete(prefix, drive):
+    yield prefix
+    purge_temp_file(drive=drive, prefix=prefix)
+
+
+def test_upload_and_delete_correctly_create_and_remove_file(drive, prefix, tmpdir):
     file_to_upload = Path(tmpdir.join("test_upload_file"))
     file_to_upload.write_text("hello world")
-    suffix = purge_temp_file
-    id = drive.upload(from_file=file_to_upload, name=f"{TEST_PREFIX}test_file{suffix}",
+    id = drive.upload(from_file=file_to_upload, name=f"{prefix}test_file",
                       parent_ids=["1_p0khJ5euUDbZhWiXbN5fefozKMD28yZ"])
 
     download_file = Path(tmpdir.join("test_downloaded_file"))
@@ -63,21 +68,19 @@ def test_upload_and_delete_correctly_create_and_remove_file(drive, purge_temp_fi
 
 
 @pytest.fixture()
-def clean_up_file(drive, tmpdir, purge_temp_file):
+def clean_up_update(drive, tmpdir, prefix):
     file_to_upload = Path(tmpdir.join("test_upload_file"))
     file_to_upload.write_text("hello world")
-    suffix = purge_temp_file
-    id = drive.upload(from_file=file_to_upload, name=f"{TEST_PREFIX}drive_test_file{suffix}")
-
+    id = drive.upload(from_file=file_to_upload, name=f"{prefix}drive_test_file",
+                      parent_ids=[TEST_DRIVE_FOLDER_ID])
     yield id
+    purge_temp_file(drive, prefix)
 
-    drive.delete(id)
 
-
-def test_update_change_file_content_correctly(drive, clean_up_file, tmpdir):
+def test_update_change_file_content_correctly(drive, clean_up_update, tmpdir):
     file_to_update = Path(tmpdir.join("test_upload_file"))
     file_to_update.write_text("the world has changed")
-    id = clean_up_file
+    id = clean_up_update
     drive.update(id=id, from_file=file_to_update)
 
     downloaded_file = Path(tmpdir.join("test_update_file_downloaded"))
@@ -124,19 +127,16 @@ def test_get_name_return_correct_value(drive):
 
 
 @pytest.fixture()
-def clean_folder(drive):
+def clean_folder(drive, prefix):
     folder_id = "1iUzQwHtr3KE_jR3AGo2-Qjq_5v99eh5u"
     yield folder_id
 
-    items = drive.list(id=folder_id)
-    for item in items:
-        drive.delete(item['id'])
+    purge_temp_file(drive, prefix)
 
 
-def test_create_folder_correctly(drive, clean_folder, purge_temp_file):
+def test_create_folder_correctly(drive, clean_folder, prefix):
     folder_id = "1iUzQwHtr3KE_jR3AGo2-Qjq_5v99eh5u"
-    suffix = purge_temp_file
-    expected = f"{TEST_PREFIX}create_folder{suffix}"
+    expected = f"{prefix}create_folder"
     id = drive.create_folder(expected, parent_ids=[folder_id])
     result = drive.get_name(id)
     assert result == expected

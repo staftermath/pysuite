@@ -99,8 +99,8 @@ class Drive:
     def find(self, name_contains: Optional[str]=None, name_not_contains: Optional[str]=None,
              parent_id: Optional[str]=None) -> list:
         """find all files whose name contain specified string and do not contain specified string. Note that Google
-        API has unexpected behavior when searching for strings in name. It seems to search from first alphabetic
-        character and Assume there are the following files:
+        API has unexpected behavior when searching for strings in name. It is can only search first 26 character. In
+        addition, it seems to search from first alphabetic character and Assume there are the following files:
         'positive_a', 'positive_b', 'a', '_a', 'ba'
 
         :example:

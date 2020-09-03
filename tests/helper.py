@@ -1,27 +1,27 @@
 import pytest
-import uuid
-from tests.test_auth import drive_auth
+from typing import Optional
+import random
+import string
 from pysuite import Drive
 
-TEST_PREFIX = "_pysuite_test_tmp_"
 TEST_DRIVE_FOLDER_ID = "11dtprloqhpATi_awh8LAy_5xuCqTk1Ok"
 
 
+def purge_temp_file(drive: Drive, prefix: str):
+    temp_objects = drive.find(name_contains=prefix)
+    for object in temp_objects:
+        drive.delete(object["id"])
+
+
+def random_string(length: int=8, seed: Optional[int]=None):
+    if seed is not None:
+        random.seed(seed)
+
+    result = ''.join(random.choice(string.ascii_letters) for i in range(length))
+    return result
+
+
 @pytest.fixture(scope="session")
-def purge_temp_file(drive_auth):
-    drive = Drive(service=drive_auth.get_service_client())
-    test_suffix = "_"+str(uuid.uuid4())
-
-    def purge():
-        temp_objects = drive.find(name_contains=test_suffix, parent_id=TEST_DRIVE_FOLDER_ID)
-        for object in temp_objects:
-            drive.delete(object["id"])
-
-    yield test_suffix
-    purge()
-
-
-
-
-
-
+def prefix():
+    max_length = 26 # google api search for string longer than 26 char
+    return random_string(max_length)+"_"
