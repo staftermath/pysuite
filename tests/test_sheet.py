@@ -6,7 +6,7 @@ from pandas.testing import assert_frame_equal
 from pysuite.sheets import Sheets
 from tests.test_auth import sheets_auth, multi_auth
 from tests.test_drive import drive, drive_auth
-from tests.helper import TEST_PREFIX, purge_temp_file
+from tests.helper import purge_temp_file, prefix
 
 test_sheet_id = "1CNOH3o2Zz05mharkLXuwX72FpRka8-KFpIm9bEaja50"
 test_sheet_folder = "1qqFJ-OaV1rdPSeFtdaf6lUwFIpupOiiF"
@@ -120,11 +120,10 @@ def test_multi_auth_token(multi_auth):
 
 
 @pytest.fixture()
-def clean_up_created_spreadsheet(sheets, drive, purge_temp_file):
-    suffix = purge_temp_file
-    id = sheets.create_spreadsheet(f"{TEST_PREFIX}test_sheet{suffix}")
+def clean_up_created_spreadsheet(sheets, drive, prefix):
+    id = sheets.create_spreadsheet(f"{prefix}test_sheet")
     yield id
-    drive.delete(id)
+    purge_temp_file(drive, prefix)
 
 
 def test_create_spreadsheet_create_correctly(sheets, clean_up_created_spreadsheet):
