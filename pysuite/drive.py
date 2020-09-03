@@ -96,6 +96,41 @@ class Drive:
 
         return item[0]['id']
 
+    def find(self, name_contains: Optional[str]=None, name_not_contains: Optional[str]=None,
+             parent_id: Optional[str]=None) -> list:
+        """find all files whose name contain specified string and do not contain specified string. Note that Google
+        API has unexpected behavior when searching for strings in name. It seems to search from first alphabetic
+        character and Assume there are the following files:
+        'positive_a', 'positive_b', 'a', '_a', 'ba'
+
+        :example:
+
+        >>> self.find(name_contains='a')  # this finds only 'a' and '_a', not 'positive_a' or 'ba'
+
+        :param name_contains: a string contained in the name
+        :param name_not_contains: a string that is not contained in the name
+        :param parent_id: parent folder id
+        :return: a list of dictionaries containing id and name of found files.
+        """
+        if name_contains is None and name_not_contains is None:
+            raise ValueError("name_contains and name_not_contains cannot both be None")
+
+        q_name_contains = ""
+        q_name_not_contains = ""
+        if name_contains is not None:
+            q_name_contains = f"and name contains '{name_contains}'"
+        if name_not_contains is not None:
+            q_name_not_contains = f"and not name contains '{name_not_contains}'"
+        q = f"trashed = false {q_name_contains} {q_name_not_contains}"
+
+        if parent_id is not None:
+            q += f" and '{parent_id}' in parents"
+        response = self._service.files().list(pageSize=100,
+                                              fields=self._get_fields_query_string(),
+                                              q=q).execute()
+        item = response.get('files', [])
+        return item
+
     def list(self, id: str, regex: str=None, recursive: bool=False, depth: int=3) -> list:
         """list the content of the folder by the given id.
 

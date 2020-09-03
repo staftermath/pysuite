@@ -148,3 +148,24 @@ def test_multi_auth_token(multi_auth):
     expected = "drive_test_file"
     assert result == expected
 
+
+@pytest.mark.parametrize(("contains", "not_contains", "expected"),
+                         [
+                             ("positive", None,
+                              [{'id': '1MmgjCLivbb-EPkHplTuNIDgj1Ma9wQw4', 'name': 'positive_c_negative'},
+                               {'id': '1pkokaiJP9d0V_eaY4_H_Du4g5AfCG5Er', 'name': 'positive_b'},
+                               {'id': '1S_QfcIiBaxhoAnq1csciQuEr4wz4mYh-', 'name': 'positive_a'}]),
+                             ("a", None,
+                              [{'id': '17tXdw1kQHuxdrcbkKYz81862UP2s6x2a', 'name': 'aa'}]),
+                             ("positive", "negative",
+                              [{'id': '1pkokaiJP9d0V_eaY4_H_Du4g5AfCG5Er', 'name': 'positive_b'},
+                               {'id': '1S_QfcIiBaxhoAnq1csciQuEr4wz4mYh-', 'name': 'positive_a'}]),
+                             (None, "negative",
+                              [{'id': '17tXdw1kQHuxdrcbkKYz81862UP2s6x2a', 'name': 'aa'},
+                               {'id': '1pkokaiJP9d0V_eaY4_H_Du4g5AfCG5Er', 'name': 'positive_b'},
+                               {'id': '1S_QfcIiBaxhoAnq1csciQuEr4wz4mYh-', 'name': 'positive_a'}]
+)
+                         ])
+def test_find_return_correct_values(drive, contains, not_contains, expected):
+    result = drive.find(name_contains=contains, name_not_contains=not_contains, parent_id="1LOeJyQpD8tqXF5sm6cqpmOPcTBEg6NaE")
+    assert sorted(result, key=lambda x: x['name']) == sorted(expected, key=lambda x: x['name'])
