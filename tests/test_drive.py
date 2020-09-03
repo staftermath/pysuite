@@ -4,8 +4,8 @@ from pathlib import Path
 from pysuite.drive import Drive
 from googleapiclient.errors import HttpError
 
-from tests.test_auth import drive_auth
-from tests.helper import TEST_PREFIX
+from tests.test_auth import drive_auth, multi_auth
+from tests.helper import TEST_PREFIX, purge_temp_file
 
 
 @pytest.fixture()
@@ -41,11 +41,12 @@ def test_download_create_file_correctly(drive, tmpdir):
     assert result == ["hello", "world"]
 
 
-def test_upload_and_delete_correctly_create_and_remove_file(drive, tmpdir):
+def test_upload_and_delete_correctly_create_and_remove_file(drive, purge_temp_file, tmpdir):
     file_to_upload = Path(tmpdir.join("test_upload_file"))
     file_to_upload.write_text("hello world")
-
-    id = drive.upload(from_file=file_to_upload, name=f"{TEST_PREFIX}test_file", parent_ids=["1_p0khJ5euUDbZhWiXbN5fefozKMD28yZ"])
+    suffix = purge_temp_file
+    id = drive.upload(from_file=file_to_upload, name=f"{TEST_PREFIX}test_file{suffix}",
+                      parent_ids=["1_p0khJ5euUDbZhWiXbN5fefozKMD28yZ"])
 
     download_file = Path(tmpdir.join("test_downloaded_file"))
     drive.download(id=id, to_file=download_file)
@@ -62,10 +63,11 @@ def test_upload_and_delete_correctly_create_and_remove_file(drive, tmpdir):
 
 
 @pytest.fixture()
-def clean_up_file(drive, tmpdir):
+def clean_up_file(drive, tmpdir, purge_temp_file):
     file_to_upload = Path(tmpdir.join("test_upload_file"))
     file_to_upload.write_text("hello world")
-    id = drive.upload(from_file=file_to_upload, name=f"{TEST_PREFIX}drive_test_file")
+    suffix = purge_temp_file
+    id = drive.upload(from_file=file_to_upload, name=f"{TEST_PREFIX}drive_test_file{suffix}")
 
     yield id
 
@@ -131,9 +133,10 @@ def clean_folder(drive):
         drive.delete(item['id'])
 
 
-def test_create_folder_correctly(drive, clean_folder):
-    folder_id = clean_folder
-    expected = f"{TEST_PREFIX}create_folder"
+def test_create_folder_correctly(drive, clean_folder, purge_temp_file):
+    folder_id = "1iUzQwHtr3KE_jR3AGo2-Qjq_5v99eh5u"
+    suffix = purge_temp_file
+    expected = f"{TEST_PREFIX}create_folder{suffix}"
     id = drive.create_folder(expected, parent_ids=[folder_id])
     result = drive.get_name(id)
     assert result == expected
