@@ -3,7 +3,9 @@ from pathlib import Path
 
 from pysuite.drive import Drive
 from googleapiclient.errors import HttpError
-from tests.test_auth import drive_auth, multi_auth
+
+from tests.test_auth import drive_auth
+from tests.helper import TEST_PREFIX
 
 
 @pytest.fixture()
@@ -43,7 +45,7 @@ def test_upload_and_delete_correctly_create_and_remove_file(drive, tmpdir):
     file_to_upload = Path(tmpdir.join("test_upload_file"))
     file_to_upload.write_text("hello world")
 
-    id = drive.upload(from_file=file_to_upload, name="test_file", parent_ids=["1_p0khJ5euUDbZhWiXbN5fefozKMD28yZ"])
+    id = drive.upload(from_file=file_to_upload, name=f"{TEST_PREFIX}test_file", parent_ids=["1_p0khJ5euUDbZhWiXbN5fefozKMD28yZ"])
 
     download_file = Path(tmpdir.join("test_downloaded_file"))
     drive.download(id=id, to_file=download_file)
@@ -63,7 +65,7 @@ def test_upload_and_delete_correctly_create_and_remove_file(drive, tmpdir):
 def clean_up_file(drive, tmpdir):
     file_to_upload = Path(tmpdir.join("test_upload_file"))
     file_to_upload.write_text("hello world")
-    id = drive.upload(from_file=file_to_upload, name="temporary_drive_test_file")
+    id = drive.upload(from_file=file_to_upload, name=f"{TEST_PREFIX}drive_test_file")
 
     yield id
 
@@ -84,14 +86,33 @@ def test_update_change_file_content_correctly(drive, clean_up_file, tmpdir):
     assert result == ["the world has changed"]
 
 
-def test_list_return_correct_values(drive):
-    result = drive.list(id="1R5zuuDSzR9BW3pOJmwhYEIILQ23p0kYv")
-    expected = [
-        {'id': '1bR7LoLo_BBjHyTsDk4y-27wyBk_6K6-t', 'name': 'c'},
-        {'id': '1tyZqvCeoiA5OvrGuHoygiy73qrNoLRdL', 'name': 'b'},
-        {'id': '1erVdsBfgNVpMEWRhp0o-DDUfC26O7luO', 'name': 'a'}
-    ]
-    assert result == expected
+no_recursive = [
+    {'id': '1cYHUzVPAb3ibvSzH34fktzpr9SXtPJRP', 'name': 'children_folder',
+     'parents': ['1R5zuuDSzR9BW3pOJmwhYEIILQ23p0kYv']},
+    {'id': '1bR7LoLo_BBjHyTsDk4y-27wyBk_6K6-t', 'name': 'c', "parents": ["1R5zuuDSzR9BW3pOJmwhYEIILQ23p0kYv"]},
+    {'id': '1tyZqvCeoiA5OvrGuHoygiy73qrNoLRdL', 'name': 'b', "parents": ["1R5zuuDSzR9BW3pOJmwhYEIILQ23p0kYv"]},
+    {'id': '1erVdsBfgNVpMEWRhp0o-DDUfC26O7luO', 'name': 'a', "parents": ["1R5zuuDSzR9BW3pOJmwhYEIILQ23p0kYv"]},
+]
+
+sub_list_no_regex = [
+    {'id': '1XWqT23KeaQIeUrRpl-gEoEHdJdVuRCnx', 'name': 'd', 'parents': ['1cYHUzVPAb3ibvSzH34fktzpr9SXtPJRP']},
+    {'id': '1pezOWnHDfVRd7YjgULZhD1nGWEPmxNhE', 'name': 'e1', 'parents': ['1cYHUzVPAb3ibvSzH34fktzpr9SXtPJRP']}
+]
+
+sub_list_filtered_by_regex = [
+    {'id': '1XWqT23KeaQIeUrRpl-gEoEHdJdVuRCnx', 'name': 'd', 'parents': ['1cYHUzVPAb3ibvSzH34fktzpr9SXtPJRP']},
+]
+
+
+@pytest.mark.parametrize(("recursive", "regex", "expected"),
+                         [
+                             [False, None, no_recursive],
+                             [True, None, no_recursive+sub_list_no_regex],
+                             [True, "^[_a-zA-Z]*$", no_recursive+sub_list_filtered_by_regex]
+                         ])
+def test_list_return_correct_values(drive, recursive, regex, expected):
+    result = drive.list(id="1R5zuuDSzR9BW3pOJmwhYEIILQ23p0kYv", recursive=recursive, regex=regex)
+    assert sorted(result, key=lambda x: x["name"]) == sorted(expected, key=lambda x: x["name"])
 
 
 def test_get_name_return_correct_value(drive):
@@ -112,7 +133,7 @@ def clean_folder(drive):
 
 def test_create_folder_correctly(drive, clean_folder):
     folder_id = clean_folder
-    expected = "test_create_folder"
+    expected = f"{TEST_PREFIX}create_folder"
     id = drive.create_folder(expected, parent_ids=[folder_id])
     result = drive.get_name(id)
     assert result == expected
