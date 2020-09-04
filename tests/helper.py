@@ -1,7 +1,9 @@
-import pytest
 from typing import Optional
 import random
 import string
+from datetime import datetime
+
+import pytest
 from pysuite import Drive
 
 TEST_DRIVE_FOLDER_ID = "11dtprloqhpATi_awh8LAy_5xuCqTk1Ok"
@@ -14,10 +16,10 @@ def purge_temp_file(drive: Drive, prefix: str):
 
 
 def random_string(length: int=8, seed: Optional[int]=None):
-    if seed is not None:
-        random.seed(seed)
-
-    result = ''.join(random.choice(string.ascii_letters) for i in range(length))
+    if seed is None:
+        seed = datetime.now().microsecond
+    random.seed(seed)
+    result = ''.join(random.choice(string.ascii_letters) for _ in range(length))
     return result
 
 
