@@ -1,7 +1,9 @@
-import pytest
+import json
 
+import pytest
 import pandas as pd
 from pandas.testing import assert_frame_equal
+from googleapiclient.errors import HttpError
 
 from pysuite.sheets import Sheets
 from tests.test_auth import sheets_auth, multi_auth
@@ -12,7 +14,7 @@ test_sheet_id = "1CNOH3o2Zz05mharkLXuwX72FpRka8-KFpIm9bEaja50"
 test_sheet_folder = "1qqFJ-OaV1rdPSeFtdaf6lUwFIpupOiiF"
 
 
-@pytest.fixture()
+@pytest.fixture(scope="session")
 def sheets(sheets_auth):
     return Sheets(service=sheets_auth.get_service_client())
 
@@ -40,8 +42,18 @@ def test_download_return_correct_values(sheets, dimension, expected):
     assert result == expected
 
 
-def test_upload_and_clear_change_sheet_value_correctly(sheets):
-    range = "upload!A1:B"
+
+@pytest.fixture(scope="module")
+def clean_up_sheet_creation(sheets, prefix):
+    title = f"{prefix}test_sheet"
+    result = sheets.create_sheet(id=test_sheet_id, title=title)
+    yield result, title
+    sheets.delete_sheet(id=test_sheet_id, sheet_id=result["sheetId"])
+
+
+def test_upload_and_clear_change_sheet_value_correctly(sheets, clean_up_sheet_creation):
+    _, title = clean_up_sheet_creation
+    range = f"{title}!A1:B"
 
     values = [["a", "b"], ["c", "d"], [1, 2]]
     sheets.upload(values=values, id=test_sheet_id, range=range)
@@ -54,16 +66,6 @@ def test_upload_and_clear_change_sheet_value_correctly(sheets):
 
     result_cleared = sheets.download(id=test_sheet_id, range=range)
     assert result_cleared == []
-
-
-@pytest.fixture()
-def clear_sheet(sheets):
-    def clear():
-        sheets.clear(id=test_sheet_id, range="upload!A1:B")
-
-    clear()
-    yield
-    clear()
 
 
 @pytest.mark.parametrize(("header", "dtypes", "columns", "expected"),
@@ -95,12 +97,13 @@ def test_read_sheet_return_correct_values(sheets, header, dtypes, columns, expec
     assert_frame_equal(result, expected)
 
 
-def test_to_sheet_update_values_correctly(sheets, clear_sheet):
+def test_to_sheet_update_values_correctly(sheets, clean_up_sheet_creation):
+    _, title = clean_up_sheet_creation
     df = pd.DataFrame({
         "col1": ["a", None, "c"],
         "col2": [1, 2, 3]
     })
-    range = "upload!A1:B"
+    range = f"{title}!A1:B"
     sheets.to_sheet(df, id=test_sheet_id, range=range)
 
     result = sheets.download(id=test_sheet_id, range=range)
@@ -130,3 +133,21 @@ def test_create_spreadsheet_create_correctly(sheets, clean_up_created_spreadshee
     id = clean_up_created_spreadsheet
     result = sheets.download(id=id, range="Sheet1!A1:B2")
     assert result == []  # file created correctly
+
+
+def test_create_sheet_create_correctly(clean_up_sheet_creation):
+    result, expected_title = clean_up_sheet_creation
+    assert result["title"] == expected_title
+
+
+def test_rename_sheet_change_title_correctly(sheets, clean_up_sheet_creation, prefix):
+    id = clean_up_sheet_creation[0]["sheetId"]
+    new_title = f"{prefix}new_title"
+    sheets.rename_sheet(id=test_sheet_id, sheet_id=id, title=new_title)
+    try:
+        sheets.download(id=test_sheet_id, range=f"{new_title}!A1:B2")
+    except HttpError as e:
+        error = json.loads(e.content.decode("ascii"))
+        msg = error.get("error", dict()).get("message")
+        if msg == 'Requested entity was not found.':
+            pytest.fail(f"sheet not renamed properly. {e}")
