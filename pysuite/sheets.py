@@ -125,3 +125,36 @@ class Sheets:
         }
         response = self._service.create(body=file_metadata, fields="spreadsheetId").execute()
         return response.get("spreadsheetId")
+
+    def batch_update(self, id: str, body: dict):
+        """low level api used to submit a json body to make changes to the specified spreadsheet.
+
+        :param id: id of the target spreadsheet
+        :param body: request json
+        :return: response from batch upate
+        """
+        response = self._service.batchUpdate(spreadsheetId=id, body=body).execute()
+        return response
+
+    def create_sheet(self, id: str, title: str):
+        """create a new sheet with given name in the specified spreadsheet.
+
+        :param id: id of the spreadsheet
+        :param title: title of the new sheet
+        :return: a dictionary containing information about created sheet, such as sheet id, title, index.
+        """
+        request = {"requests": [{"addSheet": {"properties": {"title": title}}}]}
+        response = self.batch_update(id=id, body=request)
+        info = response.get("replies")[0]["addSheet"]["properties"]
+        return info
+
+    def delete_sheet(self, id: str, sheet_id: int):
+        """delete the specified sheet in the target spreadsheet. You can find sheet_id from URL when you select the
+        sheet in the spreadsheet after "gid="
+
+        :param id: id of spreadsheet.
+        :param sheet_id: id of sheet
+        :return: None
+        """
+        request = {"requests": [{"deleteSheet": {"sheetId": sheet_id}}]}
+        self.batch_update(id=id, body=request)

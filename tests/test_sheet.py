@@ -130,3 +130,16 @@ def test_create_spreadsheet_create_correctly(sheets, clean_up_created_spreadshee
     id = clean_up_created_spreadsheet
     result = sheets.download(id=id, range="Sheet1!A1:B2")
     assert result == []  # file created correctly
+
+
+@pytest.fixture()
+def clean_up_sheet_creation(sheets, prefix):
+    title = f"{prefix}test_sheet"
+    result = sheets.create_sheet(id=test_sheet_id, title=title)
+    yield result, title
+    sheets.delete_sheet(id=test_sheet_id, sheet_id=result["sheetId"])
+
+
+def test_create_sheet_create_correctly(clean_up_sheet_creation):
+    result, expected_title = clean_up_sheet_creation
+    assert result["title"] == expected_title
