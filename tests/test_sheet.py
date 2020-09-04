@@ -12,7 +12,7 @@ test_sheet_id = "1CNOH3o2Zz05mharkLXuwX72FpRka8-KFpIm9bEaja50"
 test_sheet_folder = "1qqFJ-OaV1rdPSeFtdaf6lUwFIpupOiiF"
 
 
-@pytest.fixture()
+@pytest.fixture(scope="session")
 def sheets(sheets_auth):
     return Sheets(service=sheets_auth.get_service_client())
 
@@ -40,8 +40,18 @@ def test_download_return_correct_values(sheets, dimension, expected):
     assert result == expected
 
 
-def test_upload_and_clear_change_sheet_value_correctly(sheets):
-    range = "upload!A1:B"
+
+@pytest.fixture(scope="module")
+def clean_up_sheet_creation(sheets, prefix):
+    title = f"{prefix}test_sheet"
+    result = sheets.create_sheet(id=test_sheet_id, title=title)
+    yield result, title
+    sheets.delete_sheet(id=test_sheet_id, sheet_id=result["sheetId"])
+
+
+def test_upload_and_clear_change_sheet_value_correctly(sheets, clean_up_sheet_creation):
+    _, title = clean_up_sheet_creation
+    range = f"{title}!A1:B"
 
     values = [["a", "b"], ["c", "d"], [1, 2]]
     sheets.upload(values=values, id=test_sheet_id, range=range)
@@ -130,14 +140,6 @@ def test_create_spreadsheet_create_correctly(sheets, clean_up_created_spreadshee
     id = clean_up_created_spreadsheet
     result = sheets.download(id=id, range="Sheet1!A1:B2")
     assert result == []  # file created correctly
-
-
-@pytest.fixture()
-def clean_up_sheet_creation(sheets, prefix):
-    title = f"{prefix}test_sheet"
-    result = sheets.create_sheet(id=test_sheet_id, title=title)
-    yield result, title
-    sheets.delete_sheet(id=test_sheet_id, sheet_id=result["sheetId"])
 
 
 def test_create_sheet_create_correctly(clean_up_sheet_creation):
