@@ -1,6 +1,10 @@
 branches:
   only:
   - "/.*/"
+python:
+  - 3.6
+  - 3.7
+  - 3.8
 before_install:
 - ".ci/dependencies.sh"
 install:
@@ -19,37 +23,3 @@ env:
   - secure: 0qW2aX8/7bHxd2rFu+acjjXuc5jmbO7ccgUtnGfH9bqbNsbmrTxYR2qUDIqNm3rq94F4oJ8nsZw9renAgRx0lq8GmKyzDXrnKBWyHEF/8WgepWycl3bWHs70XR52kRcRH50JbNtr6YmPz6SzQH+QGLdsqroeoj8n2BHljN4EXSbsMaB8n86Mf7d+zPvewzSH8vY3ZseXwsOHiSGJYQCRret+WLHSPXAbD8kexyirTrRMDvAUWHauziGXNj0wciBR0ZNLOvNjkiYE6QABHENU/PknfoutLO1Utp+3SRIFh508gtGKYwWsOWMR3re2R+6m7ugoiv5MATYUp5ns+PcjqlNSnQt6QDG7517EX3nOjD0hVjF9/VFRkwRyJLxVPYj0KncY3LQd2hOklsxlYKlrjt3Oajv6mzQxnulFimBd/BrvR2xOSkD1J6dDQE4jtRa/Xx3veU5Q+fdMjBbYdgWErhOoTSBxuD8D9sxH0cbIEeakB0Nx4MUFop9OtyTWPXkIeto6/FsGkZxF1md8uhc0rnzGW2HbeNLi85+r71CFMWzAvRJp0QzHfytAtPkolfhkFGLQojpCfTSb20dMhdN+dqdBM/eNz5g6WXu3fFj+OUIbIVrCGC1sWbTQR74x+D4y9Y6Ful34pv9m/8ImtD5vcbx1aJjJjbdvXX9VbmhAniw=
   - secure: wsFdwKScjicevxdjlCmOVRGzwXGIppPaw3qVCsbW7acor5ScQsi8tYySb1gU0clFQ0MfnC72Fztd+VZ1GzKs/j584X6MUg9d0O8yrfDZ1L3vvT8r2TWWXYX5+nj2ru9VJR4sY/BPgHVkz1Q1yS349ryQhOYCnHaUi4xTVsp/8EaDeNfmbM+8cidHISrVELdIGEgHNjvO+JftcHamkPotR7teuAYyxxQ/losgf8v5QzHLrEgaw8qcz6LBB4IWVbkXUE11C3lLcAaoAkEmOXUIEtsY3xhXvIIja0KyXaPWEB2RK8MRG5Fqv9ry05K3k/acob8hB5h69aB8gIwoyNTZCJRWQn6dVp6gywLagzKE4F+BOyxjd0li0OYCpMmA2Y747KJM9FfCh/Wx2iFFWcTggBMJV4pelErGmRciGlG67m57pcUWtBCPCriWggQvdAEQZf/9bMfOChrADQMYsuZOWSQ9Tg8U27RN8UkpXrBRbx6B7Qsh2Ie2uyxR8wIbYFmiuSw/2XNE62D0QZYMf5S4X8mT1vqgxN6ECjauX22yL/CpaA9fa3pbEhDzPUqCMHkPFJKwHeNm73bMzsu7fw4+mA1tEaPLrPVFWs1YRTNQyuBQs/UX2HXer1D3iZBf+RmaKurTF5eU6stu2HgbnYQWQ6q65KUT/IcGj6cGsPmglDs=
   - secure: Ep3FVRTZnSUFqS4tsZzGO1t8mXp5KAlAzbSC/vOGtbuhN5F2vHXzL2mVEnhAF6Mrf72mbJMw+XWiq6SPOL0bGZLe2ERs3p5CNMYH7Ejz0B6FJQjt1pL/GGczyvfdrruVrLQUafm+tC1Dg+M/o8e/s0WtXGq2oC7Xd2vCjR6pmAN21EJorw+Kiaj9wW8HZuNYfy/IwisoutcThHZ9j1CQD+xlUc2D606hMeU8vJKTzM6TwD0BiWE+HM9aoqe7m1Mp/qSX6L/cwANMejDlvVQ/+uAcLTE7JzTZ5+/oRCsvat9AQMrZMeNzodANiRP694D4gcTtjMbEvUm3lntOZL973NAIU0k6dNAoX5sVzY4OjTWDc+GVJ8IKqhDWCI0iXgXl83qeevFzv84NHgk+bwUsrQUFuN/tEst2nmu9vkukPFhFlPhsnqwGSRZ36NGhPBrzopnSZsjagfQUs5JGj/HoORCGoernkJHuqbCqwgcB5AmIeWKB/u4l9sD5wjfImtjiXynHsw0hF1Rgw7+O5e0dP5IdUtwbBsk+O9QEJqmwiBq2KohEWcyC6vuPrRwUvq9nR8HgjqtiNX+7V9MpbNXx304IoovXTWJY8w2NzcPFWt5srV7e1ds2t2PIZdy16Pdbv/KQXJYvodhjoYol9XBmDFglaJIuUoZOmj3Wnk5MTng=
-  - pd_version=1.0
-
-matrix:
-  include:
-    - language: python
-      python: 3.6
-      if: branch != master
-      env:
-        - sleep=0
-    - language: python
-      python: 3.7
-      if: branch != master
-      env:
-        - sleep=5
-    - language: python
-      python: 3.8
-      if: branch != master
-      env:
-        - sleep=10
-    - language: python
-      python: 3.6
-      if: branch = master
-      env:
-        - sleep=15
-    - language: python
-      python: 3.7
-      if: branch = master
-      env:
-        - sleep=20
-    - language: python
-      python: 3.8
-      if: branch = master
-      env:
-        - sleep=25
