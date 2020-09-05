@@ -1,7 +1,10 @@
 import logging
 import pytest
 
+from pysuite import Drive, Sheets
 from pysuite.auth import ErrorHandler
+
+from tests.test_auth import multi_auth
 
 
 @pytest.fixture(scope="module")
@@ -19,7 +22,7 @@ def reset_logging():
                              ".*msg$"
                          ])
 def test_handle_exception_correctly(reset_logging, msg, caplog):
-    @ErrorHandler(exception=TypeError, pattern=msg, max_retry=3)
+    @ErrorHandler(exception=TypeError, pattern=msg, max_retry=3, sleep=0.1)
     def raise_exception(exception: Exception, msg: str):
         raise exception(msg)
 
@@ -46,3 +49,13 @@ def test_handle_exception_raise_uncaught_exception_correctly(reset_logging, exce
     result = caplog.messages
     assert f'handled exception good msg. remaining retry: 2' not in result
 
+
+@pytest.mark.parametrize("class_name",
+                         [
+                             "Drive",
+                             "Sheets"
+                         ])
+def test_quota_exceeded_retry_return_correct_class_type(class_name, multi_auth):
+    expected = eval(class_name)
+    result = expected(service=multi_auth.get_service_client(class_name.lower()))
+    assert isinstance(result, expected)

@@ -6,6 +6,8 @@ import json
 import logging
 import functools
 import re
+import time
+import random
 
 from googleapiclient.discovery import build
 from google.oauth2.credentials import Credentials
@@ -142,12 +144,14 @@ class Authentication:
 
 
 class ErrorHandler:
-
-    def __init__(self, exception: Exception, pattern: Optional[str]=None, max_retry: int=3):
+    """class used to retry on specific type error with specific error message pattern.
+    """
+    def __init__(self, exception: Exception, pattern: Optional[str]=None, max_retry: int=3, sleep: Union[int, float]=5):
         self._exception = exception
         self._max_retry = max_retry
         self._pattern = re.compile(pattern)
         self.logger = logging.getLogger("ErrorHandler")
+        self._sleep = sleep
 
     def __call__(self, func):
         exception = self._exception
@@ -164,7 +168,22 @@ class ErrorHandler:
                     if isinstance(e, exception) and pattern.match(str(e)):
                         remaining_retries -= 1
                         logger.debug(f"handled exception {e}. remaining retry: {remaining_retries}")
+                        sleep = (self._max_retry - remaining_retries)*self._sleep + random.uniform(0, self._sleep)
+                        time.sleep(sleep)
                         continue
                     raise e
 
         return wrapper_func
+
+
+class QuotaExceededRetry(type):
+    """metaclass used to give all class method ability to retry rate limit exceeded error"
+    """
+    def __new__(cls, name, bases, local):
+        decorator = ErrorHandler(exception=HttpError, pattern=".*[User Rate Limit Exceeded|Quota exceeded].*")
+        for attr in local:
+            value = local[attr]
+            if callable(attr):
+                local[attr] = decorator(value)
+
+        return type.__new__(cls, name, bases, local)
