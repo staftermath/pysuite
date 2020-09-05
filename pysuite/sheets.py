@@ -159,7 +159,6 @@ class Sheets:
         request = {"requests": [{"deleteSheet": {"sheetId": sheet_id}}]}
         self.batch_update(id=id, body=request)
 
-
     def rename_sheet(self, id: str, sheet_id: int, title: str):
         """rename a sheet in target spreadsheet to the new title.
 
