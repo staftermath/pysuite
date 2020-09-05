@@ -42,7 +42,7 @@ def test_download_create_file_correctly(drive, tmpdir):
 
 
 @pytest.fixture()
-def clean_up_upload_and_delete(prefix, drive):
+def clean_up_drive_temp_files(prefix, drive):
     yield prefix
     purge_temp_file(drive=drive, prefix=prefix)
 
@@ -167,5 +167,18 @@ def test_multi_auth_token(multi_auth):
 )
                          ])
 def test_find_return_correct_values(drive, contains, not_contains, expected):
-    result = drive.find(name_contains=contains, name_not_contains=not_contains, parent_id="1LOeJyQpD8tqXF5sm6cqpmOPcTBEg6NaE")
+    result = drive.find(name_contains=contains, name_not_contains=not_contains,
+                        parent_id="1LOeJyQpD8tqXF5sm6cqpmOPcTBEg6NaE")
     assert sorted(result, key=lambda x: x['name']) == sorted(expected, key=lambda x: x['name'])
+
+
+def test_copy_copy_file_correctly(drive, clean_up_drive_temp_files, tmpdir):
+    prefix = clean_up_drive_temp_files
+    id = drive.copy(id="1-zIfn0kUcK6KI9PfZLXu6uCt01ZSOTOZ", name=f"{prefix}_copied_file",
+                    parent_ids=["1_p0khJ5euUDbZhWiXbN5fefozKMD28yZ"])
+    temp_download = Path(tmpdir.join("temp_download_copied_file"))
+    drive.download(id=id, to_file=temp_download)
+    with open(temp_download) as f:
+        result = [l.strip() for l in f.readlines()]
+
+    assert result == ["hello", "world"]

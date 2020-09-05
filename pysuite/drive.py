@@ -249,3 +249,17 @@ class Drive:
         """
         file = self._service.files().get(fileId=id).execute()
         return file['name']
+
+    def copy(self, id: str, name: str, parent_ids: Optional[list]=None) -> str:
+        """copy target file and give the new file specified name. return the id of the created file.
+
+        :param id: target file to be copied.
+        :param name: name of the new file.
+        :param parent_ids: ids of folders to place the new file in.
+        :return: id of the created new file.
+        """
+        request = {"name": name}
+        if parent_ids is not None:
+            request["parents"] = parent_ids
+        file = self._service.files().copy(fileId=id, body=request, fields='id').execute()
+        return file.get("id")
