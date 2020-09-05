@@ -7,7 +7,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Drive &mdash; pysuite 0.2.1 documentation</title>
+  <title>Drive &mdash; pysuite 0.3.0 documentation</title>
   
 
   
@@ -161,6 +161,24 @@
 <em class="property">class </em><code class="sig-prename descclassname">pysuite.drive.</code><code class="sig-name descname">Drive</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">service</span><span class="p">:</span> <span class="n">googleapiclient.discovery.Resource</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pysuite/drive.html#Drive"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pysuite.drive.Drive" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <dl class="py method">
+<dt id="pysuite.drive.Drive.copy">
+<code class="sig-name descname">copy</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">id</span><span class="p">:</span> <span class="n">str</span></em>, <em class="sig-param"><span class="n">name</span><span class="p">:</span> <span class="n">str</span></em>, <em class="sig-param"><span class="n">parent_ids</span><span class="p">:</span> <span class="n">Optional<span class="p">[</span><a class="reference internal" href="#pysuite.drive.Drive.list" title="pysuite.drive.Drive.list">pysuite.drive.Drive.list</a><span class="p">]</span></span> <span class="o">=</span> <span class="default_value">None</span></em><span class="sig-paren">)</span> &#x2192; str<a class="reference internal" href="_modules/pysuite/drive.html#Drive.copy"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pysuite.drive.Drive.copy" title="Permalink to this definition">¶</a></dt>
+<dd><p>copy target file and give the new file specified name. return the id of the created file.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>id</strong> – target file to be copied.</p></li>
+<li><p><strong>name</strong> – name of the new file.</p></li>
+<li><p><strong>parent_ids</strong> – ids of folders to place the new file in.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>id of the created new file.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
 <dt id="pysuite.drive.Drive.create_folder">
 <code class="sig-name descname">create_folder</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">name</span><span class="p">:</span> <span class="n">str</span></em>, <em class="sig-param"><span class="n">parent_ids</span><span class="p">:</span> <span class="n">Optional<span class="p">[</span><a class="reference internal" href="#pysuite.drive.Drive.list" title="pysuite.drive.Drive.list">pysuite.drive.Drive.list</a><span class="p">]</span></span> <span class="o">=</span> <span class="default_value">None</span></em><span class="sig-paren">)</span> &#x2192; str<a class="reference internal" href="_modules/pysuite/drive.html#Drive.create_folder"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pysuite.drive.Drive.create_folder" title="Permalink to this definition">¶</a></dt>
 <dd><p>create a folder on google drive by the given name.</p>
@@ -213,6 +231,34 @@ TODO: implement recursive delete</p>
 </dd></dl>
 
 <dl class="py method">
+<dt id="pysuite.drive.Drive.find">
+<code class="sig-name descname">find</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">name_contains</span><span class="p">:</span> <span class="n">Optional<span class="p">[</span>str<span class="p">]</span></span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="n">name_not_contains</span><span class="p">:</span> <span class="n">Optional<span class="p">[</span>str<span class="p">]</span></span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="n">parent_id</span><span class="p">:</span> <span class="n">Optional<span class="p">[</span>str<span class="p">]</span></span> <span class="o">=</span> <span class="default_value">None</span></em><span class="sig-paren">)</span> &#x2192; <a class="reference internal" href="#pysuite.drive.Drive.list" title="pysuite.drive.Drive.list">list</a><a class="reference internal" href="_modules/pysuite/drive.html#Drive.find"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pysuite.drive.Drive.find" title="Permalink to this definition">¶</a></dt>
+<dd><p>find all files whose name contain specified string and do not contain specified string. Note that Google
+API has unexpected behavior when searching for strings in name. It is can only search first 26 character. In
+addition, it seems to search from first alphabetic character and Assume there are the following files:
+‘positive_a’, ‘positive_b’, ‘a’, ‘_a’, ‘ba’</p>
+<dl class="field-list simple">
+<dt class="field-odd">Example</dt>
+<dd class="field-odd"><p></p></dd>
+</dl>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="bp">self</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="n">name_contains</span><span class="o">=</span><span class="s1">&#39;a&#39;</span><span class="p">)</span>  <span class="c1"># this finds only &#39;a&#39; and &#39;_a&#39;, not &#39;positive_a&#39; or &#39;ba&#39;</span>
+</pre></div>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>name_contains</strong> – a string contained in the name</p></li>
+<li><p><strong>name_not_contains</strong> – a string that is not contained in the name</p></li>
+<li><p><strong>parent_id</strong> – parent folder id</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>a list of dictionaries containing id and name of found files.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
 <dt id="pysuite.drive.Drive.get_id">
 <code class="sig-name descname">get_id</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">name</span><span class="p">:</span> <span class="n">str</span></em>, <em class="sig-param"><span class="n">parent_id</span><span class="p">:</span> <span class="n">Optional<span class="p">[</span>str<span class="p">]</span></span> <span class="o">=</span> <span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pysuite/drive.html#Drive.get_id"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pysuite.drive.Drive.get_id" title="Permalink to this definition">¶</a></dt>
 <dd><p>get the id of the file with specified name. if more than one file are found, an error will be raised.</p>
@@ -245,14 +291,20 @@ TODO: implement recursive delete</p>
 
 <dl class="py method">
 <dt id="pysuite.drive.Drive.list">
-<code class="sig-name descname">list</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">id</span><span class="p">:</span> <span class="n">str</span></em><span class="sig-paren">)</span> &#x2192; <a class="reference internal" href="#pysuite.drive.Drive.list" title="pysuite.drive.Drive.list">list</a><a class="reference internal" href="_modules/pysuite/drive.html#Drive.list"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pysuite.drive.Drive.list" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">list</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">id</span><span class="p">:</span> <span class="n">str</span></em>, <em class="sig-param"><span class="n">regex</span><span class="p">:</span> <span class="n">str</span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="n">recursive</span><span class="p">:</span> <span class="n">bool</span> <span class="o">=</span> <span class="default_value">False</span></em>, <em class="sig-param"><span class="n">depth</span><span class="p">:</span> <span class="n">int</span> <span class="o">=</span> <span class="default_value">3</span></em><span class="sig-paren">)</span> &#x2192; <a class="reference internal" href="#pysuite.drive.Drive.list" title="pysuite.drive.Drive.list">list</a><a class="reference internal" href="_modules/pysuite/drive.html#Drive.list"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pysuite.drive.Drive.list" title="Permalink to this definition">¶</a></dt>
 <dd><p>list the content of the folder by the given id.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>id</strong> – id of the folder to be listed.</p>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>id</strong> – id of the folder to be listed.</p></li>
+<li><p><strong>regex</strong> – an regular expression used to filter returned file and folders.</p></li>
+<li><p><strong>recursive</strong> – if True, children of the folder will also be listed.</p></li>
+<li><p><strong>depth</strong> – number of recursion if recursive is True. This is to prevent cyclic nesting or deep nested folders.</p></li>
+</ul>
 </dd>
 <dt class="field-even">Returns</dt>
-<dd class="field-even"><p>a list of dictionaries containing id and name of the object contained in the target folder.</p>
+<dd class="field-even"><p>a list of dictionaries containing id, name of the object contained in the target folder and list of
+parent ids.</p>
 </dd>
 </dl>
 </dd></dl>

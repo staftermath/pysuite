@@ -7,7 +7,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>pysuite.sheets &mdash; pysuite 0.2.1 documentation</title>
+  <title>pysuite.sheets &mdash; pysuite 0.3.0 documentation</title>
   
 
   
@@ -264,7 +264,66 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">values</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">fillna</span><span class="p">(</span><span class="s1">&#39;&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">values</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
         <span class="n">values</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="nb">list</span><span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">columns</span><span class="p">))</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">upload</span><span class="p">(</span><span class="n">values</span><span class="p">,</span> <span class="nb">id</span><span class="o">=</span><span class="nb">id</span><span class="p">,</span> <span class="nb">range</span><span class="o">=</span><span class="nb">range</span><span class="p">)</span></div></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">upload</span><span class="p">(</span><span class="n">values</span><span class="p">,</span> <span class="nb">id</span><span class="o">=</span><span class="nb">id</span><span class="p">,</span> <span class="nb">range</span><span class="o">=</span><span class="nb">range</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Sheets.create_spreadsheet"><a class="viewcode-back" href="../../sheets.html#pysuite.sheets.Sheets.create_spreadsheet">[docs]</a>    <span class="k">def</span> <span class="nf">create_spreadsheet</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;create a spreadsheet with requested name.</span>
+
+<span class="sd">        :param name: name of the created sheet.</span>
+<span class="sd">        :return: id of the spreadsheet</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">file_metadata</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s2">&quot;properties&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;title&quot;</span><span class="p">:</span> <span class="n">name</span><span class="p">}</span>
+        <span class="p">}</span>
+        <span class="n">response</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_service</span><span class="o">.</span><span class="n">create</span><span class="p">(</span><span class="n">body</span><span class="o">=</span><span class="n">file_metadata</span><span class="p">,</span> <span class="n">fields</span><span class="o">=</span><span class="s2">&quot;spreadsheetId&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">execute</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">response</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;spreadsheetId&quot;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Sheets.batch_update"><a class="viewcode-back" href="../../sheets.html#pysuite.sheets.Sheets.batch_update">[docs]</a>    <span class="k">def</span> <span class="nf">batch_update</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">id</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">body</span><span class="p">:</span> <span class="nb">dict</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;low level api used to submit a json body to make changes to the specified spreadsheet.</span>
+
+<span class="sd">        :param id: id of the target spreadsheet</span>
+<span class="sd">        :param body: request json</span>
+<span class="sd">        :return: response from batch upate</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">response</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_service</span><span class="o">.</span><span class="n">batchUpdate</span><span class="p">(</span><span class="n">spreadsheetId</span><span class="o">=</span><span class="nb">id</span><span class="p">,</span> <span class="n">body</span><span class="o">=</span><span class="n">body</span><span class="p">)</span><span class="o">.</span><span class="n">execute</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">response</span></div>
+
+<div class="viewcode-block" id="Sheets.create_sheet"><a class="viewcode-back" href="../../sheets.html#pysuite.sheets.Sheets.create_sheet">[docs]</a>    <span class="k">def</span> <span class="nf">create_sheet</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">id</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">title</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;create a new sheet with given name in the specified spreadsheet.</span>
+
+<span class="sd">        :param id: id of the spreadsheet</span>
+<span class="sd">        :param title: title of the new sheet</span>
+<span class="sd">        :return: a dictionary containing information about created sheet, such as sheet id, title, index.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">request</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;requests&quot;</span><span class="p">:</span> <span class="p">[{</span><span class="s2">&quot;addSheet&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;properties&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;title&quot;</span><span class="p">:</span> <span class="n">title</span><span class="p">}}}]}</span>
+        <span class="n">response</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">batch_update</span><span class="p">(</span><span class="nb">id</span><span class="o">=</span><span class="nb">id</span><span class="p">,</span> <span class="n">body</span><span class="o">=</span><span class="n">request</span><span class="p">)</span>
+        <span class="n">info</span> <span class="o">=</span> <span class="n">response</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;replies&quot;</span><span class="p">)[</span><span class="mi">0</span><span class="p">][</span><span class="s2">&quot;addSheet&quot;</span><span class="p">][</span><span class="s2">&quot;properties&quot;</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">info</span></div>
+
+<div class="viewcode-block" id="Sheets.delete_sheet"><a class="viewcode-back" href="../../sheets.html#pysuite.sheets.Sheets.delete_sheet">[docs]</a>    <span class="k">def</span> <span class="nf">delete_sheet</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">id</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">sheet_id</span><span class="p">:</span> <span class="nb">int</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;delete the specified sheet in the target spreadsheet. You can find sheet_id from URL when you select the</span>
+<span class="sd">        sheet in the spreadsheet after &quot;gid=&quot;</span>
+
+<span class="sd">        :param id: id of spreadsheet.</span>
+<span class="sd">        :param sheet_id: id of sheet</span>
+<span class="sd">        :return: None</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">request</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;requests&quot;</span><span class="p">:</span> <span class="p">[{</span><span class="s2">&quot;deleteSheet&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;sheetId&quot;</span><span class="p">:</span> <span class="n">sheet_id</span><span class="p">}}]}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">batch_update</span><span class="p">(</span><span class="nb">id</span><span class="o">=</span><span class="nb">id</span><span class="p">,</span> <span class="n">body</span><span class="o">=</span><span class="n">request</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Sheets.rename_sheet"><a class="viewcode-back" href="../../sheets.html#pysuite.sheets.Sheets.rename_sheet">[docs]</a>    <span class="k">def</span> <span class="nf">rename_sheet</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">id</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">sheet_id</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">title</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;rename a sheet in target spreadsheet to the new title.</span>
+
+<span class="sd">        :param id: id of the target spreadsheet</span>
+<span class="sd">        :param sheet_id: id of the sheet</span>
+<span class="sd">        :param title: new title of the sheet</span>
+<span class="sd">        :return: None</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">request</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;requests&quot;</span><span class="p">:</span> <span class="p">[</span>
+            <span class="p">{</span><span class="s2">&quot;updateSheetProperties&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;properties&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;sheetId&quot;</span><span class="p">:</span> <span class="n">sheet_id</span><span class="p">,</span> <span class="s2">&quot;title&quot;</span><span class="p">:</span> <span class="n">title</span><span class="p">},</span> <span class="s2">&quot;fields&quot;</span><span class="p">:</span> <span class="s2">&quot;title&quot;</span><span class="p">}}</span>
+        <span class="p">]</span>
+        <span class="p">}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">batch_update</span><span class="p">(</span><span class="nb">id</span><span class="o">=</span><span class="nb">id</span><span class="p">,</span> <span class="n">body</span><span class="o">=</span><span class="n">request</span><span class="p">)</span></div></div>
 </pre></div>
 
            </div>

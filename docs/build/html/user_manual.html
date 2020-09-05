@@ -7,7 +7,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>User Manual &mdash; pysuite 0.2.1 documentation</title>
+  <title>User Manual &mdash; pysuite 0.3.0 documentation</title>
   
 
   
@@ -94,7 +94,11 @@
 <li class="toctree-l3"><a class="reference internal" href="#instantiate">instantiate</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#download">download</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#upload">upload</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#delete">delete</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#copy">copy</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#list">list</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#share">share</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#create-folder">create_folder</a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="#sheets">Sheets</a><ul>
@@ -104,6 +108,10 @@
 <li class="toctree-l3"><a class="reference internal" href="#id3">download</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#id4">upload</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#clear">clear</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#create-spreadsheet">create_spreadsheet</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#create-sheet">create_sheet</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#delete-sheet">delete_sheet</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#rename-sheet">rename_sheet</a></li>
 </ul>
 </li>
 </ul>
@@ -256,20 +264,55 @@ accepted services are ‘drive’ or ‘sheets’.</p>
 </div>
 <div class="section" id="download">
 <h3>download<a class="headerlink" href="#download" title="Permalink to this headline">¶</a></h3>
+<p>download a file to local.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">drive</span><span class="o">.</span><span class="n">download</span><span class="p">(</span><span class="nb">id</span><span class="o">=</span><span class="s2">&quot;google drive object id&quot;</span><span class="p">,</span> <span class="n">to_file</span><span class="o">=</span><span class="s2">&quot;/tmp/test_file&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
 <div class="section" id="upload">
 <h3>upload<a class="headerlink" href="#upload" title="Permalink to this headline">¶</a></h3>
+<p>upload a local file to google drive. you can provide a list of ids to place the uploaded file under these folders.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">drive</span><span class="o">.</span><span class="n">upload</span><span class="p">(</span><span class="n">from_file</span><span class="o">=</span><span class="s2">&quot;path/to/your/file/to/be/uploaded&quot;</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;google_drive_file_name&quot;</span><span class="p">,</span>
              <span class="n">parent_ids</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;google drive folder id 1&quot;</span><span class="p">,</span> <span class="s2">&quot;google drive folder id 2&quot;</span><span class="p">])</span>
 </pre></div>
 </div>
 </div>
+<div class="section" id="delete">
+<h3>delete<a class="headerlink" href="#delete" title="Permalink to this headline">¶</a></h3>
+<p>delete a google drive file/folder. parameter <cite>recursive</cite> has not been implemented.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">drive</span><span class="o">.</span><span class="n">delete</span><span class="p">(</span><span class="nb">id</span><span class="o">=</span><span class="s2">&quot;id_of_target_file&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="copy">
+<h3>copy<a class="headerlink" href="#copy" title="Permalink to this headline">¶</a></h3>
+<p>copy one google drive file to another. you can provide a list of ids to place the new file under these folders.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">drive</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="nb">id</span><span class="o">=</span><span class="s2">&quot;id_of_target_file&quot;</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;name of new file&quot;</span><span class="p">,</span> <span class="n">parent_ids</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;new parent folder id&quot;</span><span class="p">])</span>
+</pre></div>
+</div>
+</div>
 <div class="section" id="list">
 <h3>list<a class="headerlink" href="#list" title="Permalink to this headline">¶</a></h3>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">list_of_objects</span> <span class="o">=</span> <span class="n">drive</span><span class="o">.</span><span class="n">list</span><span class="p">(</span><span class="nb">id</span><span class="o">=</span><span class="s2">&quot;google drive folder id&quot;</span><span class="p">)</span>
+<p>list files under the target folder. if the id is not a folder or there is no object in the folder, an empty list will be
+returned. you can also pass a regular expression string to filter the result. note that this filter is done post-query.
+you can also list recursively up to a maximum depth.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">list_of_objects</span> <span class="o">=</span> <span class="n">drive</span><span class="o">.</span><span class="n">list</span><span class="p">(</span><span class="nb">id</span><span class="o">=</span><span class="s2">&quot;google drive folder id&quot;</span><span class="p">,</span> <span class="n">regex</span><span class="o">=</span><span class="s2">&quot;^test$&quot;</span><span class="p">,</span> <span class="n">recursive</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">depth</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="share">
+<h3>share<a class="headerlink" href="#share" title="Permalink to this headline">¶</a></h3>
+<p>share a google drive object with a list of emails. you can grant the role as ‘owner’, ‘organizer’, ‘fileOrganzier’,
+‘writer’, ‘commenter’ or ‘reader’. you can also choose to notify the shared emails.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">drive</span><span class="o">.</span><span class="n">share</span><span class="p">(</span><span class="nb">id</span><span class="o">=</span><span class="s2">&quot;google drive object id&quot;</span><span class="p">,</span> <span class="n">emails</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;user1@gmail.com&quot;</span><span class="p">,</span> <span class="s2">&quot;user2@gmail.com&quot;</span><span class="p">],</span>
+            <span class="n">role</span><span class="o">=</span><span class="s2">&quot;reader&quot;</span><span class="p">,</span> <span class="n">notify</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="create-folder">
+<h3>create_folder<a class="headerlink" href="#create-folder" title="Permalink to this headline">¶</a></h3>
+<p>create a folder on google drive.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">drive</span><span class="o">.</span><span class="n">create_folder</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;awesome_new_folder&quot;</span><span class="p">,</span> <span class="n">parent_ids</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;parent_folder_id&quot;</span><span class="p">])</span>
 </pre></div>
 </div>
 </div>
@@ -325,6 +368,34 @@ want to add pandas as dependency.</p>
 <h3>clear<a class="headerlink" href="#clear" title="Permalink to this headline">¶</a></h3>
 <p>Remove contents of specified Goolge sheet range.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">sheets</span><span class="o">.</span><span class="n">clear</span><span class="p">(</span><span class="nb">id</span><span class="o">=</span><span class="s2">&quot;your_sheet_id&quot;</span><span class="p">,</span> <span class="nb">range</span><span class="o">=</span><span class="s2">&quot;yourtab!A1:B&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="create-spreadsheet">
+<h3>create_spreadsheet<a class="headerlink" href="#create-spreadsheet" title="Permalink to this headline">¶</a></h3>
+<p>Google api does not support create spreadsheet in a folder.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">sheets</span><span class="o">.</span><span class="n">create_spreadsheet</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;new_spread_sheet_name&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="create-sheet">
+<h3>create_sheet<a class="headerlink" href="#create-sheet" title="Permalink to this headline">¶</a></h3>
+<p>Create a tab (sheet) in a spreadsheet. return the id of created tab.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">sheets</span><span class="o">.</span><span class="n">create_sheet</span><span class="p">(</span><span class="nb">id</span><span class="o">=</span><span class="s2">&quot;id_of_spreadsheet&quot;</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="s2">&quot;new_tab_name&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="delete-sheet">
+<h3>delete_sheet<a class="headerlink" href="#delete-sheet" title="Permalink to this headline">¶</a></h3>
+<p>delete a tab in a spreadsheet. you can find the id of the tab from URL</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">sheets</span><span class="o">.</span><span class="n">delete_sheet</span><span class="p">(</span><span class="nb">id</span><span class="o">=</span><span class="s2">&quot;id_of_spreadsheet&quot;</span><span class="p">,</span> <span class="n">sheet_id</span><span class="o">=</span><span class="s2">&quot;id_of_tab&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="rename-sheet">
+<h3>rename_sheet<a class="headerlink" href="#rename-sheet" title="Permalink to this headline">¶</a></h3>
+<p>rename a tab in a spreadsheet.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">sheets</span><span class="o">.</span><span class="n">rename_sheet</span><span class="p">(</span><span class="nb">id</span><span class="o">=</span><span class="s2">&quot;id_of_spreadsheet&quot;</span><span class="p">,</span> <span class="n">sheet_id</span><span class="o">=</span><span class="s2">&quot;id_of_tab&quot;</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="s2">&quot;new_tab_name&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>

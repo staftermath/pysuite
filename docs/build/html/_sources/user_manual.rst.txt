@@ -98,6 +98,7 @@ If you prefer different method to create gdrive client, you may switch :code:`dr
 
 download
 ++++++++
+download a file to local.
 
 .. code-block:: python
 
@@ -105,18 +106,56 @@ download
 
 upload
 ++++++
+upload a local file to google drive. you can provide a list of ids to place the uploaded file under these folders.
 
 .. code-block:: python
 
     drive.upload(from_file="path/to/your/file/to/be/uploaded", name="google_drive_file_name",
                  parent_ids=["google drive folder id 1", "google drive folder id 2"])
 
-list
-++++
+delete
+++++++
+delete a google drive file/folder. parameter `recursive` has not been implemented.
 
 .. code-block:: python
 
-    list_of_objects = drive.list(id="google drive folder id")
+    drive.delete(id="id_of_target_file")
+
+copy
+++++
+copy one google drive file to another. you can provide a list of ids to place the new file under these folders.
+
+.. code-block:: python
+
+    drive.copy(id="id_of_target_file", name="name of new file", parent_ids=["new parent folder id"])
+
+list
+++++
+list files under the target folder. if the id is not a folder or there is no object in the folder, an empty list will be
+returned. you can also pass a regular expression string to filter the result. note that this filter is done post-query.
+you can also list recursively up to a maximum depth.
+
+.. code-block:: python
+
+    list_of_objects = drive.list(id="google drive folder id", regex="^test$", recursive=True, depth=5)
+
+share
++++++
+share a google drive object with a list of emails. you can grant the role as 'owner', 'organizer', 'fileOrganzier',
+'writer', 'commenter' or 'reader'. you can also choose to notify the shared emails.
+
+.. code-block:: python
+
+    drive.share(id="google drive object id", emails=["user1@gmail.com", "user2@gmail.com"],
+                role="reader", notify=True)
+
+create_folder
++++++++++++++
+create a folder on google drive.
+
+.. code-block:: python
+
+    drive.create_folder(name="awesome_new_folder", parent_ids=["parent_folder_id"])
 
 Sheets
 ------
@@ -180,3 +219,35 @@ Remove contents of specified Goolge sheet range.
 .. code-block:: python
 
     sheets.clear(id="your_sheet_id", range="yourtab!A1:B")
+
+create_spreadsheet
+++++++++++++++++++
+Google api does not support create spreadsheet in a folder.
+
+.. code-block:: python
+
+    sheets.create_spreadsheet(name="new_spread_sheet_name")
+
+create_sheet
+++++++++++++
+Create a tab (sheet) in a spreadsheet. return the id of created tab.
+
+.. code-block:: python
+
+    sheets.create_sheet(id="id_of_spreadsheet", title="new_tab_name")
+
+delete_sheet
+++++++++++++
+delete a tab in a spreadsheet. you can find the id of the tab from URL
+
+.. code-block:: python
+
+    sheets.delete_sheet(id="id_of_spreadsheet", sheet_id="id_of_tab")
+
+rename_sheet
+++++++++++++
+rename a tab in a spreadsheet.
+
+.. code-block:: python
+
+    sheets.rename_sheet(id="id_of_spreadsheet", sheet_id="id_of_tab", title="new_tab_name")
