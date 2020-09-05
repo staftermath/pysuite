@@ -4,6 +4,7 @@ from typing import Union, Optional
 from pathlib import Path, PosixPath
 import json
 import logging
+import functools
 
 from googleapiclient.discovery import build
 from google.oauth2.credentials import Credentials
@@ -136,3 +137,32 @@ class Authentication:
             raise ValueError(f"invalid services. got {services}, expecting {SCOPES.keys()}")
 
         return services
+
+
+class ErrorHandler:
+
+    def __init__(self, exception: Exception, contains_msg: Optional[str]=None, max_retry: int=3):
+        self._exception = exception
+        self._max_retry = max_retry
+        self._contains_msg = contains_msg
+        self.logger = logging.getLogger("ErrorHandler")
+
+    def __call__(self, func):
+        exception = self._exception
+        msg = self._contains_msg
+        logger = self.logger
+        @functools.wraps(func)
+        def wrapper_func(*args, **kwargs):
+            remaining_retries = self._max_retry
+            while remaining_retries > 0:
+                try:
+                    result = func(*args, **kwargs)
+                    return result
+                except Exception as e:
+                    if isinstance(e, exception) and msg in str(e):
+                        remaining_retries -= 1
+                        logger.debug(f"handled exception {e}. remaining retry: {remaining_retries}")
+                        continue
+                    raise e
+
+        return wrapper_func
