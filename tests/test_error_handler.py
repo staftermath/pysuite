@@ -12,8 +12,14 @@ def reset_logging():
     logger.setLevel("WARNING")
 
 
-def test_handle_exception_correctly(reset_logging, caplog):
-    @ErrorHandler(exception=TypeError, contains_msg="test msg", max_retry=3)
+@pytest.mark.parametrize("msg",
+                         [
+                             ".*st m.*",
+                             "^test",
+                             ".*msg$"
+                         ])
+def test_handle_exception_correctly(reset_logging, msg, caplog):
+    @ErrorHandler(exception=TypeError, pattern=msg, max_retry=3)
     def raise_exception(exception: Exception, msg: str):
         raise exception(msg)
 
@@ -30,7 +36,7 @@ def test_handle_exception_correctly(reset_logging, caplog):
                              (TypeError, "bad msg"), # mismatching msg value
                          ])
 def test_handle_exception_raise_uncaught_exception_correctly(reset_logging, exception, msg, caplog):
-    @ErrorHandler(exception=TypeError, contains_msg="good msg", max_retry=3)
+    @ErrorHandler(exception=TypeError, pattern="good msg", max_retry=3)
     def raise_exception(exception: Exception, msg: str):
         raise exception(msg)
 

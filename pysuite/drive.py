@@ -8,6 +8,8 @@ import re
 from googleapiclient.discovery import Resource
 from googleapiclient.http import MediaIoBaseDownload, MediaFileUpload
 
+from pysuite.auth import ErrorHandler
+
 
 class Drive:
 

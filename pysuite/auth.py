@@ -5,11 +5,13 @@ from pathlib import Path, PosixPath
 import json
 import logging
 import functools
+import re
 
 from googleapiclient.discovery import build
 from google.oauth2.credentials import Credentials
 from google.auth.transport.requests import Request
 from google_auth_oauthlib.flow import InstalledAppFlow
+from googleapiclient.errors import HttpError
 
 SCOPES = {
     "drive": "https://www.googleapis.com/auth/drive",
@@ -141,15 +143,15 @@ class Authentication:
 
 class ErrorHandler:
 
-    def __init__(self, exception: Exception, contains_msg: Optional[str]=None, max_retry: int=3):
+    def __init__(self, exception: Exception, pattern: Optional[str]=None, max_retry: int=3):
         self._exception = exception
         self._max_retry = max_retry
-        self._contains_msg = contains_msg
+        self._pattern = re.compile(pattern)
         self.logger = logging.getLogger("ErrorHandler")
 
     def __call__(self, func):
         exception = self._exception
-        msg = self._contains_msg
+        pattern = self._pattern
         logger = self.logger
         @functools.wraps(func)
         def wrapper_func(*args, **kwargs):
@@ -159,7 +161,7 @@ class ErrorHandler:
                     result = func(*args, **kwargs)
                     return result
                 except Exception as e:
-                    if isinstance(e, exception) and msg in str(e):
+                    if isinstance(e, exception) and pattern.match(str(e)):
                         remaining_retries -= 1
                         logger.debug(f"handled exception {e}. remaining retry: {remaining_retries}")
                         continue
