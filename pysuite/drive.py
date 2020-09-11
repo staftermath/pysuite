@@ -8,13 +8,13 @@ import re
 from googleapiclient.discovery import Resource
 from googleapiclient.http import MediaIoBaseDownload, MediaFileUpload
 
-from pysuite.auth import QuotaExceededRetry
+from pysuite.auth import handle_rate_exceeded_exception
 
 
+@handle_rate_exceeded_exception()
 class Drive:
     """provide api to operate google drive. An authenticated google api client is needed. all methods will retry 3 times
     before quota exceeded error is raised"""
-    __metaclass__ = QuotaExceededRetry
     def __init__(self, service: Resource):
         self._service = service
 

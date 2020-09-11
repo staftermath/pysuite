@@ -4,15 +4,15 @@ import logging
 from typing import Optional
 
 from googleapiclient.discovery import Resource
-from pysuite.auth import QuotaExceededRetry
+from pysuite.auth import handle_rate_exceeded_exception
 
 VALID_DIMENSION = {"COLUMNS", "ROWS"}
 
 
+@handle_rate_exceeded_exception()
 class Sheets:
     """provide api to operate google spreadsheet. An authenticated google api client is needed.
     """
-    __metaclass__ = QuotaExceededRetry
     def __init__(self, service: Resource):
         self._service = service.spreadsheets()
 

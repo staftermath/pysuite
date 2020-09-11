@@ -4,6 +4,7 @@ from typing import Union, Optional
 from pathlib import Path, PosixPath
 import json
 import logging
+import warnings
 import functools
 import re
 import time
@@ -150,24 +151,22 @@ class ErrorHandler:
         self._exception = exception
         self._max_retry = max_retry
         self._pattern = re.compile(pattern)
-        self.logger = logging.getLogger("ErrorHandler")
         self._sleep = sleep
 
     def __call__(self, func):
         exception = self._exception
         pattern = self._pattern
-        logger = self.logger
         @functools.wraps(func)
         def wrapper_func(*args, **kwargs):
             remaining_retries = self._max_retry
-            while remaining_retries > 0:
+            while True:
                 try:
                     result = func(*args, **kwargs)
                     return result
-                except Exception as e:
-                    if isinstance(e, exception) and pattern.match(str(e)):
+                except exception as e:
+                    if pattern.match(str(e)) and remaining_retries > 0:
                         remaining_retries -= 1
-                        logger.debug(f"handled exception {e}. remaining retry: {remaining_retries}")
+                        warnings.warn(f"handled exception {e}. remaining retry: {remaining_retries}", UserWarning)
                         sleep = (self._max_retry - remaining_retries)*self._sleep + random.uniform(0, self._sleep)
                         time.sleep(sleep)
                         continue
@@ -176,14 +175,17 @@ class ErrorHandler:
         return wrapper_func
 
 
-class QuotaExceededRetry(type):
-    """metaclass used to give all class method ability to retry rate limit exceeded error"
-    """
-    def __new__(cls, name, bases, local):
-        decorator = ErrorHandler(exception=HttpError, pattern=".*[User Rate Limit Exceeded|Quota exceeded].*")
-        for attr in local:
-            value = local[attr]
-            if callable(attr):
-                local[attr] = decorator(value)
+def handle_rate_exceeded_exception(sleep: Union[int, float]=5):
+    """a class wrapper to give all non-hidden methods in a class ability to handle HttpError when user rate limit
+    or quota exceeded
 
-        return type.__new__(cls, name, bases, local)
+    :param sleep: number of seconds to sleep after each capture
+    :return: a class decorator
+    """
+    decorator = ErrorHandler(exception=HttpError, pattern=".*[User Rate Limit Exceeded|Quota exceeded].*", sleep=sleep)
+    def decorate(cls):
+        for attr in cls.__dict__:  # there's propably a better way to do this
+            if callable(getattr(cls, attr)):
+                setattr(cls, attr, decorator(getattr(cls, attr)))
+        return cls
+    return decorate
