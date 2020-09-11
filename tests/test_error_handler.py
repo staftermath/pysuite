@@ -61,13 +61,15 @@ def test_error_class():
     return TestErrorClass()
 
 
-@pytest.mark.parametrize("msg",
+@pytest.mark.parametrize(("msg", "expected_warnings"),
                          [
-                             "Wow User Rate Limit Exceeded",
-                             "Quota exceeded"
+                             ("Wow User Rate Limit Exceeded", 3),
+                             ("Quota exceeded", 3),
+                             ("File not found", 0)
                          ])
-def test_handle_rate_exceeded_exception_gives_class_ability_to_handle_http_error_correctly(test_error_class, msg):
-    error = b'{"error": {"message": "User Rate Limit Exceeded", "details": "dummy", }}'
+def test_handle_rate_exceeded_exception_gives_class_ability_to_handle_http_error_correctly(
+        test_error_class, msg, expected_warnings):
+    error = b'{"error": {"message": "wow", "details": "dummy", }}'
 
     class DummyResponse:
         @property
@@ -83,4 +85,4 @@ def test_handle_rate_exceeded_exception_gives_class_ability_to_handle_http_error
     with pytest.raises(HttpError), pytest.warns(UserWarning, match="remaining retry") as result:
         test_error_class.raise_exception(HttpError(reason, error))
 
-    assert len(result) == 3
+    assert len(result) == expected_warnings

@@ -175,14 +175,15 @@ class ErrorHandler:
         return wrapper_func
 
 
-def handle_rate_exceeded_exception(sleep: Union[int, float]=5):
+def handle_rate_exceeded_exception(max_retry: int=3, sleep: Union[int, float]=5):
     """a class wrapper to give all non-hidden methods in a class ability to handle HttpError when user rate limit
     or quota exceeded
 
     :param sleep: number of seconds to sleep after each capture
     :return: a class decorator
     """
-    decorator = ErrorHandler(exception=HttpError, pattern=".*[User Rate Limit Exceeded|Quota exceeded].*", sleep=sleep)
+    decorator = ErrorHandler(exception=HttpError, pattern=".*(User Rate Limit Exceeded|Quota exceeded)+.*",
+                             max_retry=max_retry, sleep=sleep)
     def decorate(cls):
         for attr in cls.__dict__:  # there's propably a better way to do this
             if callable(getattr(cls, attr)):
