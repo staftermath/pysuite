@@ -11,7 +11,8 @@ credential_folder = Path(__file__).resolve().parent.parent / "credentials"
 credential_file = credential_folder / "credential.json"
 drive_token_file = credential_folder / "drive_token.json"
 sheet_token_file = credential_folder / "sheets_token.json"
-both_token_file = credential_folder / "token.json"
+gmail_token_file = credential_folder / "gmail_token.json"
+multi_token_file = credential_folder / "token.json"
 
 
 @pytest.mark.skip("this will prompt browser")
@@ -66,7 +67,7 @@ def drive_auth():
     return Authentication(credential=credential_file, token=drive_token_file, services="drive")
 
 
-def test_get_client_no_service_provided_return_correct_values(drive_auth):
+def test_get_client_from_drive_auth_return_correct_values(drive_auth):
     result = drive_auth.get_service_client()
     assert isinstance(result, Resource)
 
@@ -76,18 +77,28 @@ def sheets_auth():
     return Authentication(credential=credential_file, token=sheet_token_file, services="sheets")
 
 
-def test_get_client_service_authorized_return_correct_values(sheets_auth):
+def test_get_client_from_sheets_auth_return_correct_values(sheets_auth):
     result = sheets_auth.get_service_client()
     assert isinstance(result, Resource)
 
 
 @pytest.fixture(scope="session")
+def gmail_auth():
+    return Authentication(credential=credential_file, token=gmail_token_file, services="gmail")
+
+
+def test_get_client_from_gmail_auth_return_correct_values(gmail_auth):
+    result = gmail_auth.get_service_client()
+    assert isinstance(result, Resource)
+
+
+@pytest.fixture(scope="session")
 def multi_auth():
-    return Authentication(credential=credential_file, token=both_token_file, services=["drive", "sheets"])
+    return Authentication(credential=credential_file, token=multi_token_file, services=["drive", "sheets", "gmail"])
 
 
 @pytest.mark.parametrize("service",
-                         ["drive", "sheets"])
+                         ["drive", "sheets", "gmail"])
 def test_get_service_when_multiple_service_authorized_return_service_correctly(multi_auth, service):
     result = multi_auth.get_service_client(service=service)
     assert isinstance(result, Resource)
