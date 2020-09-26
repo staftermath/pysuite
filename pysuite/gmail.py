@@ -1,23 +1,14 @@
-"""implement api to access google drive
+"""implement api to access gmail
 """
 import logging
 from pathlib import PosixPath
 from base64 import urlsafe_b64encode
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
-from email.mime.image import MIMEImage
-from email.mime.audio import MIMEAudio
 from email.mime.base import MIMEBase
 from typing import Union, Optional, List
 
 from googleapiclient.discovery import Resource
-
-MINE_TYPE_TO_CLASS_MAP = {
-    "text": MIMEText,
-    "image": MIMEImage,
-    "audio": MIMEAudio
-}
-
 
 class GMail:
 
@@ -30,6 +21,21 @@ class GMail:
                 gdrive_ids: Optional[List[str]]=None,
                 user_id: Optional[str]=None,
                 is_html: bool=True):
+        """Compose an email and send through gmail api.
+
+        :param sender: email of the sender
+        :param to: list of emails of the targets
+        :param cc: list of emails of cc'ed targets
+        :param bcc: list of emails of bcc'ed targets
+        :param body: main content in email boty.
+        :param subject: subject line
+        :param local_files: list of files to be attached in the email
+        :param gdrive_ids: list of gdrive ids attached in the email
+        :param user_id: identification of user. If None, it sender email will be used.
+        :param is_html: whether body is send in html format. If False, plain text format will be used.
+        :return: a dictionary of response. containing 'id' (id of the email). 'threadId' (id of the email thread) and
+          'labelIds' (list of label ids)
+        """
         msg = self._create_message_skeleton(subject=subject,
                                             sender=sender,
                                             to=to,
