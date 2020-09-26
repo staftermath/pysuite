@@ -27,22 +27,22 @@ class GMail:
     def compose(self, sender: str, to: Union[str, list], cc: Optional[Union[str, list]]=None,
                 bcc: Optional[Union[str, list]]=None, body: Optional[str]=None, subject: Optional[str]=None,
                 local_files: Optional[Union[str, PosixPath]]=None,
-                gdrive_files: Optional[List[str]]=None,
-                user_id: Optional[str]=None):
+                gdrive_ids: Optional[List[str]]=None,
+                user_id: Optional[str]=None,
+                is_html: bool=True):
         msg = self._create_message_skeleton(subject=subject,
                                             sender=sender,
                                             to=to,
                                             cc=cc,
                                             bcc=bcc)
-        msg = self._load_local_files(msg=msg, files=local_files)
-        msg = self._load_gdrive_files(msg=msg, ids=gdrive_files)
-        msg = self._attach_content(msg=msg, body=body)
+        msg = self._attach_body(msg, body, ids=gdrive_ids, is_html=is_html)
+        msg = self._attach_local_files(msg=msg, files=local_files)
         if user_id is None:
             user_id = sender
         response = self._send(user_id=user_id, msg=msg)
         return response
 
-    def _load_local_files(self, msg: MIMEBase, files: Optional[List[Union[str, PosixPath]]]) -> MIMEBase:
+    def _attach_local_files(self, msg: MIMEBase, files: Optional[List[Union[str, PosixPath]]]) -> MIMEBase:
         """Attach a list of local files to msg. If files is None, no changes will be made.
 
         :param msg: a MIMEBase object to attach files with.
@@ -61,23 +61,42 @@ class GMail:
                 msg.attach(attachment)
         return msg
 
-    def _load_gdrive_files(self, msg: MIMEBase, ids: Optional[List[str]]) -> MIMEBase:
-        # TODO: implement this method
+    def _attach_body(self, msg: MIMEBase, body: Optional[str], ids: Optional[List[str]], is_html: bool) -> MIMEBase:
+        """Attach email body to the msg. If gdrive ids are provided, attach gdrive file hyperlinks in the body. The
+        format of the email can be specified to 'html' or 'plain'.
+
+        :param msg: a MIMEBase object.
+        :param body: body of the email.
+        :param ids: a list of gdrive file ids.
+        :param is_html: whether email should be send in html format or plain text format
+        :return: a msg with body attached.
+        """
+        if body is not None:
+            body_mime = MIMEText(body, 'html' if is_html else 'plain')
+            msg.attach(body_mime)
+
+        msg = self._attach_gdrive_files(msg, ids)
         return msg
 
-    def _attach_content(self, msg: MIMEBase, body: Optional[str]) -> MIMEBase:
-        """Attach a string as body to the msg. If body is None, no change is made.
+    def _attach_gdrive_files(self, msg: MIMEBase, ids: Optional[List[str]]) -> MIMEBase:
+        """Attach a list of gdrive files to the msg body in forms of hyper links. If ids is None, no attachment will be
+        added.
 
-        :param msg: a MIMEBase object to attach files with.
-        :param body: a string containing body of the email.
-        :return: a MIMEBase object with body attached if provided.
+        :param msg: a MIMEBase object
+        :param ids: list of gdrive ids.
+        :return: a MIMEBase object with gdrive link attached
         """
-        # TODO: add function to append signature
-        if body is None:
+        if ids is None:
             return msg
 
-        content = MIMEText(body)
-        msg.attach(content)
+        gdrive_section = """<p>GDrive Attachment</p>\n<ul>\n\t{attached}\n</ul>"""
+        link_template = "<li>https://drive.google.com/file/d/{id}</li>"
+        attached = []
+        for id in ids:
+            attached.append(link_template.format(id=id))
+        gdrive_section = gdrive_section.format(attached="\n\t".join(attached))
+        gdrive_html = MIMEText(gdrive_section, "html")
+        msg.attach(gdrive_html)
         return msg
 
     def _create_message_skeleton(self, sender: str, to: Union[str, list], cc: Optional[Union[str, list]]=None,
@@ -100,7 +119,8 @@ class GMail:
         :param msg: A composed MIMEBase object.
         :return: dictionary of response
         """
-        body = {"raw": urlsafe_b64encode(msg.as_bytes()).decode()}
+        body = {'raw': urlsafe_b64encode(msg.as_bytes()).decode(),
+                'payload': {'mimeType': 'text/html'}}
         response = self._service.send(userId=user_id, body=body).execute()
         logging.debug(response)
         return response
