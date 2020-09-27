@@ -10,7 +10,10 @@ from typing import Union, Optional, List
 
 from googleapiclient.discovery import Resource
 
+
 class GMail:
+    """A class containing methods to interact with Gmail APIs such as sending emails
+    """
 
     def __init__(self, service: Resource):
         self._service = service.users().messages()
