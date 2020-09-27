@@ -46,7 +46,7 @@ Authenticate
 ++++++++++++
 
 :code:`Authentication` can help authenticate your credential and provide clients for API class such as
-:code:`Drive` and :code:`Sheets`. If token file has not been created, it can be instantiated as follows:
+:code:`Drive`, :code:`Sheets` and :code:`GMail`. If token file has not been created, it can be instantiated as follows:
 
 .. code-block:: python
 
@@ -71,7 +71,7 @@ If more than one service was authorized at instantiation, you must specify servi
 
 .. code-block:: python
 
-    auth = Authentication(credential=credential_file, token=token_file, services=["drive", "sheets"])
+    auth = Authentication(credential=credential_file, token=token_file, services=["drive", "sheets", "gmail"])
     drive_service = auth.get_service_client("drive")
 
 
@@ -169,7 +169,7 @@ instantiate
     from pysuite import Sheets
     sheets = Sheets(service=sheets_auth.get_service_client())  # sheets_auth is an Authentication object with service='sheets'
 
-If you prefer different method to create gdrive client, you may switch :code:`sheets_auth.get_service_client()` with a
+If you prefer different method to create gsheet client, you may switch :code:`sheets_auth.get_service_client()` with a
 google sheet service (See `Google Sheet API V4 <https://developers.google.com/sheets/api/quickstart/python>`_ for details):
 
 .. code-block:: python
@@ -251,3 +251,37 @@ rename a tab in a spreadsheet.
 .. code-block:: python
 
     sheets.rename_sheet(id="id_of_spreadsheet", sheet_id="id_of_tab", title="new_tab_name")
+
+
+GMail
+-----
+This class provides APIs used to access and operate with Gmail API
+
+instantiate
++++++++++++
+
+.. code-block:: python
+
+    from pysuite import GMail
+    sheets = GMail(service=gmail_auth.get_service_client())  # gmail_auth is an Authentication object with service='gmail'
+
+If you prefer different method to create gmail client, you may switch :code:`gmail_auth.get_service_client()` with a
+google sheet service (See `Gmail API <https://developers.google.com/gmail/api/quickstart/python>`_ for details):
+
+.. code-block:: python
+
+    service = build('gmail', 'v1', credentials=creds, cache_discovery=True)
+
+compose
++++++++
+Write and send an email. You can attach local files and/or Google Drive files.
+
+.. code-block:: python
+
+    gmail.compose(body="hello world",
+                  sender="youremail@gmail.com",
+                  subject="this is a test email",
+                  to=["recipient1@gmail.com", "recipient2@hotmail.com"],
+                  local_files=["/tmp/file.txt", "/tmp/another_file.csv"],
+                  gdrive_ids=["gdrivefile_id1", "gdrive_file_id2"]
+                  )

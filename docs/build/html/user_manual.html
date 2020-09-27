@@ -114,11 +114,17 @@
 <li class="toctree-l3"><a class="reference internal" href="#rename-sheet">rename_sheet</a></li>
 </ul>
 </li>
+<li class="toctree-l2"><a class="reference internal" href="#gmail">GMail</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#id5">instantiate</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#compose">compose</a></li>
+</ul>
+</li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="auth.html">Auth</a></li>
 <li class="toctree-l1"><a class="reference internal" href="drive.html">Drive</a></li>
 <li class="toctree-l1"><a class="reference internal" href="sheets.html">Sheets</a></li>
+<li class="toctree-l1"><a class="reference internal" href="gmail.html">GMail</a></li>
 </ul>
 
             
@@ -222,7 +228,7 @@ Authentication file is instantiated.</p>
 <div class="section" id="authenticate">
 <h3>Authenticate<a class="headerlink" href="#authenticate" title="Permalink to this headline">¶</a></h3>
 <p><code class="code docutils literal notranslate"><span class="pre">Authentication</span></code> can help authenticate your credential and provide clients for API class such as
-<code class="code docutils literal notranslate"><span class="pre">Drive</span></code> and <code class="code docutils literal notranslate"><span class="pre">Sheets</span></code>. If token file has not been created, it can be instantiated as follows:</p>
+<code class="code docutils literal notranslate"><span class="pre">Drive</span></code>, <code class="code docutils literal notranslate"><span class="pre">Sheets</span></code> and <code class="code docutils literal notranslate"><span class="pre">GMail</span></code>. If token file has not been created, it can be instantiated as follows:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">pysuite</span> <span class="kn">import</span> <span class="n">Authentication</span>
 
 <span class="n">credential_file</span> <span class="o">=</span> <span class="s2">&quot;./credentials/credentials.json&quot;</span>
@@ -239,7 +245,7 @@ accepted services are ‘drive’ or ‘sheets’.</p>
 </pre></div>
 </div>
 <p>If more than one service was authorized at instantiation, you must specify service type in <code class="code docutils literal notranslate"><span class="pre">get_service_client</span></code>:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">auth</span> <span class="o">=</span> <span class="n">Authentication</span><span class="p">(</span><span class="n">credential</span><span class="o">=</span><span class="n">credential_file</span><span class="p">,</span> <span class="n">token</span><span class="o">=</span><span class="n">token_file</span><span class="p">,</span> <span class="n">services</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;drive&quot;</span><span class="p">,</span> <span class="s2">&quot;sheets&quot;</span><span class="p">])</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">auth</span> <span class="o">=</span> <span class="n">Authentication</span><span class="p">(</span><span class="n">credential</span><span class="o">=</span><span class="n">credential_file</span><span class="p">,</span> <span class="n">token</span><span class="o">=</span><span class="n">token_file</span><span class="p">,</span> <span class="n">services</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;drive&quot;</span><span class="p">,</span> <span class="s2">&quot;sheets&quot;</span><span class="p">,</span> <span class="s2">&quot;gmail&quot;</span><span class="p">])</span>
 <span class="n">drive_service</span> <span class="o">=</span> <span class="n">auth</span><span class="o">.</span><span class="n">get_service_client</span><span class="p">(</span><span class="s2">&quot;drive&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
@@ -326,7 +332,7 @@ you can also list recursively up to a maximum depth.</p>
 <span class="n">sheets</span> <span class="o">=</span> <span class="n">Sheets</span><span class="p">(</span><span class="n">service</span><span class="o">=</span><span class="n">sheets_auth</span><span class="o">.</span><span class="n">get_service_client</span><span class="p">())</span>  <span class="c1"># sheets_auth is an Authentication object with service=&#39;sheets&#39;</span>
 </pre></div>
 </div>
-<p>If you prefer different method to create gdrive client, you may switch <code class="code docutils literal notranslate"><span class="pre">sheets_auth.get_service_client()</span></code> with a
+<p>If you prefer different method to create gsheet client, you may switch <code class="code docutils literal notranslate"><span class="pre">sheets_auth.get_service_client()</span></code> with a
 google sheet service (See <a class="reference external" href="https://developers.google.com/sheets/api/quickstart/python">Google Sheet API V4</a> for details):</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">service</span> <span class="o">=</span> <span class="n">build</span><span class="p">(</span><span class="s1">&#39;sheets&#39;</span><span class="p">,</span> <span class="s1">&#39;v4&#39;</span><span class="p">,</span> <span class="n">credentials</span><span class="o">=</span><span class="n">creds</span><span class="p">,</span> <span class="n">cache_discovery</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 </pre></div>
@@ -396,6 +402,35 @@ want to add pandas as dependency.</p>
 <h3>rename_sheet<a class="headerlink" href="#rename-sheet" title="Permalink to this headline">¶</a></h3>
 <p>rename a tab in a spreadsheet.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">sheets</span><span class="o">.</span><span class="n">rename_sheet</span><span class="p">(</span><span class="nb">id</span><span class="o">=</span><span class="s2">&quot;id_of_spreadsheet&quot;</span><span class="p">,</span> <span class="n">sheet_id</span><span class="o">=</span><span class="s2">&quot;id_of_tab&quot;</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="s2">&quot;new_tab_name&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="section" id="gmail">
+<h2>GMail<a class="headerlink" href="#gmail" title="Permalink to this headline">¶</a></h2>
+<p>This class provides APIs used to access and operate with Gmail API</p>
+<div class="section" id="id5">
+<h3>instantiate<a class="headerlink" href="#id5" title="Permalink to this headline">¶</a></h3>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">pysuite</span> <span class="kn">import</span> <span class="n">GMail</span>
+<span class="n">sheets</span> <span class="o">=</span> <span class="n">GMail</span><span class="p">(</span><span class="n">service</span><span class="o">=</span><span class="n">gmail_auth</span><span class="o">.</span><span class="n">get_service_client</span><span class="p">())</span>  <span class="c1"># gmail_auth is an Authentication object with service=&#39;gmail&#39;</span>
+</pre></div>
+</div>
+<p>If you prefer different method to create gmail client, you may switch <code class="code docutils literal notranslate"><span class="pre">gmail_auth.get_service_client()</span></code> with a
+google sheet service (See <a class="reference external" href="https://developers.google.com/gmail/api/quickstart/python">Gmail API</a> for details):</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">service</span> <span class="o">=</span> <span class="n">build</span><span class="p">(</span><span class="s1">&#39;gmail&#39;</span><span class="p">,</span> <span class="s1">&#39;v1&#39;</span><span class="p">,</span> <span class="n">credentials</span><span class="o">=</span><span class="n">creds</span><span class="p">,</span> <span class="n">cache_discovery</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="compose">
+<h3>compose<a class="headerlink" href="#compose" title="Permalink to this headline">¶</a></h3>
+<p>Write and send an email. You can attach local files and/or Google Drive files.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">gmail</span><span class="o">.</span><span class="n">compose</span><span class="p">(</span><span class="n">body</span><span class="o">=</span><span class="s2">&quot;hello world&quot;</span><span class="p">,</span>
+              <span class="n">sender</span><span class="o">=</span><span class="s2">&quot;youremail@gmail.com&quot;</span><span class="p">,</span>
+              <span class="n">subject</span><span class="o">=</span><span class="s2">&quot;this is a test email&quot;</span><span class="p">,</span>
+              <span class="n">to</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;recipient1@gmail.com&quot;</span><span class="p">,</span> <span class="s2">&quot;recipient2@hotmail.com&quot;</span><span class="p">],</span>
+              <span class="n">local_files</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;/tmp/file.txt&quot;</span><span class="p">,</span> <span class="s2">&quot;/tmp/another_file.csv&quot;</span><span class="p">],</span>
+              <span class="n">gdrive_ids</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;gdrivefile_id1&quot;</span><span class="p">,</span> <span class="s2">&quot;gdrive_file_id2&quot;</span><span class="p">]</span>
+              <span class="p">)</span>
 </pre></div>
 </div>
 </div>

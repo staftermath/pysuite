@@ -23,14 +23,14 @@ class GMail:
                 local_files: Optional[Union[str, PosixPath]]=None,
                 gdrive_ids: Optional[List[str]]=None,
                 user_id: Optional[str]=None,
-                is_html: bool=True):
+                is_html: bool=True) -> dict:
         """Compose an email and send through gmail api.
 
         :param sender: email of the sender
-        :param to: list of emails of the targets
-        :param cc: list of emails of cc'ed targets
-        :param bcc: list of emails of bcc'ed targets
-        :param body: main content in email boty.
+        :param to: a string of one email or list of emails of the targets
+        :param cc: a string of one email or list of emails of cc'ed targets
+        :param bcc: a string of one email or list of emails of bcc'ed targets
+        :param body: main content in email body.
         :param subject: subject line
         :param local_files: list of files to be attached in the email
         :param gdrive_ids: list of gdrive ids attached in the email
