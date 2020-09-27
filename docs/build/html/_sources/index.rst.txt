@@ -14,6 +14,7 @@ Welcome to pysuite's documentation!
    auth
    drive
    sheets
+   gmail
 
 
 Indices and tables
