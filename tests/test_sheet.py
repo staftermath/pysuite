@@ -111,8 +111,8 @@ def test_upload_and_clear_change_sheet_value_correctly(sheets, clean_up_sheet_cr
                                   "col2": ["a", "b", "c"],
                                   "col3": ["10.15", "20.2", "0.59"],
                                   "col4": ["", "", ""],
-                                  "__temp_col5": ["", "", ""],
-                                  "__temp_col6": ["", "", ""],
+                                  "_col5": ["", "", ""],
+                                  "_col6": ["", "", ""],
                              })),
                              (False, None, ["new_col1", "new_col2", "new_col3"], "download!A1:C", True,
                               pd.DataFrame({

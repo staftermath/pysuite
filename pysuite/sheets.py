@@ -73,8 +73,8 @@ class Sheets:
         """
         self._service.values().clear(spreadsheetId=id, range=sheet_range, body={}).execute()
 
-    def read_sheet(self, id: str, sheet_range: str, header=True, dtypes: Optional[dict]=None, columns: Optional[list]=None,
-                   fill_row: bool=True):
+    def read_sheet(self, id: str, sheet_range: str, header=True, dtypes: Optional[dict]=None,
+                   columns: Optional[list]=None, fill_row: bool=True):
         """download the target sheet range into a pandas dataframe. this method will fail if pandas cannot be imported.
 
         :param id: id of the target spreadsheet
@@ -87,7 +87,7 @@ class Sheets:
           output dataframe
         :param fill_row: Whether attempt to fill the trailing empty cell with empty strings. This prevents errors when
           the trailing cells in some rows are empty in the sheet. When header is True, this will attempt to fill the
-          missing header with __temp_col{i}, where i is the index of the column (starting from 1).
+          missing header with _col{i}, where i is the index of the column (starting from 1).
         :return: a pandas dataframe containing target spreadsheet values.
         """
         try:
@@ -108,7 +108,7 @@ class Sheets:
             if fill_row:
                 for i in range(len(columns)):
                     if columns[i] == "":
-                        columns[i] = f"__temp_col{i+1}"
+                        columns[i] = f"_col{i+1}"
 
         df = pd.DataFrame(values, columns=columns)
 
@@ -202,6 +202,7 @@ def get_column_number(col: str) -> int:
     """Convert spreadsheet column numbers to integer.
 
     :example:
+
     >>> get_column_number('A')  # 1
     >>> get_column_number('AA') # 27
     >>> get_column_number('ZY') # 701
@@ -221,6 +222,7 @@ def get_col_counts_from_range(sheet_range: str) -> int:
     """Calculate the number of columns in the given range.
 
     :example:
+
     >>> get_col_counts_from_range("test!A1:A")  # 1
     >>> get_col_counts_from_range("test!A1:D")  # 4
     >>> get_col_counts_from_range("test!AA2:AZ")  # 26
