@@ -2,6 +2,7 @@
 """
 import logging
 from typing import Optional
+import re
 
 from googleapiclient.discovery import Resource
 
@@ -14,7 +15,7 @@ class Sheets:
     def __init__(self, service: Resource):
         self._service = service.spreadsheets()
 
-    def download(self, id: str, range: str, dimension: str="ROWS") -> list:
+    def download(self, id: str, range: str, dimension: str="ROWS", force_stretch: bool=False) -> list:
         """download target sheet range by specified dimension. All entries will be considered as strings.
 
         :param id: id of the target spreadsheet.
@@ -31,6 +32,10 @@ class Sheets:
                                             range=range,
                                             majorDimension=dimension).execute()
         values = result.get('values', [])
+
+        if force_stretch:
+            pass
+
         return values
 
     def upload(self, values: list, id: str, range: str) -> None:
@@ -172,3 +177,32 @@ class Sheets:
         ]
         }
         self.batch_update(id=id, body=request)
+
+
+def get_column_number(col: str) -> int:
+    """Convert spreadsheet column numbers to integer.
+
+    :example:
+    >>> get_column_number('A')  # 1
+    >>> get_column_number('AA') # 27
+    >>> get_column_number('ZY') # 701
+
+    :param col: upper case spreadsheet column
+    :return: index of the column starting from 1.
+    """
+    result = 0
+    l = len(col)
+    for i in range(l):
+        result += (ord(col[l-i-1]) - 64) * (26 ** i)
+
+    return result
+
+
+def get_col_counts_from_range(range: str):
+    columns = range.upper().split("!")[1]  # get the columns in letter, such as "A1:D"
+    from_column, to_column = columns.split(":")
+    pattern = re.compile("^([A-Z]+)", re.IGNORECASE)
+    from_column = pattern.search(from_column).group(0)
+    to_column = pattern.search(to_column).group(0)
+    counts = get_column_number(to_column) - get_column_number(from_column) + 1
+    return counts
