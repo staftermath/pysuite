@@ -19,26 +19,55 @@ def sheets(sheets_auth):
     return Sheets(service=sheets_auth.get_service_client())
 
 
-@pytest.mark.parametrize(("dimension", "expected"),
+@pytest.mark.parametrize(("dimension", "range", "force_fill", "expected"),
                          [
-                             ("ROWS",
+                             ("ROWS", "download!A1:C", False,
                               [
                                   ['col1', 'col2', 'col3'],
                                   ['1', 'a', '10.15'],
                                   ['2', 'b', '20.2'],
                                   ['3', 'c', '0.59']
                               ]),
-                             ("COLUMNS",
+                             ("ROWS", "download!A1:C", True,
+                              [
+                                  ['col1', 'col2', 'col3'],
+                                  ['1', 'a', '10.15'],
+                                  ['2', 'b', '20.2'],
+                                  ['3', 'c', '0.59']
+                              ]),
+                             ("ROWS", "download!A1:D", False,
+                              [
+                                  ['col1', 'col2', 'col3', 'col4'],
+                                  ['1', 'a', '10.15'],
+                                  ['2', 'b', '20.2'],
+                                  ['3', 'c', '0.59']
+                              ]),
+                             ("ROWS", "download!A1:E", True,
+                              [
+                                  ['col1', 'col2', 'col3', 'col4', ''],
+                                  ['1', 'a', '10.15', '', ''],
+                                  ['2', 'b', '20.2', '', ''],
+                                  ['3', 'c', '0.59', '', '']
+                              ]),
+                             ("COLUMNS", "download!A1:C", False,
                              [
                                  ['col1', '1', '2', '3'],
                                  ['col2', 'a', 'b', 'c'],
                                  ['col3', '10.15', '20.2', '0.59']
+                             ]),
+                             ("COLUMNS", "download!A1:D", True,
+                             [
+                                 ['col1', '1', '2', '3'],
+                                 ['col2', 'a', 'b', 'c'],
+                                 ['col3', '10.15', '20.2', '0.59'],
+                                 ['col4']
                              ])
                          ])
-def test_download_return_correct_values(sheets, dimension, expected):
+def test_download_return_correct_values(sheets, dimension, range, force_fill, expected):
     result = sheets.download(id=test_sheet_id,
-                             range="download!A1:C",
-                             dimension=dimension)
+                             range=range,
+                             dimension=dimension,
+                             fill_row=force_fill)
     assert result == expected
 
 

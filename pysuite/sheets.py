@@ -1,7 +1,7 @@
 """implement api to access google sheet
 """
 import logging
-from typing import Optional
+from typing import Optional, List
 import re
 
 from googleapiclient.discovery import Resource
@@ -15,7 +15,7 @@ class Sheets:
     def __init__(self, service: Resource):
         self._service = service.spreadsheets()
 
-    def download(self, id: str, range: str, dimension: str="ROWS", force_stretch: bool=False) -> list:
+    def download(self, id: str, range: str, dimension: str="ROWS", fill_row: bool=False) -> list:
         """download target sheet range by specified dimension. All entries will be considered as strings.
 
         :param id: id of the target spreadsheet.
@@ -23,6 +23,9 @@ class Sheets:
           and download column A to D and rows from 1 to the last row with non-empty values.
         :param dimension: "ROW" or "COLUMNS". If "ROWS", each entry in the output list would be one row in the
           spreadsheet. If "COLUMNS", each entry in the output list would be one column in the spreadsheet.
+        :param fill_row: Whether force to return rows with desired number of columns. Google Sheet API ignores trailing
+          empty cells by default. By setting this to True, empty strings will be filled in those ignored cells. This
+          parameter only works when dimension is "ROWS".
         :return: content of target sheet range in a list of lists.
         """
         if dimension not in VALID_DIMENSION:
@@ -33,8 +36,9 @@ class Sheets:
                                             majorDimension=dimension).execute()
         values = result.get('values', [])
 
-        if force_stretch:
-            pass
+        if fill_row and dimension == "ROWS":
+            col_counts = get_col_counts_from_range(range)
+            self._fill_rows(values, col_counts)
 
         return values
 
@@ -70,7 +74,7 @@ class Sheets:
         self._service.values().clear(spreadsheetId=id, range=range, body={}).execute()
 
     def read_sheet(self, id: str, range: str, header=True, dtypes: Optional[dict]=None, columns: Optional[list]=None):
-        """download the target sheet range into a pandas datafrme. this method will fail if pandas cannot be imported.
+        """download the target sheet range into a pandas dataframe. this method will fail if pandas cannot be imported.
 
         :param id: id of the target spreadsheet
         :param range: range in the target spreadsheet.  for example, 'sheet!A1:D'. this means selecting from tab "sheet"
@@ -177,6 +181,11 @@ class Sheets:
         ]
         }
         self.batch_update(id=id, body=request)
+
+    def _fill_rows(self, rows: List[list], col_counts: int):
+        for row in rows:
+            if len(row) < col_counts:
+                row.extend(['']*(col_counts - len(row)))
 
 
 def get_column_number(col: str) -> int:
