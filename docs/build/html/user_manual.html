@@ -343,37 +343,47 @@ google sheet service (See <a class="reference external" href="https://developers
 <p>Upload a pandas dataframe to a specified range of sheet. This will clear the target range before uploading.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
 <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span><span class="s2">&quot;col1&quot;</span><span class="p">:</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">],</span> <span class="s2">&quot;col2&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;a&#39;</span><span class="p">,</span> <span class="s1">&#39;b&#39;</span><span class="p">]})</span>
-<span class="n">sheets</span><span class="o">.</span><span class="n">to_sheet</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="nb">id</span><span class="o">=</span><span class="s2">&quot;your_sheet_id&quot;</span><span class="p">,</span> <span class="nb">range</span><span class="o">=</span><span class="s2">&quot;yourtab!A1:B&quot;</span><span class="p">)</span>
+<span class="n">sheets</span><span class="o">.</span><span class="n">to_sheet</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="nb">id</span><span class="o">=</span><span class="s2">&quot;your_sheet_id&quot;</span><span class="p">,</span> <span class="n">sheet_range</span><span class="o">=</span><span class="s2">&quot;yourtab!A1:B&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
 <div class="section" id="read-sheet">
 <h3>read_sheet<a class="headerlink" href="#read-sheet" title="Permalink to this headline">¶</a></h3>
 <p>This api requires pandas.</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">df</span> <span class="o">=</span> <span class="n">sheets</span><span class="o">.</span><span class="n">read_sheet</span><span class="p">(</span><span class="nb">id</span><span class="o">=</span><span class="s2">&quot;your_sheet_id&quot;</span><span class="p">,</span> <span class="nb">range</span><span class="o">=</span><span class="s2">&quot;yourtab!A1:D&quot;</span><span class="p">)</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">df</span> <span class="o">=</span> <span class="n">sheets</span><span class="o">.</span><span class="n">read_sheet</span><span class="p">(</span><span class="nb">id</span><span class="o">=</span><span class="s2">&quot;your_sheet_id&quot;</span><span class="p">,</span> <span class="n">sheet_range</span><span class="o">=</span><span class="s2">&quot;yourtab!A1:D&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
+<p>Note that Google sheet API ignores trailing empty cells in a row. This behavior causes the result that the values read
+from the sheet may have fewer entries then expected. This furthur causes error when attempting to convert the values into
+pandas DataFrame. This issue can be fixed by passing <code class="code docutils literal notranslate"><span class="pre">fill_row=True</span></code> (default) with some sacrifice of performance.
+In addition, when both <code class="code docutils literal notranslate"><span class="pre">fill_row</span></code> and <code class="code docutils literal notranslate"><span class="pre">header</span></code> are <code class="code docutils literal notranslate"><span class="pre">True</span></code>, the method will attempt to fill missing
+header with <cite>_col{i}</cite> where i is the index of the column. If you are certain no trailing cells exist in the target
+range, you may turn it off for performance gain.</p>
 </div>
 <div class="section" id="id3">
 <h3>download<a class="headerlink" href="#id3" title="Permalink to this headline">¶</a></h3>
 <p>Download sheet into a list of values either in <strong>ROWS</strong> format or in <strong>COLUMNS</strong> format. This is useful when you do not
 want to add pandas as dependency.</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">values</span> <span class="o">=</span> <span class="n">sheets</span><span class="o">.</span><span class="n">download</span><span class="p">(</span><span class="nb">id</span><span class="o">=</span><span class="s2">&quot;your_sheet_id&quot;</span><span class="p">,</span> <span class="nb">range</span><span class="o">=</span><span class="s2">&quot;yourtab!A1:D&quot;</span><span class="p">,</span> <span class="n">dimension</span><span class="o">=</span><span class="s2">&quot;ROWS&quot;</span><span class="p">)</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">values</span> <span class="o">=</span> <span class="n">sheets</span><span class="o">.</span><span class="n">download</span><span class="p">(</span><span class="nb">id</span><span class="o">=</span><span class="s2">&quot;your_sheet_id&quot;</span><span class="p">,</span> <span class="n">sheet_range</span><span class="o">=</span><span class="s2">&quot;yourtab!A1:D&quot;</span><span class="p">,</span> <span class="n">dimension</span><span class="o">=</span><span class="s2">&quot;ROWS&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
+<p>Note that Google sheet API ignores trailing empty cells in a row. This behavior leads to the result that the values read
+from the sheet may have fewer entries then expected. You can pass <code class="code docutils literal notranslate"><span class="pre">fill_row=True</span></code> to fill all such trailing empty
+cells with empty strings. This comes with some sacrifice of performance but will guarantee to return homogeneous list.
+<code class="code docutils literal notranslate"><span class="pre">fill_row=True</span></code> only works when <code class="code docutils literal notranslate"><span class="pre">dimension=&quot;ROWS&quot;</span></code>. This is default to be False.</p>
 </div>
 <div class="section" id="id4">
 <h3>upload<a class="headerlink" href="#id4" title="Permalink to this headline">¶</a></h3>
 <p>Upload a list of lists to specified google sheet range. This is useful when you do not want to add pandas as dependency.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">values</span> <span class="o">=</span> <span class="p">[[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">],</span> <span class="p">[</span><span class="s2">&quot;a&quot;</span><span class="p">,</span> <span class="s2">&quot;b&quot;</span><span class="p">,</span> <span class="s2">&quot;c&quot;</span><span class="p">]]</span>
-<span class="n">sheets</span><span class="o">.</span><span class="n">upload</span><span class="p">(</span><span class="n">values</span><span class="p">,</span> <span class="nb">id</span><span class="o">=</span><span class="s2">&quot;your_sheet_id&quot;</span><span class="p">,</span> <span class="nb">range</span><span class="o">=</span><span class="s2">&quot;yourtab!A1:B&quot;</span><span class="p">,</span> <span class="n">dimension</span><span class="o">=</span><span class="s2">&quot;ROWS&quot;</span><span class="p">)</span>
+<span class="n">sheets</span><span class="o">.</span><span class="n">upload</span><span class="p">(</span><span class="n">values</span><span class="p">,</span> <span class="nb">id</span><span class="o">=</span><span class="s2">&quot;your_sheet_id&quot;</span><span class="p">,</span> <span class="n">sheet_range</span><span class="o">=</span><span class="s2">&quot;yourtab!A1:B&quot;</span><span class="p">,</span> <span class="n">dimension</span><span class="o">=</span><span class="s2">&quot;ROWS&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
 <div class="section" id="clear">
 <h3>clear<a class="headerlink" href="#clear" title="Permalink to this headline">¶</a></h3>
 <p>Remove contents of specified Goolge sheet range.</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">sheets</span><span class="o">.</span><span class="n">clear</span><span class="p">(</span><span class="nb">id</span><span class="o">=</span><span class="s2">&quot;your_sheet_id&quot;</span><span class="p">,</span> <span class="nb">range</span><span class="o">=</span><span class="s2">&quot;yourtab!A1:B&quot;</span><span class="p">)</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">sheets</span><span class="o">.</span><span class="n">clear</span><span class="p">(</span><span class="nb">id</span><span class="o">=</span><span class="s2">&quot;your_sheet_id&quot;</span><span class="p">,</span> <span class="n">sheet_range</span><span class="o">=</span><span class="s2">&quot;yourtab!A1:B&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -416,14 +426,15 @@ want to add pandas as dependency.</p>
 </pre></div>
 </div>
 <p>If you prefer different method to create gmail client, you may switch <code class="code docutils literal notranslate"><span class="pre">gmail_auth.get_service_client()</span></code> with a
-google sheet service (See <a class="reference external" href="https://developers.google.com/gmail/api/quickstart/python">Gmail API</a> for details):</p>
+google gmail service (See <a class="reference external" href="https://developers.google.com/gmail/api/quickstart/python">Gmail API</a> for details):</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">service</span> <span class="o">=</span> <span class="n">build</span><span class="p">(</span><span class="s1">&#39;gmail&#39;</span><span class="p">,</span> <span class="s1">&#39;v1&#39;</span><span class="p">,</span> <span class="n">credentials</span><span class="o">=</span><span class="n">creds</span><span class="p">,</span> <span class="n">cache_discovery</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
 <div class="section" id="compose">
 <h3>compose<a class="headerlink" href="#compose" title="Permalink to this headline">¶</a></h3>
-<p>Write and send an email. You can attach local files and/or Google Drive files.</p>
+<p>Write and send an email. You can attach local files and/or Google Drive files. The Google Drive files will be attached
+directly in the body as external links.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">gmail</span><span class="o">.</span><span class="n">compose</span><span class="p">(</span><span class="n">body</span><span class="o">=</span><span class="s2">&quot;hello world&quot;</span><span class="p">,</span>
               <span class="n">sender</span><span class="o">=</span><span class="s2">&quot;youremail@gmail.com&quot;</span><span class="p">,</span>
               <span class="n">subject</span><span class="o">=</span><span class="s2">&quot;this is a test email&quot;</span><span class="p">,</span>

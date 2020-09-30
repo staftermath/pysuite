@@ -184,7 +184,7 @@ Upload a pandas dataframe to a specified range of sheet. This will clear the tar
 
     import pandas as pd
     df = pd.DataFrame({"col1": [1, 2], "col2": ['a', 'b']})
-    sheets.to_sheet(df, id="your_sheet_id", range="yourtab!A1:B")
+    sheets.to_sheet(df, id="your_sheet_id", sheet_range="yourtab!A1:B")
 
 read_sheet
 ++++++++++
@@ -192,7 +192,14 @@ This api requires pandas.
 
 .. code-block:: python
 
-    df = sheets.read_sheet(id="your_sheet_id", range="yourtab!A1:D")
+    df = sheets.read_sheet(id="your_sheet_id", sheet_range="yourtab!A1:D")
+
+Note that Google sheet API ignores trailing empty cells in a row. This behavior causes the result that the values read
+from the sheet may have fewer entries then expected. This furthur causes error when attempting to convert the values into
+pandas DataFrame. This issue can be fixed by passing :code:`fill_row=True` (default) with some sacrifice of performance.
+In addition, when both :code:`fill_row` and :code:`header` are :code:`True`, the method will attempt to fill missing
+header with `_col{i}` where i is the index of the column. If you are certain no trailing cells exist in the target
+range, you may turn it off for performance gain.
 
 download
 ++++++++
@@ -201,7 +208,12 @@ want to add pandas as dependency.
 
 .. code-block:: python
 
-    values = sheets.download(id="your_sheet_id", range="yourtab!A1:D", dimension="ROWS")
+    values = sheets.download(id="your_sheet_id", sheet_range="yourtab!A1:D", dimension="ROWS")
+
+Note that Google sheet API ignores trailing empty cells in a row. This behavior leads to the result that the values read
+from the sheet may have fewer entries then expected. You can pass :code:`fill_row=True` to fill all such trailing empty
+cells with empty strings. This comes with some sacrifice of performance but will guarantee to return homogeneous list.
+:code:`fill_row=True` only works when :code:`dimension="ROWS"`. This is default to be False.
 
 upload
 ++++++
@@ -210,7 +222,7 @@ Upload a list of lists to specified google sheet range. This is useful when you 
 .. code-block:: python
 
     values = [[1, 2, 3], ["a", "b", "c"]]
-    sheets.upload(values, id="your_sheet_id", range="yourtab!A1:B", dimension="ROWS")
+    sheets.upload(values, id="your_sheet_id", sheet_range="yourtab!A1:B", dimension="ROWS")
 
 clear
 +++++
@@ -218,7 +230,7 @@ Remove contents of specified Goolge sheet range.
 
 .. code-block:: python
 
-    sheets.clear(id="your_sheet_id", range="yourtab!A1:B")
+    sheets.clear(id="your_sheet_id", sheet_range="yourtab!A1:B")
 
 create_spreadsheet
 ++++++++++++++++++
@@ -266,7 +278,7 @@ instantiate
     sheets = GMail(service=gmail_auth.get_service_client())  # gmail_auth is an Authentication object with service='gmail'
 
 If you prefer different method to create gmail client, you may switch :code:`gmail_auth.get_service_client()` with a
-google sheet service (See `Gmail API <https://developers.google.com/gmail/api/quickstart/python>`_ for details):
+google gmail service (See `Gmail API <https://developers.google.com/gmail/api/quickstart/python>`_ for details):
 
 .. code-block:: python
 
@@ -274,7 +286,8 @@ google sheet service (See `Gmail API <https://developers.google.com/gmail/api/qu
 
 compose
 +++++++
-Write and send an email. You can attach local files and/or Google Drive files.
+Write and send an email. You can attach local files and/or Google Drive files. The Google Drive files will be attached
+directly in the body as external links.
 
 .. code-block:: python
 

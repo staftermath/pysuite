@@ -181,13 +181,13 @@
 
 <dl class="py method">
 <dt id="pysuite.sheets.Sheets.clear">
-<code class="sig-name descname">clear</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">id</span><span class="p">:</span> <span class="n">str</span></em>, <em class="sig-param"><span class="n">range</span><span class="p">:</span> <span class="n">str</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pysuite/sheets.html#Sheets.clear"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pysuite.sheets.Sheets.clear" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">clear</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">id</span><span class="p">:</span> <span class="n">str</span></em>, <em class="sig-param"><span class="n">sheet_range</span><span class="p">:</span> <span class="n">str</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pysuite/sheets.html#Sheets.clear"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pysuite.sheets.Sheets.clear" title="Permalink to this definition">¶</a></dt>
 <dd><p>remove content in the target sheet range.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>id</strong> – id of the target spreadsheet</p></li>
-<li><p><strong>range</strong> – range in the target spreadsheet.  for example, ‘sheet!A1:D’. this means selecting from tab “sheet”
+<li><p><strong>sheet_range</strong> – range in the target spreadsheet.  for example, ‘sheet!A1:D’. this means selecting from tab “sheet”
 and download column A to D and rows from 1 to the last row with non-empty values.</p></li>
 </ul>
 </dd>
@@ -248,16 +248,19 @@ sheet in the spreadsheet after “gid=”</p>
 
 <dl class="py method">
 <dt id="pysuite.sheets.Sheets.download">
-<code class="sig-name descname">download</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">id</span><span class="p">:</span> <span class="n">str</span></em>, <em class="sig-param"><span class="n">range</span><span class="p">:</span> <span class="n">str</span></em>, <em class="sig-param"><span class="n">dimension</span><span class="p">:</span> <span class="n">str</span> <span class="o">=</span> <span class="default_value">'ROWS'</span></em><span class="sig-paren">)</span> &#x2192; list<a class="reference internal" href="_modules/pysuite/sheets.html#Sheets.download"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pysuite.sheets.Sheets.download" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">download</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">id</span><span class="p">:</span> <span class="n">str</span></em>, <em class="sig-param"><span class="n">sheet_range</span><span class="p">:</span> <span class="n">str</span></em>, <em class="sig-param"><span class="n">dimension</span><span class="p">:</span> <span class="n">str</span> <span class="o">=</span> <span class="default_value">'ROWS'</span></em>, <em class="sig-param"><span class="n">fill_row</span><span class="p">:</span> <span class="n">bool</span> <span class="o">=</span> <span class="default_value">False</span></em><span class="sig-paren">)</span> &#x2192; list<a class="reference internal" href="_modules/pysuite/sheets.html#Sheets.download"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pysuite.sheets.Sheets.download" title="Permalink to this definition">¶</a></dt>
 <dd><p>download target sheet range by specified dimension. All entries will be considered as strings.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>id</strong> – id of the target spreadsheet.</p></li>
-<li><p><strong>range</strong> – range in the target spreadsheet. for example, ‘sheet!A1:D’. this means selecting from tab “sheet”
+<li><p><strong>sheet_range</strong> – range in the target spreadsheet. for example, ‘sheet!A1:D’. this means selecting from tab “sheet”
 and download column A to D and rows from 1 to the last row with non-empty values.</p></li>
 <li><p><strong>dimension</strong> – “ROW” or “COLUMNS”. If “ROWS”, each entry in the output list would be one row in the
 spreadsheet. If “COLUMNS”, each entry in the output list would be one column in the spreadsheet.</p></li>
+<li><p><strong>fill_row</strong> – Whether force to return rows with desired number of columns. Google Sheet API ignores trailing
+empty cells by default. By setting this to True, empty strings will be filled in those ignored cells. This
+parameter only works when dimension is “ROWS”.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
@@ -268,19 +271,22 @@ spreadsheet. If “COLUMNS”, each entry in the output list would be one column
 
 <dl class="py method">
 <dt id="pysuite.sheets.Sheets.read_sheet">
-<code class="sig-name descname">read_sheet</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">id</span><span class="p">:</span> <span class="n">str</span></em>, <em class="sig-param"><span class="n">range</span><span class="p">:</span> <span class="n">str</span></em>, <em class="sig-param"><span class="n">header</span><span class="o">=</span><span class="default_value">True</span></em>, <em class="sig-param"><span class="n">dtypes</span><span class="p">:</span> <span class="n">Optional<span class="p">[</span>dict<span class="p">]</span></span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="n">columns</span><span class="p">:</span> <span class="n">Optional<span class="p">[</span>list<span class="p">]</span></span> <span class="o">=</span> <span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pysuite/sheets.html#Sheets.read_sheet"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pysuite.sheets.Sheets.read_sheet" title="Permalink to this definition">¶</a></dt>
-<dd><p>download the target sheet range into a pandas datafrme. this method will fail if pandas cannot be imported.</p>
+<code class="sig-name descname">read_sheet</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">id</span><span class="p">:</span> <span class="n">str</span></em>, <em class="sig-param"><span class="n">sheet_range</span><span class="p">:</span> <span class="n">str</span></em>, <em class="sig-param"><span class="n">header</span><span class="o">=</span><span class="default_value">True</span></em>, <em class="sig-param"><span class="n">dtypes</span><span class="p">:</span> <span class="n">Optional<span class="p">[</span>dict<span class="p">]</span></span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="n">columns</span><span class="p">:</span> <span class="n">Optional<span class="p">[</span>list<span class="p">]</span></span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="n">fill_row</span><span class="p">:</span> <span class="n">bool</span> <span class="o">=</span> <span class="default_value">True</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pysuite/sheets.html#Sheets.read_sheet"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pysuite.sheets.Sheets.read_sheet" title="Permalink to this definition">¶</a></dt>
+<dd><p>download the target sheet range into a pandas dataframe. this method will fail if pandas cannot be imported.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>id</strong> – id of the target spreadsheet</p></li>
-<li><p><strong>range</strong> – range in the target spreadsheet.  for example, ‘sheet!A1:D’. this means selecting from tab “sheet”
+<li><p><strong>sheet_range</strong> – range in the target spreadsheet.  for example, ‘sheet!A1:D’. this means selecting from tab “sheet”
 and download column A to D and rows from 1 to the last row with non-empty values.</p></li>
 <li><p><strong>header</strong> – whether first row is used as column names in the output dataframe.</p></li>
 <li><p><strong>dtypes</strong> – a mapping from column name to the type. if not None, type conversions will be applied to columns
 requested in the dictionary.</p></li>
 <li><p><strong>columns</strong> – a list of column names. If not None and <cite>header</cite> is False, this will be used as columns of the
 output dataframe</p></li>
+<li><p><strong>fill_row</strong> – Whether attempt to fill the trailing empty cell with empty strings. This prevents errors when
+the trailing cells in some rows are empty in the sheet. When header is True, this will attempt to fill the
+missing header with _col{i}, where i is the index of the column (starting from 1).</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
@@ -309,7 +315,7 @@ output dataframe</p></li>
 
 <dl class="py method">
 <dt id="pysuite.sheets.Sheets.to_sheet">
-<code class="sig-name descname">to_sheet</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">df</span></em>, <em class="sig-param"><span class="n">id</span><span class="p">:</span> <span class="n">str</span></em>, <em class="sig-param"><span class="n">range</span><span class="p">:</span> <span class="n">str</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pysuite/sheets.html#Sheets.to_sheet"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pysuite.sheets.Sheets.to_sheet" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">to_sheet</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">df</span></em>, <em class="sig-param"><span class="n">id</span><span class="p">:</span> <span class="n">str</span></em>, <em class="sig-param"><span class="n">sheet_range</span><span class="p">:</span> <span class="n">str</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pysuite/sheets.html#Sheets.to_sheet"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pysuite.sheets.Sheets.to_sheet" title="Permalink to this definition">¶</a></dt>
 <dd><p>upload pandas dataframe to target sheet range. the number of columns must fit the range. more columns or
 fewer columns will both raise exception.</p>
 <dl class="field-list simple">
@@ -317,7 +323,7 @@ fewer columns will both raise exception.</p>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>df</strong> (<em>pandas.DataFrame</em>) – pandas dataframe to be uploaded</p></li>
 <li><p><strong>id</strong> – id of the target spreadsheet</p></li>
-<li><p><strong>range</strong> – range in the target spreadsheet.  for example, ‘sheet!A1:D’. this means selecting from tab “sheet”
+<li><p><strong>sheet_range</strong> – range in the target spreadsheet.  for example, ‘sheet!A1:D’. this means selecting from tab “sheet”
 and download column A to D and rows from 1 to the last row with non-empty values.</p></li>
 </ul>
 </dd>
@@ -346,6 +352,52 @@ and download column A to D and rows from 1 to the last row with non-empty values
 </dl>
 </dd></dl>
 
+</dd></dl>
+
+<dl class="py function">
+<dt id="pysuite.sheets.get_col_counts_from_range">
+<code class="sig-prename descclassname">pysuite.sheets.</code><code class="sig-name descname">get_col_counts_from_range</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">sheet_range</span><span class="p">:</span> <span class="n">str</span></em><span class="sig-paren">)</span> &#x2192; int<a class="reference internal" href="_modules/pysuite/sheets.html#get_col_counts_from_range"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pysuite.sheets.get_col_counts_from_range" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculate the number of columns in the given range.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Example</dt>
+<dd class="field-odd"><p></p></dd>
+</dl>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">get_col_counts_from_range</span><span class="p">(</span><span class="s2">&quot;test!A1:A&quot;</span><span class="p">)</span>  <span class="c1"># 1</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">get_col_counts_from_range</span><span class="p">(</span><span class="s2">&quot;test!A1:D&quot;</span><span class="p">)</span>  <span class="c1"># 4</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">get_col_counts_from_range</span><span class="p">(</span><span class="s2">&quot;test!AA2:AZ&quot;</span><span class="p">)</span>  <span class="c1"># 26</span>
+</pre></div>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>sheet_range</strong> – a string representation of sheet range. For example, “test_sheet!A1:D”</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>the number of columns contained in the range.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="pysuite.sheets.get_column_number">
+<code class="sig-prename descclassname">pysuite.sheets.</code><code class="sig-name descname">get_column_number</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">col</span><span class="p">:</span> <span class="n">str</span></em><span class="sig-paren">)</span> &#x2192; int<a class="reference internal" href="_modules/pysuite/sheets.html#get_column_number"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pysuite.sheets.get_column_number" title="Permalink to this definition">¶</a></dt>
+<dd><p>Convert spreadsheet column numbers to integer.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Example</dt>
+<dd class="field-odd"><p></p></dd>
+</dl>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">get_column_number</span><span class="p">(</span><span class="s1">&#39;A&#39;</span><span class="p">)</span>  <span class="c1"># 1</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">get_column_number</span><span class="p">(</span><span class="s1">&#39;AA&#39;</span><span class="p">)</span> <span class="c1"># 27</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">get_column_number</span><span class="p">(</span><span class="s1">&#39;ZY&#39;</span><span class="p">)</span> <span class="c1"># 701</span>
+</pre></div>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>col</strong> – upper case spreadsheet column</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>index of the column starting from 1.</p>
+</dd>
+</dl>
 </dd></dl>
 
 </div>
