@@ -116,11 +116,11 @@ Some examples can be found below:
 ```python
 import pandas as pd 
 df = pd.DataFrame({"col1": [1, 2], "col2": ['a', 'b']})
-sheets.to_sheet(df, id="your_sheet_id", range="yourtab!A1:B")
+sheets.to_sheet(df, id="your_sheet_id", sheet_range="yourtab!A1:B")
 ```
 
 #### download sheet to dataframe
 This api requires pandas.
 ```python
-df = sheets.read_sheet(id="your_sheet_id", range="yourtab!A1:D")
+df = sheets.read_sheet(id="your_sheet_id", sheet_range="yourtab!A1:D")
 ```
