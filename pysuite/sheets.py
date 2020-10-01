@@ -1,7 +1,8 @@
 """implement api to access google sheet
 """
 import logging
-from typing import Optional
+from typing import Optional, List
+import re
 
 from googleapiclient.discovery import Resource
 
@@ -14,23 +15,31 @@ class Sheets:
     def __init__(self, service: Resource):
         self._service = service.spreadsheets()
 
-    def download(self, id: str, range: str, dimension: str="ROWS") -> list:
+    def download(self, id: str, sheet_range: str, dimension: str= "ROWS", fill_row: bool=False) -> list:
         """download target sheet range by specified dimension. All entries will be considered as strings.
 
         :param id: id of the target spreadsheet.
-        :param range: range in the target spreadsheet. for example, 'sheet!A1:D'. this means selecting from tab "sheet"
+        :param sheet_range: range in the target spreadsheet. for example, 'sheet!A1:D'. this means selecting from tab "sheet"
           and download column A to D and rows from 1 to the last row with non-empty values.
         :param dimension: "ROW" or "COLUMNS". If "ROWS", each entry in the output list would be one row in the
           spreadsheet. If "COLUMNS", each entry in the output list would be one column in the spreadsheet.
+        :param fill_row: Whether force to return rows with desired number of columns. Google Sheet API ignores trailing
+          empty cells by default. By setting this to True, empty strings will be filled in those ignored cells. This
+          parameter only works when dimension is "ROWS".
         :return: content of target sheet range in a list of lists.
         """
         if dimension not in VALID_DIMENSION:
             raise ValueError(f"{dimension} is not a valid dimension. expecting {VALID_DIMENSION}.")
 
         result = self._service.values().get(spreadsheetId=id,
-                                            range=range,
+                                            range=sheet_range,
                                             majorDimension=dimension).execute()
         values = result.get('values', [])
+
+        if fill_row and dimension == "ROWS":
+            col_counts = get_col_counts_from_range(sheet_range)
+            self._fill_rows(values, col_counts)
+
         return values
 
     def upload(self, values: list, id: str, range: str) -> None:
@@ -42,7 +51,7 @@ class Sheets:
           and download column A to D and rows from 1 to the last row with non-empty values.
         :return: None
         """
-        self.clear(id=id, range=range)
+        self.clear(id=id, sheet_range=range)
         body = {"values": values}
         logging.info(f"Updating sheet '{id}' range '{range}'")
         request = self._service.values().update(spreadsheetId=id,
@@ -54,27 +63,31 @@ class Sheets:
               f"and {result.get('updatedColumns')} columns)"
         logging.info(msg)
 
-    def clear(self, id: str, range: str):
+    def clear(self, id: str, sheet_range: str):
         """remove content in the target sheet range.
 
         :param id: id of the target spreadsheet
-        :param range: range in the target spreadsheet.  for example, 'sheet!A1:D'. this means selecting from tab "sheet"
+        :param sheet_range: range in the target spreadsheet.  for example, 'sheet!A1:D'. this means selecting from tab "sheet"
           and download column A to D and rows from 1 to the last row with non-empty values.
         :return: None
         """
-        self._service.values().clear(spreadsheetId=id, range=range, body={}).execute()
+        self._service.values().clear(spreadsheetId=id, range=sheet_range, body={}).execute()
 
-    def read_sheet(self, id: str, range: str, header=True, dtypes: Optional[dict]=None, columns: Optional[list]=None):
-        """download the target sheet range into a pandas datafrme. this method will fail if pandas cannot be imported.
+    def read_sheet(self, id: str, sheet_range: str, header=True, dtypes: Optional[dict]=None,
+                   columns: Optional[list]=None, fill_row: bool=True):
+        """download the target sheet range into a pandas dataframe. this method will fail if pandas cannot be imported.
 
         :param id: id of the target spreadsheet
-        :param range: range in the target spreadsheet.  for example, 'sheet!A1:D'. this means selecting from tab "sheet"
+        :param sheet_range: range in the target spreadsheet.  for example, 'sheet!A1:D'. this means selecting from tab "sheet"
           and download column A to D and rows from 1 to the last row with non-empty values.
         :param header: whether first row is used as column names in the output dataframe.
         :param dtypes: a mapping from column name to the type. if not None, type conversions will be applied to columns
           requested in the dictionary.
         :param columns: a list of column names. If not None and `header` is False, this will be used as columns of the
           output dataframe
+        :param fill_row: Whether attempt to fill the trailing empty cell with empty strings. This prevents errors when
+          the trailing cells in some rows are empty in the sheet. When header is True, this will attempt to fill the
+          missing header with _col{i}, where i is the index of the column (starting from 1).
         :return: a pandas dataframe containing target spreadsheet values.
         """
         try:
@@ -86,11 +99,17 @@ class Sheets:
         if dtypes is not None and not isinstance(dtypes, dict):
             raise TypeError(f"dtypes must be dictionary. got {type(dtypes)}")
 
-        values = self.download(id=id, range=range)
+        values = self.download(id=id, sheet_range=sheet_range, fill_row=fill_row)
         if values == []:
             return pd.DataFrame()
 
-        columns = values.pop(0) if header else columns
+        if header:
+            columns = values.pop(0)
+            if fill_row:
+                for i in range(len(columns)):
+                    if columns[i] == "":
+                        columns[i] = f"_col{i+1}"
+
         df = pd.DataFrame(values, columns=columns)
 
         if dtypes is not None:
@@ -99,20 +118,20 @@ class Sheets:
 
         return df
 
-    def to_sheet(self, df, id: str, range: str):
+    def to_sheet(self, df, id: str, sheet_range: str):
         """upload pandas dataframe to target sheet range. the number of columns must fit the range. more columns or
         fewer columns will both raise exception.
 
         :param df: pandas dataframe to be uploaded
         :type df: pandas.DataFrame
         :param id: id of the target spreadsheet
-        :param range: range in the target spreadsheet.  for example, 'sheet!A1:D'. this means selecting from tab "sheet"
+        :param sheet_range: range in the target spreadsheet.  for example, 'sheet!A1:D'. this means selecting from tab "sheet"
           and download column A to D and rows from 1 to the last row with non-empty values.
         :return: None
         """
         values = df.fillna('').values.tolist()
         values.insert(0, list(df.columns))
-        self.upload(values, id=id, range=range)
+        self.upload(values, id=id, range=sheet_range)
 
     def create_spreadsheet(self, name: str) -> str:
         """create a spreadsheet with requested name.
@@ -172,3 +191,49 @@ class Sheets:
         ]
         }
         self.batch_update(id=id, body=request)
+
+    def _fill_rows(self, rows: List[list], col_counts: int):
+        for row in rows:
+            if len(row) < col_counts:
+                row.extend(['']*(col_counts - len(row)))
+
+
+def get_column_number(col: str) -> int:
+    """Convert spreadsheet column numbers to integer.
+
+    :example:
+
+    >>> get_column_number('A')  # 1
+    >>> get_column_number('AA') # 27
+    >>> get_column_number('ZY') # 701
+
+    :param col: upper case spreadsheet column
+    :return: index of the column starting from 1.
+    """
+    result = 0
+    l = len(col)
+    for i in range(l):
+        result += (ord(col[l-i-1]) - 64) * (26 ** i)
+
+    return result
+
+
+def get_col_counts_from_range(sheet_range: str) -> int:
+    """Calculate the number of columns in the given range.
+
+    :example:
+
+    >>> get_col_counts_from_range("test!A1:A")  # 1
+    >>> get_col_counts_from_range("test!A1:D")  # 4
+    >>> get_col_counts_from_range("test!AA2:AZ")  # 26
+
+    :param sheet_range: a string representation of sheet range. For example, "test_sheet!A1:D"
+    :return: the number of columns contained in the range.
+    """
+    columns = sheet_range.upper().split("!")[1]  # get the columns in letter, such as "A1:D"
+    from_column, to_column = columns.split(":")
+    pattern = re.compile("^([A-Z]+)", re.IGNORECASE)
+    from_column = pattern.search(from_column).group(0)
+    to_column = pattern.search(to_column).group(0)
+    counts = get_column_number(to_column) - get_column_number(from_column) + 1
+    return counts

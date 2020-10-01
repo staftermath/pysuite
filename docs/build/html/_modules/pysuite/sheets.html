@@ -154,7 +154,8 @@
 <span></span><span class="sd">&quot;&quot;&quot;implement api to access google sheet</span>
 <span class="sd">&quot;&quot;&quot;</span>
 <span class="kn">import</span> <span class="nn">logging</span>
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Optional</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">List</span>
+<span class="kn">import</span> <span class="nn">re</span>
 
 <span class="kn">from</span> <span class="nn">googleapiclient.discovery</span> <span class="kn">import</span> <span class="n">Resource</span>
 
@@ -167,23 +168,31 @@
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">service</span><span class="p">:</span> <span class="n">Resource</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_service</span> <span class="o">=</span> <span class="n">service</span><span class="o">.</span><span class="n">spreadsheets</span><span class="p">()</span>
 
-<div class="viewcode-block" id="Sheets.download"><a class="viewcode-back" href="../../sheets.html#pysuite.sheets.Sheets.download">[docs]</a>    <span class="k">def</span> <span class="nf">download</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">id</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="nb">range</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">dimension</span><span class="p">:</span> <span class="nb">str</span><span class="o">=</span><span class="s2">&quot;ROWS&quot;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">:</span>
+<div class="viewcode-block" id="Sheets.download"><a class="viewcode-back" href="../../sheets.html#pysuite.sheets.Sheets.download">[docs]</a>    <span class="k">def</span> <span class="nf">download</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">id</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">sheet_range</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">dimension</span><span class="p">:</span> <span class="nb">str</span><span class="o">=</span> <span class="s2">&quot;ROWS&quot;</span><span class="p">,</span> <span class="n">fill_row</span><span class="p">:</span> <span class="nb">bool</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;download target sheet range by specified dimension. All entries will be considered as strings.</span>
 
 <span class="sd">        :param id: id of the target spreadsheet.</span>
-<span class="sd">        :param range: range in the target spreadsheet. for example, &#39;sheet!A1:D&#39;. this means selecting from tab &quot;sheet&quot;</span>
+<span class="sd">        :param sheet_range: range in the target spreadsheet. for example, &#39;sheet!A1:D&#39;. this means selecting from tab &quot;sheet&quot;</span>
 <span class="sd">          and download column A to D and rows from 1 to the last row with non-empty values.</span>
 <span class="sd">        :param dimension: &quot;ROW&quot; or &quot;COLUMNS&quot;. If &quot;ROWS&quot;, each entry in the output list would be one row in the</span>
 <span class="sd">          spreadsheet. If &quot;COLUMNS&quot;, each entry in the output list would be one column in the spreadsheet.</span>
+<span class="sd">        :param fill_row: Whether force to return rows with desired number of columns. Google Sheet API ignores trailing</span>
+<span class="sd">          empty cells by default. By setting this to True, empty strings will be filled in those ignored cells. This</span>
+<span class="sd">          parameter only works when dimension is &quot;ROWS&quot;.</span>
 <span class="sd">        :return: content of target sheet range in a list of lists.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="n">dimension</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">VALID_DIMENSION</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">dimension</span><span class="si">}</span><span class="s2"> is not a valid dimension. expecting </span><span class="si">{</span><span class="n">VALID_DIMENSION</span><span class="si">}</span><span class="s2">.&quot;</span><span class="p">)</span>
 
         <span class="n">result</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_service</span><span class="o">.</span><span class="n">values</span><span class="p">()</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">spreadsheetId</span><span class="o">=</span><span class="nb">id</span><span class="p">,</span>
-                                            <span class="nb">range</span><span class="o">=</span><span class="nb">range</span><span class="p">,</span>
+                                            <span class="nb">range</span><span class="o">=</span><span class="n">sheet_range</span><span class="p">,</span>
                                             <span class="n">majorDimension</span><span class="o">=</span><span class="n">dimension</span><span class="p">)</span><span class="o">.</span><span class="n">execute</span><span class="p">()</span>
         <span class="n">values</span> <span class="o">=</span> <span class="n">result</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;values&#39;</span><span class="p">,</span> <span class="p">[])</span>
+
+        <span class="k">if</span> <span class="n">fill_row</span> <span class="ow">and</span> <span class="n">dimension</span> <span class="o">==</span> <span class="s2">&quot;ROWS&quot;</span><span class="p">:</span>
+            <span class="n">col_counts</span> <span class="o">=</span> <span class="n">get_col_counts_from_range</span><span class="p">(</span><span class="n">sheet_range</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_fill_rows</span><span class="p">(</span><span class="n">values</span><span class="p">,</span> <span class="n">col_counts</span><span class="p">)</span>
+
         <span class="k">return</span> <span class="n">values</span></div>
 
 <div class="viewcode-block" id="Sheets.upload"><a class="viewcode-back" href="../../sheets.html#pysuite.sheets.Sheets.upload">[docs]</a>    <span class="k">def</span> <span class="nf">upload</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">values</span><span class="p">:</span> <span class="nb">list</span><span class="p">,</span> <span class="nb">id</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="nb">range</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
@@ -195,7 +204,7 @@
 <span class="sd">          and download column A to D and rows from 1 to the last row with non-empty values.</span>
 <span class="sd">        :return: None</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">clear</span><span class="p">(</span><span class="nb">id</span><span class="o">=</span><span class="nb">id</span><span class="p">,</span> <span class="nb">range</span><span class="o">=</span><span class="nb">range</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">clear</span><span class="p">(</span><span class="nb">id</span><span class="o">=</span><span class="nb">id</span><span class="p">,</span> <span class="n">sheet_range</span><span class="o">=</span><span class="nb">range</span><span class="p">)</span>
         <span class="n">body</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;values&quot;</span><span class="p">:</span> <span class="n">values</span><span class="p">}</span>
         <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Updating sheet &#39;</span><span class="si">{</span><span class="nb">id</span><span class="si">}</span><span class="s2">&#39; range &#39;</span><span class="si">{</span><span class="nb">range</span><span class="si">}</span><span class="s2">&#39;&quot;</span><span class="p">)</span>
         <span class="n">request</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_service</span><span class="o">.</span><span class="n">values</span><span class="p">()</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">spreadsheetId</span><span class="o">=</span><span class="nb">id</span><span class="p">,</span>
@@ -207,27 +216,31 @@
               <span class="sa">f</span><span class="s2">&quot;and </span><span class="si">{</span><span class="n">result</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;updatedColumns&#39;</span><span class="p">)</span><span class="si">}</span><span class="s2"> columns)&quot;</span>
         <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="Sheets.clear"><a class="viewcode-back" href="../../sheets.html#pysuite.sheets.Sheets.clear">[docs]</a>    <span class="k">def</span> <span class="nf">clear</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">id</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="nb">range</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+<div class="viewcode-block" id="Sheets.clear"><a class="viewcode-back" href="../../sheets.html#pysuite.sheets.Sheets.clear">[docs]</a>    <span class="k">def</span> <span class="nf">clear</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">id</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">sheet_range</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;remove content in the target sheet range.</span>
 
 <span class="sd">        :param id: id of the target spreadsheet</span>
-<span class="sd">        :param range: range in the target spreadsheet.  for example, &#39;sheet!A1:D&#39;. this means selecting from tab &quot;sheet&quot;</span>
+<span class="sd">        :param sheet_range: range in the target spreadsheet.  for example, &#39;sheet!A1:D&#39;. this means selecting from tab &quot;sheet&quot;</span>
 <span class="sd">          and download column A to D and rows from 1 to the last row with non-empty values.</span>
 <span class="sd">        :return: None</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_service</span><span class="o">.</span><span class="n">values</span><span class="p">()</span><span class="o">.</span><span class="n">clear</span><span class="p">(</span><span class="n">spreadsheetId</span><span class="o">=</span><span class="nb">id</span><span class="p">,</span> <span class="nb">range</span><span class="o">=</span><span class="nb">range</span><span class="p">,</span> <span class="n">body</span><span class="o">=</span><span class="p">{})</span><span class="o">.</span><span class="n">execute</span><span class="p">()</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_service</span><span class="o">.</span><span class="n">values</span><span class="p">()</span><span class="o">.</span><span class="n">clear</span><span class="p">(</span><span class="n">spreadsheetId</span><span class="o">=</span><span class="nb">id</span><span class="p">,</span> <span class="nb">range</span><span class="o">=</span><span class="n">sheet_range</span><span class="p">,</span> <span class="n">body</span><span class="o">=</span><span class="p">{})</span><span class="o">.</span><span class="n">execute</span><span class="p">()</span></div>
 
-<div class="viewcode-block" id="Sheets.read_sheet"><a class="viewcode-back" href="../../sheets.html#pysuite.sheets.Sheets.read_sheet">[docs]</a>    <span class="k">def</span> <span class="nf">read_sheet</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">id</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="nb">range</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">header</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">dtypes</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">dict</span><span class="p">]</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">columns</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">list</span><span class="p">]</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;download the target sheet range into a pandas datafrme. this method will fail if pandas cannot be imported.</span>
+<div class="viewcode-block" id="Sheets.read_sheet"><a class="viewcode-back" href="../../sheets.html#pysuite.sheets.Sheets.read_sheet">[docs]</a>    <span class="k">def</span> <span class="nf">read_sheet</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">id</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">sheet_range</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">header</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">dtypes</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">dict</span><span class="p">]</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                   <span class="n">columns</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">list</span><span class="p">]</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">fill_row</span><span class="p">:</span> <span class="nb">bool</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;download the target sheet range into a pandas dataframe. this method will fail if pandas cannot be imported.</span>
 
 <span class="sd">        :param id: id of the target spreadsheet</span>
-<span class="sd">        :param range: range in the target spreadsheet.  for example, &#39;sheet!A1:D&#39;. this means selecting from tab &quot;sheet&quot;</span>
+<span class="sd">        :param sheet_range: range in the target spreadsheet.  for example, &#39;sheet!A1:D&#39;. this means selecting from tab &quot;sheet&quot;</span>
 <span class="sd">          and download column A to D and rows from 1 to the last row with non-empty values.</span>
 <span class="sd">        :param header: whether first row is used as column names in the output dataframe.</span>
 <span class="sd">        :param dtypes: a mapping from column name to the type. if not None, type conversions will be applied to columns</span>
 <span class="sd">          requested in the dictionary.</span>
 <span class="sd">        :param columns: a list of column names. If not None and `header` is False, this will be used as columns of the</span>
 <span class="sd">          output dataframe</span>
+<span class="sd">        :param fill_row: Whether attempt to fill the trailing empty cell with empty strings. This prevents errors when</span>
+<span class="sd">          the trailing cells in some rows are empty in the sheet. When header is True, this will attempt to fill the</span>
+<span class="sd">          missing header with _col{i}, where i is the index of the column (starting from 1).</span>
 <span class="sd">        :return: a pandas dataframe containing target spreadsheet values.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">try</span><span class="p">:</span>
@@ -239,11 +252,17 @@
         <span class="k">if</span> <span class="n">dtypes</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">dtypes</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
             <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;dtypes must be dictionary. got </span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">dtypes</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 
-        <span class="n">values</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">download</span><span class="p">(</span><span class="nb">id</span><span class="o">=</span><span class="nb">id</span><span class="p">,</span> <span class="nb">range</span><span class="o">=</span><span class="nb">range</span><span class="p">)</span>
+        <span class="n">values</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">download</span><span class="p">(</span><span class="nb">id</span><span class="o">=</span><span class="nb">id</span><span class="p">,</span> <span class="n">sheet_range</span><span class="o">=</span><span class="n">sheet_range</span><span class="p">,</span> <span class="n">fill_row</span><span class="o">=</span><span class="n">fill_row</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">values</span> <span class="o">==</span> <span class="p">[]:</span>
             <span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">()</span>
 
-        <span class="n">columns</span> <span class="o">=</span> <span class="n">values</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span> <span class="k">if</span> <span class="n">header</span> <span class="k">else</span> <span class="n">columns</span>
+        <span class="k">if</span> <span class="n">header</span><span class="p">:</span>
+            <span class="n">columns</span> <span class="o">=</span> <span class="n">values</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">fill_row</span><span class="p">:</span>
+                <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">columns</span><span class="p">)):</span>
+                    <span class="k">if</span> <span class="n">columns</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;&quot;</span><span class="p">:</span>
+                        <span class="n">columns</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;_col</span><span class="si">{</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="si">}</span><span class="s2">&quot;</span>
+
         <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">values</span><span class="p">,</span> <span class="n">columns</span><span class="o">=</span><span class="n">columns</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="n">dtypes</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
@@ -252,20 +271,20 @@
 
         <span class="k">return</span> <span class="n">df</span></div>
 
-<div class="viewcode-block" id="Sheets.to_sheet"><a class="viewcode-back" href="../../sheets.html#pysuite.sheets.Sheets.to_sheet">[docs]</a>    <span class="k">def</span> <span class="nf">to_sheet</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">df</span><span class="p">,</span> <span class="nb">id</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="nb">range</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+<div class="viewcode-block" id="Sheets.to_sheet"><a class="viewcode-back" href="../../sheets.html#pysuite.sheets.Sheets.to_sheet">[docs]</a>    <span class="k">def</span> <span class="nf">to_sheet</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">df</span><span class="p">,</span> <span class="nb">id</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">sheet_range</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;upload pandas dataframe to target sheet range. the number of columns must fit the range. more columns or</span>
 <span class="sd">        fewer columns will both raise exception.</span>
 
 <span class="sd">        :param df: pandas dataframe to be uploaded</span>
 <span class="sd">        :type df: pandas.DataFrame</span>
 <span class="sd">        :param id: id of the target spreadsheet</span>
-<span class="sd">        :param range: range in the target spreadsheet.  for example, &#39;sheet!A1:D&#39;. this means selecting from tab &quot;sheet&quot;</span>
+<span class="sd">        :param sheet_range: range in the target spreadsheet.  for example, &#39;sheet!A1:D&#39;. this means selecting from tab &quot;sheet&quot;</span>
 <span class="sd">          and download column A to D and rows from 1 to the last row with non-empty values.</span>
 <span class="sd">        :return: None</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">values</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">fillna</span><span class="p">(</span><span class="s1">&#39;&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">values</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
         <span class="n">values</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="nb">list</span><span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">columns</span><span class="p">))</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">upload</span><span class="p">(</span><span class="n">values</span><span class="p">,</span> <span class="nb">id</span><span class="o">=</span><span class="nb">id</span><span class="p">,</span> <span class="nb">range</span><span class="o">=</span><span class="nb">range</span><span class="p">)</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">upload</span><span class="p">(</span><span class="n">values</span><span class="p">,</span> <span class="nb">id</span><span class="o">=</span><span class="nb">id</span><span class="p">,</span> <span class="nb">range</span><span class="o">=</span><span class="n">sheet_range</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="Sheets.create_spreadsheet"><a class="viewcode-back" href="../../sheets.html#pysuite.sheets.Sheets.create_spreadsheet">[docs]</a>    <span class="k">def</span> <span class="nf">create_spreadsheet</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;create a spreadsheet with requested name.</span>
@@ -324,7 +343,53 @@
             <span class="p">{</span><span class="s2">&quot;updateSheetProperties&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;properties&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;sheetId&quot;</span><span class="p">:</span> <span class="n">sheet_id</span><span class="p">,</span> <span class="s2">&quot;title&quot;</span><span class="p">:</span> <span class="n">title</span><span class="p">},</span> <span class="s2">&quot;fields&quot;</span><span class="p">:</span> <span class="s2">&quot;title&quot;</span><span class="p">}}</span>
         <span class="p">]</span>
         <span class="p">}</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">batch_update</span><span class="p">(</span><span class="nb">id</span><span class="o">=</span><span class="nb">id</span><span class="p">,</span> <span class="n">body</span><span class="o">=</span><span class="n">request</span><span class="p">)</span></div></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">batch_update</span><span class="p">(</span><span class="nb">id</span><span class="o">=</span><span class="nb">id</span><span class="p">,</span> <span class="n">body</span><span class="o">=</span><span class="n">request</span><span class="p">)</span></div>
+
+    <span class="k">def</span> <span class="nf">_fill_rows</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">rows</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">list</span><span class="p">],</span> <span class="n">col_counts</span><span class="p">:</span> <span class="nb">int</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">rows</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">row</span><span class="p">)</span> <span class="o">&lt;</span> <span class="n">col_counts</span><span class="p">:</span>
+                <span class="n">row</span><span class="o">.</span><span class="n">extend</span><span class="p">([</span><span class="s1">&#39;&#39;</span><span class="p">]</span><span class="o">*</span><span class="p">(</span><span class="n">col_counts</span> <span class="o">-</span> <span class="nb">len</span><span class="p">(</span><span class="n">row</span><span class="p">)))</span></div>
+
+
+<div class="viewcode-block" id="get_column_number"><a class="viewcode-back" href="../../sheets.html#pysuite.sheets.get_column_number">[docs]</a><span class="k">def</span> <span class="nf">get_column_number</span><span class="p">(</span><span class="n">col</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;Convert spreadsheet column numbers to integer.</span>
+
+<span class="sd">    :example:</span>
+
+<span class="sd">    &gt;&gt;&gt; get_column_number(&#39;A&#39;)  # 1</span>
+<span class="sd">    &gt;&gt;&gt; get_column_number(&#39;AA&#39;) # 27</span>
+<span class="sd">    &gt;&gt;&gt; get_column_number(&#39;ZY&#39;) # 701</span>
+
+<span class="sd">    :param col: upper case spreadsheet column</span>
+<span class="sd">    :return: index of the column starting from 1.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">result</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">l</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">col</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">l</span><span class="p">):</span>
+        <span class="n">result</span> <span class="o">+=</span> <span class="p">(</span><span class="nb">ord</span><span class="p">(</span><span class="n">col</span><span class="p">[</span><span class="n">l</span><span class="o">-</span><span class="n">i</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span> <span class="o">-</span> <span class="mi">64</span><span class="p">)</span> <span class="o">*</span> <span class="p">(</span><span class="mi">26</span> <span class="o">**</span> <span class="n">i</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">result</span></div>
+
+
+<div class="viewcode-block" id="get_col_counts_from_range"><a class="viewcode-back" href="../../sheets.html#pysuite.sheets.get_col_counts_from_range">[docs]</a><span class="k">def</span> <span class="nf">get_col_counts_from_range</span><span class="p">(</span><span class="n">sheet_range</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;Calculate the number of columns in the given range.</span>
+
+<span class="sd">    :example:</span>
+
+<span class="sd">    &gt;&gt;&gt; get_col_counts_from_range(&quot;test!A1:A&quot;)  # 1</span>
+<span class="sd">    &gt;&gt;&gt; get_col_counts_from_range(&quot;test!A1:D&quot;)  # 4</span>
+<span class="sd">    &gt;&gt;&gt; get_col_counts_from_range(&quot;test!AA2:AZ&quot;)  # 26</span>
+
+<span class="sd">    :param sheet_range: a string representation of sheet range. For example, &quot;test_sheet!A1:D&quot;</span>
+<span class="sd">    :return: the number of columns contained in the range.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">columns</span> <span class="o">=</span> <span class="n">sheet_range</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;!&quot;</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span>  <span class="c1"># get the columns in letter, such as &quot;A1:D&quot;</span>
+    <span class="n">from_column</span><span class="p">,</span> <span class="n">to_column</span> <span class="o">=</span> <span class="n">columns</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;:&quot;</span><span class="p">)</span>
+    <span class="n">pattern</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="s2">&quot;^([A-Z]+)&quot;</span><span class="p">,</span> <span class="n">re</span><span class="o">.</span><span class="n">IGNORECASE</span><span class="p">)</span>
+    <span class="n">from_column</span> <span class="o">=</span> <span class="n">pattern</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">from_column</span><span class="p">)</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+    <span class="n">to_column</span> <span class="o">=</span> <span class="n">pattern</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">to_column</span><span class="p">)</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+    <span class="n">counts</span> <span class="o">=</span> <span class="n">get_column_number</span><span class="p">(</span><span class="n">to_column</span><span class="p">)</span> <span class="o">-</span> <span class="n">get_column_number</span><span class="p">(</span><span class="n">from_column</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span>
+    <span class="k">return</span> <span class="n">counts</span></div>
 </pre></div>
 
            </div>
