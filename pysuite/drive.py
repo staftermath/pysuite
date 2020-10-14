@@ -30,26 +30,20 @@ class Drive:
                 logging.info(f"Download {status.progress()*100}%")
 
     def upload(self, from_file: Union[str, PosixPath], name: Optional[str]=None, mimetype: Optional[str]=None,
-               parent_ids: Optional[List[str]]=None) -> str:
+               parent_id: Optional[str]=None) -> str:
         """upload local file to gdrive.
 
         :param from_file: path to local file.
         :param name: name of google drive file. If None, the name of local file will be used.
         :param mimetype: Mime-type of the file. If None then a mime-type will be guessed from the file extension.
-        :param parent_ids: list of ids for the folder you want to upload the file to. If None, it will be uploaded to
+        :param parent_id: id of the folder you want to upload the file to. If None, it will be uploaded to
           root of Google drive.
         :return: id of the uploaded file
         """
         file_metadata = {'name': name if name is not None else Path(from_file).name}
 
-        if parent_ids is not None:
-            if not isinstance(parent_ids, list):
-                raise TypeError(f"parent_ids must be a list. got {type(parent_ids)}")
-
-            if len(parent_ids) == 0:
-                raise ValueError(f"parent_ids cannot be empty")
-
-            file_metadata["parents"] = parent_ids
+        if parent_id is not None:
+            file_metadata["parents"] = parent_id
 
         media = MediaFileUpload(str(from_file),
                                 mimetype=mimetype,
@@ -250,16 +244,17 @@ class Drive:
         file = self._service.files().get(fileId=id).execute()
         return file['name']
 
-    def copy(self, id: str, name: str, parent_ids: Optional[list]=None) -> str:
+    def copy(self, id: str, name: str, parent_id: Optional[str]=None) -> str:
         """copy target file and give the new file specified name. return the id of the created file.
 
         :param id: target file to be copied.
         :param name: name of the new file.
-        :param parent_ids: ids of folders to place the new file in.
+        :param parent_id: the id of the folder where the new file is placed in. If None, the file will be placed in
+            Google Drive root.
         :return: id of the created new file.
         """
         request = {"name": name}
-        if parent_ids is not None:
-            request["parents"] = parent_ids
+        if parent_id is not None:
+            request["parents"] = parent_id
         file = self._service.files().copy(fileId=id, body=request, fields='id').execute()
         return file.get("id")

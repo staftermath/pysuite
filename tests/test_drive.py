@@ -51,7 +51,7 @@ def test_upload_and_delete_correctly_create_and_remove_file(drive, prefix, tmpdi
     file_to_upload = Path(tmpdir.join("test_upload_file"))
     file_to_upload.write_text("hello world")
     id = drive.upload(from_file=file_to_upload, name=f"{prefix}test_file",
-                      parent_ids=["1_p0khJ5euUDbZhWiXbN5fefozKMD28yZ"])
+                      parent_id="1_p0khJ5euUDbZhWiXbN5fefozKMD28yZ")
 
     download_file = Path(tmpdir.join("test_downloaded_file"))
     drive.download(id=id, to_file=download_file)
@@ -72,7 +72,7 @@ def clean_up_update(drive, tmpdir, prefix):
     file_to_upload = Path(tmpdir.join("test_upload_file"))
     file_to_upload.write_text("hello world")
     id = drive.upload(from_file=file_to_upload, name=f"{prefix}drive_test_file",
-                      parent_ids=[TEST_DRIVE_FOLDER_ID])
+                      parent_id=TEST_DRIVE_FOLDER_ID)
     yield id
     purge_temp_file(drive, prefix)
 
@@ -175,7 +175,7 @@ def test_find_return_correct_values(drive, contains, not_contains, expected):
 def test_copy_copy_file_correctly(drive, clean_up_drive_temp_files, tmpdir):
     prefix = clean_up_drive_temp_files
     id = drive.copy(id="1-zIfn0kUcK6KI9PfZLXu6uCt01ZSOTOZ", name=f"{prefix}_copied_file",
-                    parent_ids=["1_p0khJ5euUDbZhWiXbN5fefozKMD28yZ"])
+                    parent_id="1_p0khJ5euUDbZhWiXbN5fefozKMD28yZ")
     temp_download = Path(tmpdir.join("temp_download_copied_file"))
     drive.download(id=id, to_file=temp_download)
     with open(temp_download) as f:
