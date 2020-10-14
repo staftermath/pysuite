@@ -106,12 +106,12 @@ download a file to local.
 
 upload
 ++++++
-upload a local file to google drive. you can provide a list of ids to place the uploaded file under these folders.
+upload a local file to google drive. you can provide the id of a folder to place the uploaded file under that folder.
 
 .. code-block:: python
 
     drive.upload(from_file="path/to/your/file/to/be/uploaded", name="google_drive_file_name",
-                 parent_ids=["google drive folder id 1", "google drive folder id 2"])
+                 parent_id="google drive folder id 1")
 
 delete
 ++++++
@@ -123,11 +123,11 @@ delete a google drive file/folder. parameter `recursive` has not been implemente
 
 copy
 ++++
-copy one google drive file to another. you can provide a list of ids to place the new file under these folders.
+copy one google drive file to another. you can provide the id of a folder to place the new file under that folder.
 
 .. code-block:: python
 
-    drive.copy(id="id_of_target_file", name="name of new file", parent_ids=["new parent folder id"])
+    drive.copy(id="id_of_target_file", name="name of new file", parent_id="new parent folder id")
 
 list
 ++++
