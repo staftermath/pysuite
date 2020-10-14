@@ -175,7 +175,7 @@ def test_find_return_correct_values(drive, contains, not_contains, expected):
 def test_copy_copy_file_correctly(drive, clean_up_drive_temp_files, tmpdir):
     prefix = clean_up_drive_temp_files
     id = drive.copy(id="1-zIfn0kUcK6KI9PfZLXu6uCt01ZSOTOZ", name=f"{prefix}_copied_file",
-                    parent_ids=["1_p0khJ5euUDbZhWiXbN5fefozKMD28yZ"])
+                    parent_id="1_p0khJ5euUDbZhWiXbN5fefozKMD28yZ")
     temp_download = Path(tmpdir.join("temp_download_copied_file"))
     drive.download(id=id, to_file=temp_download)
     with open(temp_download) as f:
