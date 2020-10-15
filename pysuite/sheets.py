@@ -6,15 +6,20 @@ import re
 
 from googleapiclient.discovery import Resource
 
+from pysuite.utilities import retry_on_out_of_quota, MAX_RETRY_ATTRIBUTE, SLEEP_ATTRIBUTE
+
 VALID_DIMENSION = {"COLUMNS", "ROWS"}
 
 
 class Sheets:
     """provide api to operate google spreadsheet. An authenticated google api client is needed.
     """
-    def __init__(self, service: Resource):
+    def __init__(self, service: Resource, max_retry: int=0, sleep: int=5):
         self._service = service.spreadsheets()
+        setattr(self, MAX_RETRY_ATTRIBUTE, max_retry)
+        setattr(self, SLEEP_ATTRIBUTE, sleep)
 
+    @retry_on_out_of_quota()
     def download(self, id: str, sheet_range: str, dimension: str= "ROWS", fill_row: bool=False) -> list:
         """download target sheet range by specified dimension. All entries will be considered as strings.
 
@@ -42,6 +47,7 @@ class Sheets:
 
         return values
 
+    @retry_on_out_of_quota()
     def upload(self, values: list, id: str, range: str) -> None:
         """upload a list of lists to target sheet range.
 
@@ -63,6 +69,7 @@ class Sheets:
               f"and {result.get('updatedColumns')} columns)"
         logging.info(msg)
 
+    @retry_on_out_of_quota()
     def clear(self, id: str, sheet_range: str):
         """remove content in the target sheet range.
 
@@ -133,6 +140,7 @@ class Sheets:
         values.insert(0, list(df.columns))
         self.upload(values, id=id, range=sheet_range)
 
+    @retry_on_out_of_quota()
     def create_spreadsheet(self, name: str) -> str:
         """create a spreadsheet with requested name.
 
@@ -145,6 +153,7 @@ class Sheets:
         response = self._service.create(body=file_metadata, fields="spreadsheetId").execute()
         return response.get("spreadsheetId")
 
+    @retry_on_out_of_quota()
     def batch_update(self, id: str, body: dict):
         """low level api used to submit a json body to make changes to the specified spreadsheet.
 
