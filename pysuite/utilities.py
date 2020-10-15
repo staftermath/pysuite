@@ -17,16 +17,16 @@ def retry_on_out_of_quota():
             max_retry = max(max_retry, 0)
             sleep = getattr(self, SLEEP_ATTRIBUTE, 5)
             pattern = re.compile(".*(User Rate Limit Exceeded|Quota exceeded)+.*")
-            while max_retry >= 0:
+            while True:
+                max_retry -= 1
                 try:
                     result = method(self, *args, **kwargs)
                     return result
                 except HttpError as e:
-                    if pattern.match(str(e)):
-                        max_retry -= 1
+                    if max_retry >= 0 and pattern.match(str(e)):
                         warnings.warn(f"handled exception {e}. remaining retry: {max_retry}", UserWarning)
                         time.sleep(sleep)
-                        sleep = sleep**2
+                        sleep = sleep*2
                         continue
 
                     raise e
