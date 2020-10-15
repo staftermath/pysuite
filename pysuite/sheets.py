@@ -15,6 +15,12 @@ class Sheets:
     """provide api to operate google spreadsheet. An authenticated google api client is needed.
     """
     def __init__(self, service: Resource, max_retry: int=0, sleep: int=5):
+        """
+
+        :param service: an authorized Google Spreadsheet service client.
+        :param max_retry: max number of retry on quota exceeded error. if 0 or less, no retry will be attempted.
+        :param sleep: base number of seconds between retries. the sleep time is exponentially increased after each retry.
+        """
         self._service = service.spreadsheets()
         setattr(self, MAX_RETRY_ATTRIBUTE, max_retry)
         setattr(self, SLEEP_ATTRIBUTE, sleep)

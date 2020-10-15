@@ -12,8 +12,16 @@ from pysuite.utilities import retry_on_out_of_quota, MAX_RETRY_ATTRIBUTE, SLEEP_
 
 
 class Drive:
+    """Class to interact with Google Drive API
+    """
 
     def __init__(self, service: Resource, max_retry: int=0, sleep: int=5):
+        """
+
+        :param service: an authorized Google Drive service client.
+        :param max_retry: max number of retry on quota exceeded error. if 0 or less, no retry will be attempted.
+        :param sleep: base number of seconds between retries. the sleep time is exponentially increased after each retry.
+        """
         self._service = service
         setattr(self, MAX_RETRY_ATTRIBUTE, max_retry)
         setattr(self, SLEEP_ATTRIBUTE, sleep)
