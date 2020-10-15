@@ -15,7 +15,7 @@ Welcome to pysuite's documentation!
    drive
    sheets
    gmail
-
+   utilities
 
 Indices and tables
 ==================
