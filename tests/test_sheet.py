@@ -16,7 +16,7 @@ test_sheet_folder = "1qqFJ-OaV1rdPSeFtdaf6lUwFIpupOiiF"
 
 @pytest.fixture(scope="session")
 def sheets(sheets_auth):
-    return Sheets(service=sheets_auth.get_service_client())
+    return Sheets(service=sheets_auth.get_service_client(), max_retry=5, sleep=10)
 
 
 @pytest.mark.parametrize(("dimension", "range", "force_fill", "expected"),

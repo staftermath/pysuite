@@ -8,12 +8,25 @@ import re
 from googleapiclient.discovery import Resource
 from googleapiclient.http import MediaIoBaseDownload, MediaFileUpload
 
+from pysuite.utilities import retry_on_out_of_quota, MAX_RETRY_ATTRIBUTE, SLEEP_ATTRIBUTE
+
 
 class Drive:
+    """Class to interact with Google Drive API
+    """
 
-    def __init__(self, service: Resource):
+    def __init__(self, service: Resource, max_retry: int=0, sleep: int=5):
+        """
+
+        :param service: an authorized Google Drive service client.
+        :param max_retry: max number of retry on quota exceeded error. if 0 or less, no retry will be attempted.
+        :param sleep: base number of seconds between retries. the sleep time is exponentially increased after each retry.
+        """
         self._service = service
+        setattr(self, MAX_RETRY_ATTRIBUTE, max_retry)
+        setattr(self, SLEEP_ATTRIBUTE, sleep)
 
+    @retry_on_out_of_quota()
     def download(self, id: str, to_file: Union[str, PosixPath]):
         """download the google drive file with the requested id to target local file.
 
@@ -29,6 +42,7 @@ class Drive:
                 status, done = downloader.next_chunk()
                 logging.info(f"Download {status.progress()*100}%")
 
+    @retry_on_out_of_quota()
     def upload(self, from_file: Union[str, PosixPath], name: Optional[str]=None, mimetype: Optional[str]=None,
                parent_id: Optional[str]=None) -> str:
         """upload local file to gdrive.
@@ -54,6 +68,7 @@ class Drive:
                                             fields='id').execute()
         return file.get("id")
 
+    @retry_on_out_of_quota()
     def update(self, id: str, from_file: Union[str, PosixPath]):
         """update the Google drive with local file.
 
@@ -66,6 +81,7 @@ class Drive:
 
         self._service.files().update(body=dict(), fileId=id, media_body=media).execute()
 
+    @retry_on_out_of_quota()
     def get_id(self, name: str, parent_id: Optional[str]=None):
         """get the id of the file with specified name. if more than one file are found, an error will be raised.
 
@@ -90,6 +106,7 @@ class Drive:
 
         return item[0]['id']
 
+    @retry_on_out_of_quota()
     def find(self, name_contains: Optional[str]=None, name_not_contains: Optional[str]=None,
              parent_id: Optional[str]=None) -> list:
         """find all files whose name contain specified string and do not contain specified string. Note that Google
@@ -125,6 +142,7 @@ class Drive:
         item = response.get('files', [])
         return item
 
+    @retry_on_out_of_quota()
     def list(self, id: str, regex: str=None, recursive: bool=False, depth: int=3) -> list:
         """list the content of the folder by the given id.
 
@@ -157,6 +175,7 @@ class Drive:
 
         return result
 
+    @retry_on_out_of_quota()
     def delete(self, id: str, recursive: bool=False):
         """delete target file from google drive
         TODO: implement recursive delete
@@ -167,6 +186,7 @@ class Drive:
         """
         self._service.files().delete(fileId=id).execute()
 
+    @retry_on_out_of_quota()
     def create_folder(self, name: str, parent_ids: Optional[list]=None) -> str:
         """create a folder on google drive by the given name.
 
@@ -190,6 +210,7 @@ class Drive:
         folder = self._service.files().create(body=file_metadata, fields='id').execute()
         return folder.get("id")
 
+    @retry_on_out_of_quota()
     def share(self, id: str, emails: List[str], role: str= "reader", notify=True):  # pragma: no cover
         """modify the permission of the target object and share with the provided emails.
 
@@ -235,6 +256,7 @@ class Drive:
 
         return f"nextPageToken, files({','.join(fields)})"
 
+    @retry_on_out_of_quota()
     def get_name(self, id: str) -> str:
         """get the name of the Google drive object.
 
@@ -244,6 +266,7 @@ class Drive:
         file = self._service.files().get(fileId=id).execute()
         return file['name']
 
+    @retry_on_out_of_quota()
     def copy(self, id: str, name: str, parent_id: Optional[str]=None) -> str:
         """copy target file and give the new file specified name. return the id of the created file.
 

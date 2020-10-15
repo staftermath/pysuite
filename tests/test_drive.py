@@ -10,7 +10,7 @@ from tests.helper import TEST_DRIVE_FOLDER_ID, purge_temp_file, prefix
 
 @pytest.fixture()
 def drive(drive_auth):
-    return Drive(service=drive_auth.get_service_client())
+    return Drive(service=drive_auth.get_service_client(), max_retry=5, sleep=10)
 
 
 def test_get_id_return_correct_value(drive):
