@@ -16,6 +16,9 @@ def retry_on_out_of_quota():
             max_retry = getattr(self, MAX_RETRY_ATTRIBUTE, 0)
             max_retry = max(max_retry, 0)
             sleep = getattr(self, SLEEP_ATTRIBUTE, 5)
+            if sleep < 0:
+                raise AttributeError(f"{SLEEP_ATTRIBUTE} must be positive. Got {sleep}")
+
             pattern = re.compile(".*(User Rate Limit Exceeded|Quota exceeded)+.*")
             while True:
                 max_retry -= 1
