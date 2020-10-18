@@ -17,7 +17,7 @@ def get_version():
 
 NAME = 'pysuite'
 DESCRIPTION = "A data scientist's toolbox for Google Suite Apps"
-URL = 'https://github.com/staftermath/pysuite'
+URL = 'https://staftermath.github.io/pysuite/index.html'
 EMAIL = 'gwengww@gmail.com'
 AUTHOR = 'Weiwen Gu'
 REQUIRES_PYTHON = '>=3.6.0'
