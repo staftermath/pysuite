@@ -4,7 +4,8 @@
 [![PyPi downloads](https://pypip.in/d/pysuite/badge.png)](https://pypi.org/project/pysuite/)
 
 A python wrapper for google suite API. This provides a few classes with user friendly apis to operate with Google Suite
-applications such as Google Drive and Google Spreadsheet.
+applications such as Google Drive and Google Spreadsheet. For details, please view the 
+[document](https://staftermath.github.io/pysuite/user_manual.html)
 
 ## Get credentials
 You need to get a credential from 
