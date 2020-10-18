@@ -89,6 +89,7 @@
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Drive</a></li>
 <li class="toctree-l1"><a class="reference internal" href="sheets.html">Sheets</a></li>
 <li class="toctree-l1"><a class="reference internal" href="gmail.html">GMail</a></li>
+<li class="toctree-l1"><a class="reference internal" href="utilities.html">utilities</a></li>
 </ul>
 
             
@@ -159,18 +160,29 @@
 <span class="target" id="module-pysuite.drive"></span><p>implement api to access google drive</p>
 <dl class="py class">
 <dt id="pysuite.drive.Drive">
-<em class="property">class </em><code class="sig-prename descclassname">pysuite.drive.</code><code class="sig-name descname">Drive</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">service</span><span class="p">:</span> <span class="n">googleapiclient.discovery.Resource</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pysuite/drive.html#Drive"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pysuite.drive.Drive" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-prename descclassname">pysuite.drive.</code><code class="sig-name descname">Drive</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">service</span><span class="p">:</span> <span class="n">googleapiclient.discovery.Resource</span></em>, <em class="sig-param"><span class="n">max_retry</span><span class="p">:</span> <span class="n">int</span> <span class="o">=</span> <span class="default_value">0</span></em>, <em class="sig-param"><span class="n">sleep</span><span class="p">:</span> <span class="n">int</span> <span class="o">=</span> <span class="default_value">5</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pysuite/drive.html#Drive"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pysuite.drive.Drive" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Class to interact with Google Drive API</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>service</strong> – an authorized Google Drive service client.</p></li>
+<li><p><strong>max_retry</strong> – max number of retry on quota exceeded error. if 0 or less, no retry will be attempted.</p></li>
+<li><p><strong>sleep</strong> – base number of seconds between retries. the sleep time is exponentially increased after each retry.</p></li>
+</ul>
+</dd>
+</dl>
 <dl class="py method">
 <dt id="pysuite.drive.Drive.copy">
-<code class="sig-name descname">copy</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">id</span><span class="p">:</span> <span class="n">str</span></em>, <em class="sig-param"><span class="n">name</span><span class="p">:</span> <span class="n">str</span></em>, <em class="sig-param"><span class="n">parent_ids</span><span class="p">:</span> <span class="n">Optional<span class="p">[</span><a class="reference internal" href="#pysuite.drive.Drive.list" title="pysuite.drive.Drive.list">pysuite.drive.Drive.list</a><span class="p">]</span></span> <span class="o">=</span> <span class="default_value">None</span></em><span class="sig-paren">)</span> &#x2192; str<a class="reference internal" href="_modules/pysuite/drive.html#Drive.copy"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pysuite.drive.Drive.copy" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">copy</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">id</span><span class="p">:</span> <span class="n">str</span></em>, <em class="sig-param"><span class="n">name</span><span class="p">:</span> <span class="n">str</span></em>, <em class="sig-param"><span class="n">parent_id</span><span class="p">:</span> <span class="n">Optional<span class="p">[</span>str<span class="p">]</span></span> <span class="o">=</span> <span class="default_value">None</span></em><span class="sig-paren">)</span> &#x2192; str<a class="reference internal" href="_modules/pysuite/drive.html#Drive.copy"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pysuite.drive.Drive.copy" title="Permalink to this definition">¶</a></dt>
 <dd><p>copy target file and give the new file specified name. return the id of the created file.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>id</strong> – target file to be copied.</p></li>
 <li><p><strong>name</strong> – name of the new file.</p></li>
-<li><p><strong>parent_ids</strong> – ids of folders to place the new file in.</p></li>
+<li><p><strong>parent_id</strong> – the id of the folder where the new file is placed in. If None, the file will be placed in
+Google Drive root.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
@@ -349,7 +361,7 @@ parent ids.</p>
 
 <dl class="py method">
 <dt id="pysuite.drive.Drive.upload">
-<code class="sig-name descname">upload</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">from_file</span><span class="p">:</span> <span class="n">Union<span class="p">[</span>str<span class="p">, </span>pathlib.PosixPath<span class="p">]</span></span></em>, <em class="sig-param"><span class="n">name</span><span class="p">:</span> <span class="n">Optional<span class="p">[</span>str<span class="p">]</span></span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="n">mimetype</span><span class="p">:</span> <span class="n">Optional<span class="p">[</span>str<span class="p">]</span></span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="n">parent_ids</span><span class="p">:</span> <span class="n">Optional<span class="p">[</span>List<span class="p">[</span>str<span class="p">]</span><span class="p">]</span></span> <span class="o">=</span> <span class="default_value">None</span></em><span class="sig-paren">)</span> &#x2192; str<a class="reference internal" href="_modules/pysuite/drive.html#Drive.upload"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pysuite.drive.Drive.upload" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">upload</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">from_file</span><span class="p">:</span> <span class="n">Union<span class="p">[</span>str<span class="p">, </span>pathlib.PosixPath<span class="p">]</span></span></em>, <em class="sig-param"><span class="n">name</span><span class="p">:</span> <span class="n">Optional<span class="p">[</span>str<span class="p">]</span></span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="n">mimetype</span><span class="p">:</span> <span class="n">Optional<span class="p">[</span>str<span class="p">]</span></span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="n">parent_id</span><span class="p">:</span> <span class="n">Optional<span class="p">[</span>str<span class="p">]</span></span> <span class="o">=</span> <span class="default_value">None</span></em><span class="sig-paren">)</span> &#x2192; str<a class="reference internal" href="_modules/pysuite/drive.html#Drive.upload"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pysuite.drive.Drive.upload" title="Permalink to this definition">¶</a></dt>
 <dd><p>upload local file to gdrive.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -357,7 +369,7 @@ parent ids.</p>
 <li><p><strong>from_file</strong> – path to local file.</p></li>
 <li><p><strong>name</strong> – name of google drive file. If None, the name of local file will be used.</p></li>
 <li><p><strong>mimetype</strong> – Mime-type of the file. If None then a mime-type will be guessed from the file extension.</p></li>
-<li><p><strong>parent_ids</strong> – list of ids for the folder you want to upload the file to. If None, it will be uploaded to
+<li><p><strong>parent_id</strong> – id of the folder you want to upload the file to. If None, it will be uploaded to
 root of Google drive.</p></li>
 </ul>
 </dd>

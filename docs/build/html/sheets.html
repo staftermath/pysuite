@@ -89,6 +89,7 @@
 <li class="toctree-l1"><a class="reference internal" href="drive.html">Drive</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Sheets</a></li>
 <li class="toctree-l1"><a class="reference internal" href="gmail.html">GMail</a></li>
+<li class="toctree-l1"><a class="reference internal" href="utilities.html">utilities</a></li>
 </ul>
 
             
@@ -159,9 +160,18 @@
 <span class="target" id="module-pysuite.sheets"></span><p>implement api to access google sheet</p>
 <dl class="py class">
 <dt id="pysuite.sheets.Sheets">
-<em class="property">class </em><code class="sig-prename descclassname">pysuite.sheets.</code><code class="sig-name descname">Sheets</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">service</span><span class="p">:</span> <span class="n">googleapiclient.discovery.Resource</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pysuite/sheets.html#Sheets"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pysuite.sheets.Sheets" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-prename descclassname">pysuite.sheets.</code><code class="sig-name descname">Sheets</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">service</span><span class="p">:</span> <span class="n">googleapiclient.discovery.Resource</span></em>, <em class="sig-param"><span class="n">max_retry</span><span class="p">:</span> <span class="n">int</span> <span class="o">=</span> <span class="default_value">0</span></em>, <em class="sig-param"><span class="n">sleep</span><span class="p">:</span> <span class="n">int</span> <span class="o">=</span> <span class="default_value">5</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pysuite/sheets.html#Sheets"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pysuite.sheets.Sheets" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>provide api to operate google spreadsheet. An authenticated google api client is needed.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>service</strong> – an authorized Google Spreadsheet service client.</p></li>
+<li><p><strong>max_retry</strong> – max number of retry on quota exceeded error. if 0 or less, no retry will be attempted.</p></li>
+<li><p><strong>sleep</strong> – base number of seconds between retries. the sleep time is exponentially increased after each retry.</p></li>
+</ul>
+</dd>
+</dl>
 <dl class="py method">
 <dt id="pysuite.sheets.Sheets.batch_update">
 <code class="sig-name descname">batch_update</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">id</span><span class="p">:</span> <span class="n">str</span></em>, <em class="sig-param"><span class="n">body</span><span class="p">:</span> <span class="n">dict</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pysuite/sheets.html#Sheets.batch_update"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pysuite.sheets.Sheets.batch_update" title="Permalink to this definition">¶</a></dt>
