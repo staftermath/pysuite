@@ -3,4 +3,4 @@
 set -e
 
 TEST_DIR=$(pwd)/tests
-pytest --verbose ${TEST_DIR}
+coverage -m pytest ${TEST_DIR}
