@@ -3,4 +3,4 @@
 set -e
 
 TEST_DIR=$(pwd)/tests
-coverage -m pytest ${TEST_DIR}
+coverage run -m pytest ${TEST_DIR}
