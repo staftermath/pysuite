@@ -54,7 +54,7 @@ class Sheets:
 
     @retry_on_out_of_quota()
     def upload(self, values: list, id: str, range: str) -> None:
-        """upload a list of lists to target sheet range.
+        """Upload a list of lists to target sheet range. All entries in the provided list must be serializable.
 
         :param values: a list of lists of objects that can be converted to str.
         :param id: id of the target spreadsheet
@@ -131,8 +131,8 @@ class Sheets:
         return df
 
     def to_sheet(self, df, id: str, sheet_range: str):
-        """upload pandas dataframe to target sheet range. the number of columns must fit the range. more columns or
-        fewer columns will both raise exception.
+        """Upload pandas dataframe to target sheet range. The number of columns must fit the range. More columns or
+        fewer columns will both raise exception. The data in the provided dataframe must be serializable.
 
         :param df: pandas dataframe to be uploaded
         :type df: pandas.DataFrame
@@ -142,7 +142,7 @@ class Sheets:
         :return: None
         """
         values = df.fillna('').values.tolist()
-        values.insert(0, list(df.columns))
+        values.insert(0, list(df.columns))  # insert column names to first row.
         self.upload(values, id=id, range=sheet_range)
 
     @retry_on_out_of_quota()

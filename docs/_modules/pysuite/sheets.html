@@ -208,7 +208,7 @@
 
 <div class="viewcode-block" id="Sheets.upload"><a class="viewcode-back" href="../../sheets.html#pysuite.sheets.Sheets.upload">[docs]</a>    <span class="nd">@retry_on_out_of_quota</span><span class="p">()</span>
     <span class="k">def</span> <span class="nf">upload</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">values</span><span class="p">:</span> <span class="nb">list</span><span class="p">,</span> <span class="nb">id</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="nb">range</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;upload a list of lists to target sheet range.</span>
+        <span class="sd">&quot;&quot;&quot;Upload a list of lists to target sheet range. All entries in the provided list must be serializable.</span>
 
 <span class="sd">        :param values: a list of lists of objects that can be converted to str.</span>
 <span class="sd">        :param id: id of the target spreadsheet</span>
@@ -285,8 +285,8 @@
         <span class="k">return</span> <span class="n">df</span></div>
 
 <div class="viewcode-block" id="Sheets.to_sheet"><a class="viewcode-back" href="../../sheets.html#pysuite.sheets.Sheets.to_sheet">[docs]</a>    <span class="k">def</span> <span class="nf">to_sheet</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">df</span><span class="p">,</span> <span class="nb">id</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">sheet_range</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;upload pandas dataframe to target sheet range. the number of columns must fit the range. more columns or</span>
-<span class="sd">        fewer columns will both raise exception.</span>
+        <span class="sd">&quot;&quot;&quot;Upload pandas dataframe to target sheet range. The number of columns must fit the range. More columns or</span>
+<span class="sd">        fewer columns will both raise exception. The data in the provided dataframe must be serializable.</span>
 
 <span class="sd">        :param df: pandas dataframe to be uploaded</span>
 <span class="sd">        :type df: pandas.DataFrame</span>
@@ -296,7 +296,7 @@
 <span class="sd">        :return: None</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">values</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">fillna</span><span class="p">(</span><span class="s1">&#39;&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">values</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
-        <span class="n">values</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="nb">list</span><span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">columns</span><span class="p">))</span>
+        <span class="n">values</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="nb">list</span><span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">columns</span><span class="p">))</span>  <span class="c1"># insert column names to first row.</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">upload</span><span class="p">(</span><span class="n">values</span><span class="p">,</span> <span class="nb">id</span><span class="o">=</span><span class="nb">id</span><span class="p">,</span> <span class="nb">range</span><span class="o">=</span><span class="n">sheet_range</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="Sheets.create_spreadsheet"><a class="viewcode-back" href="../../sheets.html#pysuite.sheets.Sheets.create_spreadsheet">[docs]</a>    <span class="nd">@retry_on_out_of_quota</span><span class="p">()</span>

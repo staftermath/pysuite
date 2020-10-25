@@ -2,6 +2,25 @@
 
 User Manual
 ===========
+This page provides a quick introduction of some basic classes in pysuite as well as some exmaple of their usages. For
+detailed documentation, please refer to the corresponding pages for each class.
+
+Installation
+------------
+pysuite is tested under linux for python 3.6, 3.7 and 3.8. It is also expected to run on MacOS. Certain efforts have
+been spent to avoid OS dependencies. However, it has not been tested under Windows.
+
+The easiest way to install pysuite is to use pip:
+
+.. code-block:: bash
+
+    pip install pysuite
+
+Alternatively, you can clone `pysuite repo <https://github.com/staftermath/pysuite>`_ and run:
+
+.. code-block:: bash
+
+    python setup.py install
 
 Authentication
 --------------
@@ -45,8 +64,11 @@ The token file will be written in the following json format:
 Authenticate
 ++++++++++++
 
-:code:`Authentication` can help authenticate your credential and provide clients for API class such as
-:code:`Drive`, :code:`Sheets` and :code:`GMail`. If token file has not been created, it can be instantiated as follows:
+Once you created a credential file from the previous section, :code:`Authentication` can help authenticate your
+credential and provide clients for API class such as :code:`Drive`, :code:`Sheets` and :code:`GMail`. Google API uses a
+refresh token to periodically refresh your credential. By keeping a token file, you will not be needing to manually
+authorize your credential file through browser. :code:`Authentication` helps you automatically refresh token when
+expired. An :code:`Authentication` class can be instantiated as follows.
 
 .. code-block:: python
 
@@ -57,48 +79,62 @@ Authenticate
 
   drive_auth = Authentication(credential=credential_file, token=token_file, services="drive")
 
-this will prompt web browser confirmation for the first time if :code:`token` file is not created. Once
-you confirm access, the token will be created/overwritten. You may provide a string or a list of services. Currently
-accepted services are 'drive' or 'sheets'.
+this will prompt a web browser confirmation for the first time if :code:`token` file is not created. Once
+you confirm access, the token will be created/overwritten. Future authorization will automatically use the token file.
+No manual confirmation will be needed.
 
-You can generate a gdrive service object or sheets service object now from authentication object.
-
-.. code-block:: python
-
-    drive_service = drive_auth.get_service_client()
-
+You may provide a string or a list of services. Currently accepted services are 'drive', 'sheets' or 'gmail'. With
+:code:`Authentication` class, You can generate different service used by corresponding API class such as :code:`Drive`,
+:code:`Sheet` or :code:`GMail`. Only service whose service type is authorized in :code:`Authentication` can be created.
 If more than one service was authorized at instantiation, you must specify service type in :code:`get_service_client`:
+For example:
 
 .. code-block:: python
 
-    auth = Authentication(credential=credential_file, token=token_file, services=["drive", "sheets", "gmail"])
-    drive_service = auth.get_service_client("drive")
+    drive_and_sheet_auth = Authentication(credential=credential_file, token=token_file, services=["drive", "sheet"])
+    sheet_and_gmail_auth = Authentication(credential=credential_file, token=token_file, services=["sheet", "gmail"])
+    sheet_only_auth = Authentication(credential=credential_file, token=token_file, services="sheet")
 
+    drive_and_sheet_auth.get_service_client("drive")  # get a service client for Drive
+    drive_and_sheet_auth.get_service_client("sheet")  # get a service client for Sheet
+    drive_and_sheet_auth.get_service_client("gmail")  # this will not work since gmail is not authorized
+    drive_and_sheet_auth.get_service_client()  # this will not work since multiple types were authorized.
+    sheet_only_auth.get_service_client()  # this works since there is only one auth type
+
+The token file is associated with authorized services. In order to successfully authorize your credential, you need to
+first enable API through `Google API Console <https://console.developers.google.com/apis/dashboard>`_.
 
 Drive
 -----
-This class provides APIs used to access and operate with Google drive files
-
-instantiate
-+++++++++++
-You may utilize :code:`Authentication` class to create an authenticated API class:
+This class provides APIs used to access and operate with Google drive files. You may utilize :code:`Authentication`
+class to create an authenticated API class:
 
 .. code-block:: python
 
     from pysuite import Drive
 
-    drive = Drive(service=drive_auth.get_service_client())  # drive_auth is an Authentication object with service='drive'
+    # drive_auth is an Authentication object with 'drive' service authorized.
+    drive = Drive(service=drive_auth.get_service_client())
 
-If you prefer different method to create gdrive client, you may switch :code:`drive_auth.get_service_client()` with a gdrive service
-(See `Google Drive API V3 <https://developers.google.com/drive/api/v3/quickstart/python>`_ for detail):
+If you prefer different method to create gdrive client, you may switch :code:`drive_auth.get_service_client()` with a
+gdrive service (See `Google Drive API V3 <https://developers.google.com/drive/api/v3/quickstart/python>`_ for detail):
 
 .. code-block:: python
 
     service = build('drive', 'v3', credentials=creds)
 
+Many methods in this class has parameter :code:`id`. This represent the gdrive object id. There are several ways to get
+the id of a Google Drive object. Some methods in :code:`Drive` can also help you to find it. To do it manually, right
+click on any Google Drive object (file or folder) and click `get link`, then copy the prompted link, it may look like
+this: https://drive.google.com/drive/folders/1qcfrD7RqZWwPVO9C7tbL1PNRa2aUQlF8?usp=sharing. The id of this object is
+**1qcfrD7RqZWwPVO9C7tbL1PNRa2aUQlF8**. You can get id of most Google Suite object this way.
+
+All methods in :code:`Drive` that interacts with Google API can be configured to retry on Quota Error. Please refer to
+:ref:`drive` to see how to control the number of retries and sleep time.
+
 download
 ++++++++
-download a file to local.
+Download a file to local.
 
 .. code-block:: python
 
@@ -106,7 +142,7 @@ download a file to local.
 
 upload
 ++++++
-upload a local file to google drive. you can provide the id of a folder to place the uploaded file under that folder.
+Upload a local file to google drive. you can provide the id of a folder to place the uploaded file under that folder.
 
 .. code-block:: python
 
@@ -115,15 +151,16 @@ upload a local file to google drive. you can provide the id of a folder to place
 
 delete
 ++++++
-delete a google drive file/folder. parameter `recursive` has not been implemented.
+Delete a google drive file/folder. Parameter :code:`recursive` has not been implemented.
 
 .. code-block:: python
 
-    drive.delete(id="id_of_target_file")
+    drive.delete(id="id_of_target_object")
 
 copy
 ++++
-copy one google drive file to another. you can provide the id of a folder to place the new file under that folder.
+Copy one google drive file to another. The new file will be named by :code:`name`. You can provide the id of a folder
+to place the new file under that folder.
 
 .. code-block:: python
 
@@ -131,9 +168,10 @@ copy one google drive file to another. you can provide the id of a folder to pla
 
 list
 ++++
-list files under the target folder. if the id is not a folder or there is no object in the folder, an empty list will be
-returned. you can also pass a regular expression string to filter the result. note that this filter is done post-query.
-you can also list recursively up to a maximum depth.
+List files under the target folder. If the id is not a folder or there is no object in the folder, an empty list will be
+returned. You can also pass a regular expression string to filter the result. Note that this filter is done post-query.
+Which means list of all files under the target folder will still be downloaded first. You can also list recursively up
+to a maximum depth. This may save some time if you do not intend to search deeply nested folders.
 
 .. code-block:: python
 
@@ -141,8 +179,8 @@ you can also list recursively up to a maximum depth.
 
 share
 +++++
-share a google drive object with a list of emails. you can grant the role as 'owner', 'organizer', 'fileOrganzier',
-'writer', 'commenter' or 'reader'. you can also choose to notify the shared emails.
+Share a google drive object with a list of emails. You can grant the role such as **owner**, **organizer**,
+**fileOrganzier**, **writer**, **commenter** or **reader**. You can also choose to notify the shared emails.
 
 .. code-block:: python
 
@@ -151,7 +189,7 @@ share a google drive object with a list of emails. you can grant the role as 'ow
 
 create_folder
 +++++++++++++
-create a folder on google drive.
+Create a folder on google drive.
 
 .. code-block:: python
 
@@ -159,15 +197,15 @@ create a folder on google drive.
 
 Sheets
 ------
-This class provides APIs used to access and operate with Google spreadsheet files
-
-instantiate
-+++++++++++
+This class provides APIs used to access and operate with Google spreadsheet files. Many `Sheets` methods has parameter
+:code:`range`. This needs to follow `A1 Notation <https://developers.google.com/sheets/api/guides/concepts#a1_notation`_.
+To instantiate Sheets class:
 
 .. code-block:: python
 
     from pysuite import Sheets
-    sheets = Sheets(service=sheets_auth.get_service_client())  # sheets_auth is an Authentication object with service='sheets'
+    # sheets_auth is an Authentication object with 'sheets' type of service authorized
+    sheets = Sheets(service=sheets_auth.get_service_client())
 
 If you prefer different method to create gsheet client, you may switch :code:`sheets_auth.get_service_client()` with a
 google sheet service (See `Google Sheet API V4 <https://developers.google.com/sheets/api/quickstart/python>`_ for details):
@@ -176,9 +214,14 @@ google sheet service (See `Google Sheet API V4 <https://developers.google.com/sh
 
     service = build('sheets', 'v4', credentials=creds, cache_discovery=True)
 
+All methods in :code:`Sheets` that calls Google API can be configured to retry on Quota Error. Please refer to
+:ref:`sheets` to see how to control the number of retries and sleep time
+
 to_sheet
 ++++++++
-Upload a pandas dataframe to a specified range of sheet. This will clear the target range before uploading.
+Upload a pandas dataframe to a specified range of sheet. This will clear the target range before uploading. The data in
+the provided dataframe must be serializable. For example, date type may not be correctly uploaded. In such cases, you
+might need to convert these columns to strings first.
 
 .. code-block:: python
 
@@ -188,14 +231,17 @@ Upload a pandas dataframe to a specified range of sheet. This will clear the tar
 
 read_sheet
 ++++++++++
-This api requires pandas.
+Download target sheet range into a pandas DataFrame. This api requires pandas.
 
 .. code-block:: python
 
     df = sheets.read_sheet(id="your_sheet_id", sheet_range="yourtab!A1:D")
 
-Note that Google sheet API ignores trailing empty cells in a row. This behavior causes the result that the values read
-from the sheet may have fewer entries then expected. This furthur causes error when attempting to convert the values into
+The raw data downloaded are all of string type, hence the dtypes of all columns in the created dataframe will be `object`.
+The parameter :code:`dtypes` can be utilized to columns to the desired types.
+
+Note that Google sheet API ignores trailing empty cells in a row. As A result, the values read from the sheet may have
+fewer entries then expected. As a result, it causes error when attempting to convert the values into
 pandas DataFrame. This issue can be fixed by passing :code:`fill_row=True` (default) with some sacrifice of performance.
 In addition, when both :code:`fill_row` and :code:`header` are :code:`True`, the method will attempt to fill missing
 header with `_col{i}` where i is the index of the column. If you are certain no trailing cells exist in the target
@@ -218,6 +264,7 @@ cells with empty strings. This comes with some sacrifice of performance but will
 upload
 ++++++
 Upload a list of lists to specified google sheet range. This is useful when you do not want to add pandas as dependency.
+The target range will be cleared before new content is uploaded. All entries in the provided list must be serializable.
 
 .. code-block:: python
 
@@ -250,7 +297,9 @@ Create a tab (sheet) in a spreadsheet. return the id of created tab.
 
 delete_sheet
 ++++++++++++
-delete a tab in a spreadsheet. you can find the id of the tab from URL
+Delete a tab (sheet) in a spreadsheet. You can find the id of the tab from URL. For example, if URL of a tab is
+https://docs.google.com/spreadsheets/d/1CNOH3o2Zz05mharkLXuwX72FpRka8-KFpIm9bEaja50/edit#gid=388610320, then the tab id
+is `388610320`
 
 .. code-block:: python
 
@@ -258,7 +307,7 @@ delete a tab in a spreadsheet. you can find the id of the tab from URL
 
 rename_sheet
 ++++++++++++
-rename a tab in a spreadsheet.
+Rename a tab in a spreadsheet.
 
 .. code-block:: python
 
@@ -267,15 +316,14 @@ rename a tab in a spreadsheet.
 
 GMail
 -----
-This class provides APIs used to access and operate with Gmail API
-
-instantiate
-+++++++++++
+This class provides APIs used to access and operate with Gmail API. This class uses Google API istead of more commonly
+used SMTP. To instantiate a :code:`GMail` class:
 
 .. code-block:: python
 
     from pysuite import GMail
-    sheets = GMail(service=gmail_auth.get_service_client())  # gmail_auth is an Authentication object with service='gmail'
+    # gmail_auth is an Authentication object with 'gmail' type service authorized.
+    sheets = GMail(service=gmail_auth.get_service_client())
 
 If you prefer different method to create gmail client, you may switch :code:`gmail_auth.get_service_client()` with a
 google gmail service (See `Gmail API <https://developers.google.com/gmail/api/quickstart/python>`_ for details):
