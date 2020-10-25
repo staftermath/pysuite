@@ -160,6 +160,7 @@
 <p class="caption"><span class="caption-text">Contents:</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="user_manual.html">User Manual</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="user_manual.html#installation">Installation</a></li>
 <li class="toctree-l2"><a class="reference internal" href="user_manual.html#authentication">Authentication</a></li>
 <li class="toctree-l2"><a class="reference internal" href="user_manual.html#drive">Drive</a></li>
 <li class="toctree-l2"><a class="reference internal" href="user_manual.html#sheets">Sheets</a></li>
@@ -172,6 +173,37 @@
 <li class="toctree-l1"><a class="reference internal" href="gmail.html">GMail</a></li>
 <li class="toctree-l1"><a class="reference internal" href="utilities.html">utilities</a></li>
 </ul>
+</div>
+<p>Google Suite Applications have gained popularity among small to medium scaled companies. Many data science team also
+rely on Google Suite to share data, files and analyses. While manually distribute data are easy with Google Suite, there
+are many use cases when data scientists need to incorporate Google Suite into their automation pipeline, or even simple
+deployments. With a few set ups, Google Suite can be a quick, simple, yet powerful way to automate many data science jobs.
+Google has provided APIs that allow comprehensive and flexible use of almost all commen Googe Suite applications, such as
+Google Drive, Google Spreadsheet and GMail. However, to directly use the Python library (
+<a class="reference external" href="https://github.com/googleapis/google-api-python-client">google-api-python-client</a>) may require quite some engineering
+efforts not all data science teams can afford. This library aims to fill the gap. <code class="code docutils literal notranslate"><span class="pre">pysuite</span></code> is designed to provide
+simple interfaces that covers commonly used Google Suite functionalities.</p>
+<div class="section" id="use-case-1-alerts">
+<h2>Use case 1: Alerts<a class="headerlink" href="#use-case-1-alerts" title="Permalink to this headline">¶</a></h2>
+<p>Trigger an email from scheduled python jobs to alert stakeholders. (Of course, there are already many email clients for
+this.)</p>
+</div>
+<div class="section" id="use-case-2-report-sharing">
+<h2>Use case 2: Report Sharing<a class="headerlink" href="#use-case-2-report-sharing" title="Permalink to this headline">¶</a></h2>
+<p>After executing daily BAU scripts, upload the created csv file to a target Spreadsheet with built-in formula and graphs,
+while stakeholders get the daily refreshed contents.</p>
+</div>
+<div class="section" id="use-case-3-cloud-storage">
+<h2>Use case 3: Cloud Storage<a class="headerlink" href="#use-case-3-cloud-storage" title="Permalink to this headline">¶</a></h2>
+<p>Use Google Drive as storage to transfer output data from one job to downstream jobs: The upstream jobs will automatically
+upload a file to a folder. The downstream jobs or stakeholders can work from the uploaded content without knowing details
+of how it is generated.</p>
+</div>
+<div class="section" id="use-case-4-simple-ui">
+<h2>Use case 4: Simple UI<a class="headerlink" href="#use-case-4-simple-ui" title="Permalink to this headline">¶</a></h2>
+<p>Use Google Spreadsheet as an interface. Set up a few validated cells in a spreadsheet, users can enter or select from
+a pull down menu to control the specifications. A scheduled job can read from target cells and parse the values as input
+configuration for automated scripts or pipelines.</p>
 </div>
 </div>
 <div class="section" id="indices-and-tables">

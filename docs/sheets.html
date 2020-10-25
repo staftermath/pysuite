@@ -326,8 +326,8 @@ missing header with _col{i}, where i is the index of the column (starting from 1
 <dl class="py method">
 <dt id="pysuite.sheets.Sheets.to_sheet">
 <code class="sig-name descname">to_sheet</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">df</span></em>, <em class="sig-param"><span class="n">id</span><span class="p">:</span> <span class="n">str</span></em>, <em class="sig-param"><span class="n">sheet_range</span><span class="p">:</span> <span class="n">str</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pysuite/sheets.html#Sheets.to_sheet"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pysuite.sheets.Sheets.to_sheet" title="Permalink to this definition">¶</a></dt>
-<dd><p>upload pandas dataframe to target sheet range. the number of columns must fit the range. more columns or
-fewer columns will both raise exception.</p>
+<dd><p>Upload pandas dataframe to target sheet range. The number of columns must fit the range. More columns or
+fewer columns will both raise exception. The data in the provided dataframe must be serializable.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
@@ -346,7 +346,7 @@ and download column A to D and rows from 1 to the last row with non-empty values
 <dl class="py method">
 <dt id="pysuite.sheets.Sheets.upload">
 <code class="sig-name descname">upload</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">values</span><span class="p">:</span> <span class="n">list</span></em>, <em class="sig-param"><span class="n">id</span><span class="p">:</span> <span class="n">str</span></em>, <em class="sig-param"><span class="n">range</span><span class="p">:</span> <span class="n">str</span></em><span class="sig-paren">)</span> &#x2192; None<a class="reference internal" href="_modules/pysuite/sheets.html#Sheets.upload"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pysuite.sheets.Sheets.upload" title="Permalink to this definition">¶</a></dt>
-<dd><p>upload a list of lists to target sheet range.</p>
+<dd><p>Upload a list of lists to target sheet range. All entries in the provided list must be serializable.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">

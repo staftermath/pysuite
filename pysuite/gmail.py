@@ -13,6 +13,8 @@ from googleapiclient.discovery import Resource
 
 class GMail:
     """A class containing methods to interact with Gmail APIs such as sending emails
+
+    :param service: an authorized GMail service client.
     """
 
     def __init__(self, service: Resource):
