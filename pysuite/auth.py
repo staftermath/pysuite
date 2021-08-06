@@ -13,13 +13,15 @@ from google_auth_oauthlib.flow import InstalledAppFlow
 SCOPES = {
     "drive": "https://www.googleapis.com/auth/drive",
     "sheets": "https://www.googleapis.com/auth/spreadsheets",
-    "gmail": "https://www.googleapis.com/auth/gmail.compose"
+    "gmail": "https://www.googleapis.com/auth/gmail.compose",
+    "vision": "https://www.googleapis.com/auth/cloud-vision",
 }
 
 DEFAULT_VERSIONS = {
     "drive": "v3",
     "sheets": "v4",
-    "gmail": "v1"
+    "gmail": "v1",
+    "vision": "v1",
 }
 
 
