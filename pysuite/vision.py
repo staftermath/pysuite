@@ -30,12 +30,17 @@ class Vision:
             image = gv.Image(content=f.read())
             return image
 
-    def annotate_image(self, image_path: Union[str, PosixPath], method: str):
+    def annotate_image(self, image_path: Union[str, PosixPath], methods: Union[List[str], str]):
+        if isinstance(methods, str):
+            methods = [methods]
+        features = []
+        for method in methods:
+            features.append({"type_": Vision.translate_method(method)})
+
         image = Vision.load_image(image_path)
-        feature = Vision.translate_method(method)
         request = {
             "image": image,
-            "features": [{"type_": feature}]
+            "features": features
         }
         response = self._service.annotate_image(request)
         annotated = json.loads(types.image_annotator.AnnotateImageResponse.to_json(response))
