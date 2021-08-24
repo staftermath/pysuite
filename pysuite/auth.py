@@ -9,6 +9,8 @@ from googleapiclient.discovery import build
 from google.oauth2.credentials import Credentials
 from google.auth.transport.requests import Request
 from google_auth_oauthlib.flow import InstalledAppFlow
+from google.cloud import vision as gv
+from google.auth._default import load_credentials_from_file
 
 SCOPES = {
     "drive": "https://www.googleapis.com/auth/drive",
@@ -31,7 +33,7 @@ class Authentication:
     a list of services or one service.
     """
     def __init__(self, credential: Union[PosixPath, str], token: Union[PosixPath, str], services: Union[list, str]):
-        self._token_path = Path(token)
+        self._token_path = Path(token) if token is not None else None  # can be None if service is vision
         self._credential_path = Path(credential)
         self._services = self._get_services(services)
         self._scopes = self._get_scopes()
@@ -45,29 +47,32 @@ class Authentication:
         :param credential: path to the credential json file.
         :return: a Credential object
         """
-        if not Path(self._token_path).exists():
-            return self._load_credential_from_file(self._credential_path)
+        if not self.is_vision:
+            if not Path(self._token_path).exists():
+                return self._load_credential_from_file(self._credential_path)
 
-        with open(self._token_path, 'r') as f:
-            token_json = json.load(f)
+            with open(self._token_path, 'r') as f:
+                token_json = json.load(f)
 
-        with open(self._credential_path, 'r') as f:
+            with open(self._credential_path, 'r') as f:
+                try:
+                    cred_json = json.load(f)["installed"]
+                except KeyError:
+                    raise KeyError("'installed' does not exist in credential file. please check the format")
+
             try:
-                cred_json = json.load(f)["installed"]
-            except KeyError:
-                raise KeyError("'installed' does not exist in credential file. please check the format")
-
-        try:
-            credential = Credentials(token=token_json["token"],
-                                     refresh_token=token_json["refresh_token"],
-                                     token_uri=cred_json["token_uri"],
-                                     client_id=cred_json["client_id"],
-                                     client_secret=cred_json["client_secret"],
-                                     scopes=self._scopes,
-                                     )
-        except KeyError as e:
-            logging.critical("missing key value in credential or token file")
-            raise e
+                credential = Credentials(token=token_json["token"],
+                                         refresh_token=token_json["refresh_token"],
+                                         token_uri=cred_json["token_uri"],
+                                         client_id=cred_json["client_id"],
+                                         client_secret=cred_json["client_secret"],
+                                         scopes=self._scopes,
+                                         )
+            except KeyError as e:
+                logging.critical("missing key value in credential or token file")
+                raise e
+        else:
+            credential, _ = load_credentials_from_file(str(self._credential_path))
 
         return credential
 
@@ -89,11 +94,14 @@ class Authentication:
 
         :return: None
         """
-        if not self._credential.valid:
-            if self._credential.expired and self._credential.refresh_token:
-                self._credential.refresh(Request())
+        if not self.is_vision:
+            if not self._credential.valid:
+                if self._credential.expired and self._credential.refresh_token:
+                    self._credential.refresh(Request())
 
-        self.write_token()
+            self.write_token()
+        else:
+            logging.warning("Vision service do not require refresh of token.")
 
     def write_token(self):
         token_json = {
@@ -123,7 +131,11 @@ class Authentication:
         if version is None:
             version = DEFAULT_VERSIONS[service]
 
-        return build(service, version, credentials=self._credential, cache_discovery=True)
+        if service != "vision":
+            return build(service, version, credentials=self._credential, cache_discovery=True)
+        else:
+            client = gv.ImageAnnotatorClient(credentials=self._credential)
+            return client
 
     def _get_scopes(self) -> list:
         try:
@@ -139,4 +151,10 @@ class Authentication:
         if not set(services).issubset(SCOPES.keys()):
             raise ValueError(f"invalid services. got {services}, expecting {SCOPES.keys()}")
 
+        # TODO: validate that vision is not used together with other services
+
         return services
+
+    @property
+    def is_vision(self):
+        return self._services == ["vision"]
