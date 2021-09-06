@@ -88,7 +88,7 @@ class Vision:
         return response
 
     @staticmethod
-    def translate_method(method: str):
+    def _translate_method(method: str):
         """Translate string method to corresponding feature type in google.cloud.vision_v1.types.Feature.Type. This is
         case insensitive. If no such type is implemented, a NotImplementedError will be raised.
 
@@ -106,7 +106,7 @@ class Vision:
             methods = [methods]
         features = []
         for method in methods:
-            features.append({"type_": Vision.translate_method(method)})
+            features.append({"type_": Vision._translate_method(method)})
 
         image = Vision.load_image(image_path)
         request = {
