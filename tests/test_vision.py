@@ -25,7 +25,7 @@ def test_vision_annotate_image_return_values_correctly(vision, methods, expected
     result = vision.annotate_image(test_image, methods=methods)
     with open(expected_file, "r") as f:
         expected = json.load(f)
-    assert result == expected
+    assert Vision.to_json(result) == expected
 
 
 def test_batch_annotate_image_return_values_correctly(vision):
@@ -36,4 +36,4 @@ def test_batch_annotate_image_return_values_correctly(vision):
     with open(resource_folder / "expected_batch_annotation.json", "r") as f:
         expected = json.load(f)
 
-    assert result == expected
+    assert Vision.to_json(result) == expected

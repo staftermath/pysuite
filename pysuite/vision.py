@@ -6,6 +6,8 @@ from pathlib import PosixPath, Path
 from typing import Union, Optional, List
 
 from google.cloud import vision as gv
+from google.cloud.vision_v1.types import AnnotateImageResponse
+from google.cloud.vision_v1.types.image_annotator import BatchAnnotateImagesResponse
 from google.cloud.vision_v1 import types, ImageAnnotatorClient
 
 from pysuite.utilities import MAX_RETRY_ATTRIBUTE, SLEEP_ATTRIBUTE
@@ -35,21 +37,21 @@ class Vision:
         request = self._create_request(image_path, methods)
         self._requests.append(request)
 
-    def annotate_image(self, image_path: Union[str, PosixPath], methods: Union[List[str], str]):
+    def annotate_image(
+            self, image_path: Union[str, PosixPath], methods: Union[List[str], str]
+    ) -> AnnotateImageResponse:
         request = self._create_request(image_path, methods)
 
         response = self._service.annotate_image(request=request)
-        annotated = json.loads(types.image_annotator.AnnotateImageResponse.to_json(response))
-        return annotated
+        return response
 
-    def batch_annotate_image(self) -> Optional[dict]:
-        if self._requests == []:
+    def batch_annotate_image(self) -> Optional[BatchAnnotateImagesResponse]:
+        if not self._requests:
             logging.warning("No requests was prepared")
             return
 
         response = self._service.batch_annotate_images(requests=self._requests)
-        annotated = json.loads(types.image_annotator.BatchAnnotateImagesResponse.to_json(response))
-        return annotated
+        return response
 
     def async_annotate_image(self):
         if self._requests == []:
@@ -80,3 +82,15 @@ class Vision:
             "features": features
         }
         return request
+
+    @staticmethod
+    def to_json(response: Union[AnnotateImageResponse, BatchAnnotateImagesResponse]) -> dict:
+        if isinstance(response, AnnotateImageResponse):
+            annotated = json.loads(types.image_annotator.AnnotateImageResponse.to_json(response))
+        elif isinstance(response, BatchAnnotateImagesResponse):
+            annotated = json.loads(types.image_annotator.BatchAnnotateImagesResponse.to_json(response))
+        else:
+            raise TypeError(f"Invalid type of response. Expecting AnnotateImageResponse or BatchAnnotateImagesResponse."
+                            f"Got {type(response)}")
+
+        return annotated
