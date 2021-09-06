@@ -10,7 +10,7 @@ test_image = resource_folder / "vision_test_image.jpg"
 
 @pytest.fixture()
 def vision(vision_auth):
-    return Vision(service=vision_auth.get_service_client(), max_retry=5, sleep=10)
+    return Vision(service=vision_auth.get_service_client())
 
 
 @pytest.mark.parametrize(
