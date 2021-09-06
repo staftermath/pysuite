@@ -54,11 +54,14 @@ class Vision:
         return response
 
     def async_annotate_image(self):
-        if self._requests == []:
+        raise NotImplementedError("This method has not been implemented.")
+
+        if not self._requests:
             logging.warning("No requests was prepared")
             return
 
-        pass
+        response = self._service.async_batch_annotate_images(requests=self._requests, output_config=dict())
+        return response
 
     @staticmethod
     def translate_method(method: str):

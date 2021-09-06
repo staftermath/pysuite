@@ -37,3 +37,15 @@ def test_batch_annotate_image_return_values_correctly(vision):
         expected = json.load(f)
 
     assert Vision.to_json(result) == expected
+
+
+@pytest.mark.skip("not implemented until GCS storage implementation")
+def test_async_annotate_image_return_values_correctly(vision):
+    vision.add_request(image_path=test_image, methods="text_detection")
+    vision.add_request(image_path=test_image, methods=["text_detection", "label_detection"])
+
+    result = vision.async_annotate_image()
+    with open(resource_folder / "expected_batch_annotation.json", "r") as f:
+        expected = json.load(f)
+
+    assert Vision.to_json(result) == expected
