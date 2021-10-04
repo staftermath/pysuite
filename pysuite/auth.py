@@ -32,7 +32,8 @@ class Authentication:
     file does not exists, confirmation is needed from browser prompt and the token file will be created. You can pass
     a list of services or one service.
     """
-    def __init__(self, credential: Union[PosixPath, str], token: Union[PosixPath, str], services: Union[list, str]):
+    def __init__(self, credential: Union[PosixPath, str], services: Union[list, str],
+                 token: Optional[Union[PosixPath, str]] = None):
         self._token_path = Path(token) if token is not None else None  # can be None if service is vision
         self._credential_path = Path(credential)
         self._services = self._get_services(services)
@@ -48,6 +49,9 @@ class Authentication:
         :return: a Credential object
         """
         if not self.is_vision:
+            if self._token_path is None:
+                raise ValueError(f"token is required for {self._services}.")
+
             if not Path(self._token_path).exists():
                 return self._load_credential_from_file(self._credential_path)
 
@@ -152,7 +156,6 @@ class Authentication:
             raise ValueError(f"invalid services. got {services}, expecting {SCOPES.keys()}")
 
         # TODO: validate that vision is not used together with other services
-
         return services
 
     @property
