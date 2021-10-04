@@ -363,11 +363,12 @@ asynchronized apis are not supported. This will be supported in the future updat
 Authentication
 ++++++++++++++
 You can authenticate the connection in the same way as drive, gmail or sheets. Since the vision service credential file
-is different from that for drive, gmail or sheets, you cannot authenticate them together:
+is different from that for drive, gmail or sheets, you cannot authenticate them together. Additionally, `token` is not
+required for vision.
 
 .. code-block:: python
 
-    vision_auth = Authentication(credential=vision_service_file, token=None, services="vision")
+    vision_auth = Authentication(credential=vision_service_file, services="vision")
 
 Instantiate Vision Class
 ++++++++++++++++++++++++
