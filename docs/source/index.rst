@@ -15,6 +15,7 @@ Welcome to pysuite's documentation!
    drive
    sheets
    gmail
+   vision
    utilities
 
 Google Suite Applications have gained popularity among small to medium scaled companies. Many data science team also

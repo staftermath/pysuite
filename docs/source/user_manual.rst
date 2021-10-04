@@ -198,7 +198,7 @@ Create a folder on google drive.
 Sheets
 ------
 This class provides APIs used to access and operate with Google spreadsheet files. Many `Sheets` methods has parameter
-:code:`range`. This needs to follow `A1 Notation <https://developers.google.com/sheets/api/guides/concepts#a1_notation`_.
+:code:`range`. This needs to follow `A1 Notation <https://developers.google.com/sheets/api/guides/concepts#a1_notation>`_.
 To instantiate Sheets class:
 
 .. code-block:: python
@@ -346,3 +346,78 @@ directly in the body as external links.
                   local_files=["/tmp/file.txt", "/tmp/another_file.csv"],
                   gdrive_ids=["gdrivefile_id1", "gdrive_file_id2"]
                   )
+
+Credential for Google Cloud
+---------------------------
+Pysuite also provides python apis for some Google Cloud services such as Google Vision. These class requires Google Cloud
+Service credential. It is a completely different credential from that for drive, gmail and sheets API. You can find
+the steps to obtain the credential file from `this page <https://cloud.google.com/vision/docs/before-you-begin>`_.
+
+
+Vision
+------
+This class provides python apis to access Google Vision api. You can get started to understand what Google Vision
+provides from this `quickstarts <https://cloud.google.com/vision/docs/quickstarts>`_. Currently please note that
+asynchronized apis are not supported. This will be supported in the future update.
+
+Authentication
+++++++++++++++
+You can authenticate the connection in the same way as drive, gmail or sheets. Since the vision service credential file
+is different from that for drive, gmail or sheets, you cannot authenticate them together. Additionally, `token` is not
+required for vision.
+
+.. code-block:: python
+
+    vision_auth = Authentication(credential=vision_service_file, services="vision")
+
+Instantiate Vision Class
+++++++++++++++++++++++++
+Using the authenticated object, you can instantiate a vision class by:
+
+.. code-block:: python
+
+    vision = Vision(service=vision_auth.get_service_client())
+
+Service Types
++++++++++++++
+All vision annotation services provided by Google Vision API are supported. You can find some examples from the official
+document, such as `OCR <https://cloud.google.com/vision/docs/ocr>`_,
+`label detection <https://cloud.google.com/vision/docs/labels>`_ and more. Please see the following sections for examples
+of making various annotation requests. You can find the complete list of features from
+`google vision github <https://github.com/googleapis/python-vision/blob/main/google/cloud/vision_v1/types/image_annotator.py#L105-L119>`_.
+For example, "TEXT_DETECTION" is listed as one of the service, hence you can pass a string of `"TEXT_DETECTION"` or
+`["TEXT_DETECTION"]` to `methods` to request a test detection annotation. This is case insensitive.
+
+Annotate One Image
+++++++++++++++++++
+If you want to annotate just one image, you can utilize `annotate_image` method:
+
+.. code-block:: python
+
+    result = vision.annotate_image(test_image, methods=["text_detection"])
+
+Here `test_image` is the path to the image file to be annotated. You can pass a single string or a list of strings to
+`methods`. They will be allowed vision services. The returned object is an `AnnotateImageResponse` object containing
+very granular information on the results.
+
+Batch Annotations
++++++++++++++++++
+If you have a few images, you can utlize `add_request` and `batch_annotate_image` methods to annotate them in one api
+call:
+
+.. code-block:: python
+
+    vision.add_request(image_path=first_test_image, methods="text_detection")
+    vision.add_request(image_path=second_test_image, methods=["text_detection", "label_detection"])
+    result = vision.batch_annotate_image()
+
+Convert To Json
++++++++++++++++
+The results from API calls are `AnnotateImageResponse` objects. While they have many convenient methods to help operate
+on them, they are not directly serializable. You can use `to_json` method to store these objects to serializable object:
+
+.. code-block:: python
+
+    json_result = Vision.to_json(result)
+
+
