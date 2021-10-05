@@ -2,11 +2,10 @@
 """
 import logging
 from typing import Optional, List
-import re
 
 from googleapiclient.discovery import Resource
 
-from pysuite.utilities import retry_on_out_of_quota, MAX_RETRY_ATTRIBUTE, SLEEP_ATTRIBUTE
+from pysuite.utilities import retry_on_out_of_quota, MAX_RETRY_ATTRIBUTE, SLEEP_ATTRIBUTE, get_col_counts_from_range
 
 VALID_DIMENSION = {"COLUMNS", "ROWS"}
 
@@ -210,44 +209,3 @@ class Sheets:
         for row in rows:
             if len(row) < col_counts:
                 row.extend(['']*(col_counts - len(row)))
-
-
-def get_column_number(col: str) -> int:
-    """Convert spreadsheet column numbers to integer.
-
-    :example:
-
-    >>> get_column_number('A')  # 1
-    >>> get_column_number('AA') # 27
-    >>> get_column_number('ZY') # 701
-
-    :param col: upper case spreadsheet column
-    :return: index of the column starting from 1.
-    """
-    result = 0
-    l = len(col)
-    for i in range(l):
-        result += (ord(col[l-i-1]) - 64) * (26 ** i)
-
-    return result
-
-
-def get_col_counts_from_range(sheet_range: str) -> int:
-    """Calculate the number of columns in the given range.
-
-    :example:
-
-    >>> get_col_counts_from_range("test!A1:A")  # 1
-    >>> get_col_counts_from_range("test!A1:D")  # 4
-    >>> get_col_counts_from_range("test!AA2:AZ")  # 26
-
-    :param sheet_range: a string representation of sheet range. For example, "test_sheet!A1:D"
-    :return: the number of columns contained in the range.
-    """
-    columns = sheet_range.upper().split("!")[1]  # get the columns in letter, such as "A1:D"
-    from_column, to_column = columns.split(":")
-    pattern = re.compile("^([A-Z]+)", re.IGNORECASE)
-    from_column = pattern.search(from_column).group(0)
-    to_column = pattern.search(to_column).group(0)
-    counts = get_column_number(to_column) - get_column_number(from_column) + 1
-    return counts

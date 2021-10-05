@@ -5,10 +5,13 @@ import pandas as pd
 from pandas.testing import assert_frame_equal
 from googleapiclient.errors import HttpError
 
-from pysuite.sheets import Sheets, get_col_counts_from_range, get_column_number
+from pysuite.sheets import Sheets
+from pysuite.utilities import get_col_counts_from_range
+from tests.helper import purge_temp_file
 from tests.test_auth import sheets_auth, multi_auth
 from tests.test_drive import drive, drive_auth
 from tests.helper import purge_temp_file, prefix
+
 
 test_sheet_id = "1CNOH3o2Zz05mharkLXuwX72FpRka8-KFpIm9bEaja50"
 test_sheet_folder = "1qqFJ-OaV1rdPSeFtdaf6lUwFIpupOiiF"
@@ -198,18 +201,6 @@ def test_rename_sheet_change_title_correctly(sheets, clean_up_sheet_creation, pr
         msg = error.get("error", dict()).get("message")
         if msg == 'Requested entity was not found.':
             pytest.fail(f"sheet not renamed properly. {e}")
-
-
-@pytest.mark.parametrize(("col", "expected"),
-                         [
-                             ("A", 1),
-                             ("C", 3),
-                             ("AA", 27),
-                             ("ZY", 701)
-                         ])
-def test_get_column_number_return_correct_values(col, expected):
-    result = get_column_number(col)
-    assert result == expected
 
 
 @pytest.mark.parametrize(("range", "expected"),
