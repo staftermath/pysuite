@@ -1,11 +1,11 @@
-import json
+from pathlib import Path
 
 import pytest
 
 from google.cloud.storage.client import Bucket
 from google.api_core.exceptions import NotFound
 
-from pysuite.storage import Storage
+from pysuite.storage import Storage, _add_folder_tree_to_new_base_dir
 from tests.test_auth import storage_auth
 from tests.helper import resource_folder
 
@@ -42,7 +42,7 @@ def prepare_env(storage):
 
     def purge():
         try:
-            storage.remove_bucket(TEST_BUCKET)
+            storage.remove_bucket(TEST_BUCKET, force=True)
         except:
             pass
 
@@ -65,3 +65,51 @@ def test_create_bucket_and_delete_bucket_and_get_bucket_execute_correctly(storag
 
     with pytest.raises(NotFound):  # test bucket should now be removed
         storage.get_bucket(TEST_BUCKET)
+
+
+@pytest.fixture()
+def prepare_files(storage, tmpdir):
+    base_dir = Path(tmpdir.mkdir("storage_test_files"))
+    layer_1_dir = base_dir / "layer1"
+    layer_1_dir.mkdir()
+    for f in ["a.txt", "b.txt"]:
+        with open(layer_1_dir / f, "w") as f:
+            f.write(f"test {f}.")
+
+    (base_dir / "base.txt").touch()
+    return base_dir
+
+
+def test_add_folder_tree_to_new_base_dir_return_value_correctly(prepare_files):
+    result = list(_add_folder_tree_to_new_base_dir(prepare_files, "dummy_location/test"))
+    expected = [
+        (prepare_files / 'layer1', 'dummy_location/test/layer1'),
+        (prepare_files / 'base.txt', 'dummy_location/test/base.txt'),
+        (prepare_files / 'layer1' / 'b.txt', 'dummy_location/test/layer1/b.txt'),
+        (prepare_files / 'layer1' / 'a.txt', 'dummy_location/test/layer1/a.txt')
+    ]
+    assert result == expected
+
+
+@pytest.fixture()
+def create_bucket(storage, prepare_env):
+    storage.create_bucket(TEST_BUCKET)
+
+
+def test_upload_and_download_file_create_files_correctly(storage, create_bucket, prepare_files, tmpdir):
+    target_gs_object = f"gs://{TEST_BUCKET}/test"
+    from_object = prepare_files
+    storage.upload(from_object=from_object, to_object=target_gs_object)
+
+    downloaded_dir = Path(tmpdir.mkdir("downloaded"))
+    storage.download(from_object=target_gs_object, to_object=downloaded_dir)
+
+    result = list(downloaded_dir.rglob("*"))
+    expected = [
+        downloaded_dir / 'test',
+        downloaded_dir / 'test' / 'layer1',
+        downloaded_dir / 'test' / 'base.txt',
+        downloaded_dir / 'test' / 'layer1' / 'b.txt',
+        downloaded_dir / 'test' / 'layer1' / 'a.txt'
+    ]
+    assert result == expected
