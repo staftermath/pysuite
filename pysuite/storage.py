@@ -5,7 +5,7 @@ import json
 from pathlib import PosixPath
 from typing import Union, Optional, List
 
-from google.cloud.storage.client import Client
+from google.cloud.storage.client import Client, Bucket
 
 
 class Storage:
@@ -32,11 +32,15 @@ class Storage:
     def list(self, target_object: str):
         pass
 
-    def create_bucket(self, bucket_name: str):
-        pass
+    def create_bucket(self, bucket_name: str) -> Bucket:
+        return self._service.create_bucket(bucket_name)
+
+    def get_bucket(self, bucket_name: str) -> Bucket:
+        return self._service.get_bucket(bucket_name)
 
     def remove_bucket(self, bucket_name: str):
-        pass
+        bucket = self._service.get_bucket(bucket_name)
+        bucket.delete()
 
     def _split_gs_object(self, target_object: str) -> (str, str):
         GS_HEADER = "gs://"

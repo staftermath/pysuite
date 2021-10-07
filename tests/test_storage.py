@@ -2,9 +2,14 @@ import json
 
 import pytest
 
+from google.cloud.storage.client import Bucket
+from google.api_core.exceptions import NotFound
+
 from pysuite.storage import Storage
 from tests.test_auth import storage_auth
 from tests.helper import resource_folder
+
+TEST_BUCKET = "pysuite_bucket"
 
 
 @pytest.fixture()
@@ -30,3 +35,33 @@ def test_split_gs_object_return_correct_value_or_raise_error_correctly(storage, 
         result_bucket, result_object = storage._split_gs_object(gs_path)
         assert result_bucket == expected_bucket
         assert result_object == expected_object
+
+
+@pytest.fixture()
+def prepare_env(storage):
+
+    def purge():
+        try:
+            storage.remove_bucket(TEST_BUCKET)
+        except:
+            pass
+
+    purge()
+    yield
+    purge()
+
+
+def test_create_bucket_and_delete_bucket_and_get_bucket_execute_correctly(storage, prepare_env):
+    with pytest.raises(NotFound):  # test bucket should not exist to begin with
+        storage.get_bucket(TEST_BUCKET)
+
+    result = storage.create_bucket(TEST_BUCKET)
+    assert isinstance(result, Bucket)
+
+    result = storage.get_bucket(TEST_BUCKET)
+    assert isinstance(result, Bucket)
+
+    storage.remove_bucket(TEST_BUCKET)
+
+    with pytest.raises(NotFound):  # test bucket should now be removed
+        storage.get_bucket(TEST_BUCKET)
