@@ -128,3 +128,11 @@ def test_list_return_values_correctly(storage, upload_file):
     result = [blob.name for blob in iterator]
     expected = ['test/base.txt', 'test/layer1/a.txt', 'test/layer1/b.txt']
     assert result == expected
+
+
+def test_remove_delete_target_correctly(storage, upload_file):
+    gs_object = upload_file
+    storage.remove(target_object=gs_object)
+
+    result = list(storage.list(target_object=gs_object))
+    assert result == [], "remove method did not completely remove target object"

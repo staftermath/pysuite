@@ -46,7 +46,9 @@ class Storage:
                 blob.download_to_filename(str(_to_file))
 
     def remove(self, target_object: str):
-        pass
+        _bucket, _ = self._split_gs_object(target_object)
+        bucket = self.get_bucket(bucket_name=_bucket)
+        bucket.delete_blobs(blobs=list(self.list(target_object=target_object)))
 
     def move(self, from_object: str, to_object: str):
         pass
