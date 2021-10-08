@@ -113,3 +113,18 @@ def test_upload_and_download_file_create_files_correctly(storage, create_bucket,
         downloaded_dir / 'test' / 'layer1' / 'a.txt'
     ]
     assert result == expected
+
+
+@pytest.fixture()
+def upload_file(storage, create_bucket, prepare_files):
+    target_gs_object = f"gs://{TEST_BUCKET}/test"
+    storage.upload(from_object=prepare_files, to_object=target_gs_object)
+    return target_gs_object
+
+
+def test_list_return_values_correctly(storage, upload_file):
+    gs_object = upload_file
+    iterator = storage.list(target_object=gs_object)
+    result = [blob.name for blob in iterator]
+    expected = ['test/base.txt', 'test/layer1/a.txt', 'test/layer1/b.txt']
+    assert result == expected

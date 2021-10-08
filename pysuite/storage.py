@@ -54,7 +54,10 @@ class Storage:
         pass
 
     def list(self, target_object: str):
-        pass
+        _bucket, _gs_object = self._split_gs_object(target_object=target_object)
+        bucket = self.get_bucket(bucket_name=_bucket)
+        blob_iterator = bucket.list_blobs(prefix=_gs_object)
+        return blob_iterator
 
     def create_bucket(self, bucket_name: str) -> Bucket:
         return self._service.create_bucket(bucket_name)
