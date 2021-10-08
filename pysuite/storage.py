@@ -35,9 +35,7 @@ class Storage:
 
     def download(self, from_object: str, to_object: Union[str, PosixPath]):
         to_object: PosixPath = Path(to_object)
-        _bucket, _gs_object = self._split_gs_object(from_object)
-        bucket = self.get_bucket(bucket_name=_bucket)
-        blobs = list(bucket.list_blobs(prefix=_gs_object))
+        blobs = list(self.list(target_object=from_object))
         if len(blobs) == 1:
             # No way we can tell if it's a folder or file, always consider it as file
             blobs[0].download_to_filename(str(to_object / blobs[0].name))
