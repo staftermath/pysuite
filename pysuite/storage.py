@@ -38,7 +38,7 @@ class Storage:
         blobs = list(self.list(target_object=from_object))
         if len(blobs) == 1:
             # No way we can tell if it's a folder or file, always consider it as file
-            blobs[0].download_to_filename(str(to_object / blobs[0].name))
+            blobs[0].download_to_filename(str(to_object))
         else:
             for blob in blobs:
                 _to_file = to_object / blob.name
@@ -50,8 +50,20 @@ class Storage:
         bucket = self.get_bucket(bucket_name=_bucket)
         bucket.delete_blobs(blobs=list(self.list(target_object=target_object)))
 
-    def move(self, from_object: str, to_object: str):
-        pass
+    def copy(self, from_object: str, to_object: str):
+        _src_bucket, _src_gs_object = self._split_gs_object(from_object)
+        _dest_bucket, _dest_prefix = self._split_gs_object(to_object)
+        src_bucket = self.get_bucket(_src_bucket)
+        dest_bucket = self.get_bucket(_dest_bucket)
+        blobs = list(src_bucket.list_blobs(prefix=_src_gs_object))
+        if len(blobs) == 1:
+            src_bucket.copy_blob(blobs[0], dest_bucket, _dest_prefix)
+        else:
+            _src_prefix_len = len(_src_gs_object)
+            for blob in blobs:
+                name = blob.name
+                _dest_gs_object = _dest_prefix + name[_src_prefix_len:]
+                src_bucket.copy_blob(blob, dest_bucket, _dest_gs_object)
 
     def list(self, target_object: str):
         _bucket, _gs_object = self._split_gs_object(target_object=target_object)
@@ -83,4 +95,3 @@ def _add_folder_tree_to_new_base_dir(from_path: PosixPath, to_path: str):
     for f in folder_tree:
         relative_path = f.relative_to(from_path)
         yield f, to_path + "/" + str(relative_path)
-

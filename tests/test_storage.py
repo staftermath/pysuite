@@ -10,6 +10,7 @@ from tests.test_auth import storage_auth
 from tests.helper import resource_folder
 
 TEST_BUCKET = "pysuite_bucket"
+SINGLE_FILE = "base.txt"
 
 
 @pytest.fixture()
@@ -76,8 +77,46 @@ def prepare_files(storage, tmpdir):
         with open(layer_1_dir / f, "w") as f:
             f.write(f"test {f}.")
 
-    (base_dir / "base.txt").touch()
+    (base_dir / SINGLE_FILE).touch()
     return base_dir
+
+
+@pytest.mark.parametrize(
+    ("is_folder", "path_tree"),
+    [
+        [True,
+         [Path('test'),
+          Path("test") / 'layer1',
+          Path("test") / 'base.txt',
+          Path("test") / 'layer1' / 'b.txt',
+          Path("test") / 'layer1' / 'a.txt']
+         ],
+        [False,
+         [Path("test") / 'base.txt']
+         ]
+    ]
+)
+def test_upload_and_download_file_create_files_correctly(storage, create_bucket, prepare_files,
+                                                         tmpdir, is_folder, path_tree):
+    target_gs_object = f"gs://{TEST_BUCKET}/test"
+    downloaded_target = Path(tmpdir.mkdir("downloaded"))
+    if is_folder:
+        from_object = prepare_files
+    else:
+        from_object = prepare_files / SINGLE_FILE
+        downloaded_target = downloaded_target / SINGLE_FILE
+        target_gs_object = target_gs_object + f"/{SINGLE_FILE}"
+
+    storage.upload(from_object=from_object, to_object=target_gs_object)
+
+    storage.download(from_object=target_gs_object, to_object=downloaded_target)
+
+    if is_folder:
+        result = list(downloaded_target.rglob("*"))
+        expected = [downloaded_target / p for p in path_tree]
+        assert result == expected
+    else:
+        assert downloaded_target.exists() and downloaded_target.is_file()
 
 
 def test_add_folder_tree_to_new_base_dir_return_value_correctly(prepare_files):
@@ -96,25 +135,6 @@ def create_bucket(storage, prepare_env):
     storage.create_bucket(TEST_BUCKET)
 
 
-def test_upload_and_download_file_create_files_correctly(storage, create_bucket, prepare_files, tmpdir):
-    target_gs_object = f"gs://{TEST_BUCKET}/test"
-    from_object = prepare_files
-    storage.upload(from_object=from_object, to_object=target_gs_object)
-
-    downloaded_dir = Path(tmpdir.mkdir("downloaded"))
-    storage.download(from_object=target_gs_object, to_object=downloaded_dir)
-
-    result = list(downloaded_dir.rglob("*"))
-    expected = [
-        downloaded_dir / 'test',
-        downloaded_dir / 'test' / 'layer1',
-        downloaded_dir / 'test' / 'base.txt',
-        downloaded_dir / 'test' / 'layer1' / 'b.txt',
-        downloaded_dir / 'test' / 'layer1' / 'a.txt'
-    ]
-    assert result == expected
-
-
 @pytest.fixture()
 def upload_file(storage, create_bucket, prepare_files):
     target_gs_object = f"gs://{TEST_BUCKET}/test"
@@ -122,17 +142,55 @@ def upload_file(storage, create_bucket, prepare_files):
     return target_gs_object
 
 
-def test_list_return_values_correctly(storage, upload_file):
-    gs_object = upload_file
+@pytest.mark.parametrize(
+    ("is_folder", "expected"),
+    [
+        [True, ['test/base.txt', 'test/layer1/a.txt', 'test/layer1/b.txt']],
+        [False, ['test/base.txt']]
+    ]
+)
+def test_list_return_values_correctly(storage, upload_file, is_folder, expected):
+    if is_folder:
+        gs_object = upload_file
+    else:
+        gs_object = upload_file + f"/{SINGLE_FILE}"
+
     iterator = storage.list(target_object=gs_object)
     result = [blob.name for blob in iterator]
-    expected = ['test/base.txt', 'test/layer1/a.txt', 'test/layer1/b.txt']
     assert result == expected
 
 
-def test_remove_delete_target_correctly(storage, upload_file):
-    gs_object = upload_file
+@pytest.mark.parametrize(
+    ("is_folder"),
+    [True, False]
+)
+def test_remove_delete_target_correctly(storage, upload_file, is_folder):
+    if is_folder:
+        gs_object = upload_file
+    else:
+        gs_object = upload_file + f"/{SINGLE_FILE}"
     storage.remove(target_object=gs_object)
 
     result = list(storage.list(target_object=gs_object))
     assert result == [], "remove method did not completely remove target object"
+
+
+@pytest.mark.parametrize(
+    ("is_folder", "expected"),
+    [
+        [True, ['copied/base.txt', 'copied/layer1/a.txt', 'copied/layer1/b.txt']],
+        [False, ['copied/base.txt']]
+    ]
+)
+def test_copy_create_files_correctly(storage, upload_file, is_folder, expected):
+    target_gs_object = f"gs://{TEST_BUCKET}/copied"
+    if is_folder:
+        gs_object = upload_file
+    else:
+        gs_object = upload_file + f"/{SINGLE_FILE}"
+        target_gs_object = target_gs_object + f"/{SINGLE_FILE}"
+
+    storage.copy(from_object=gs_object, to_object=target_gs_object)
+    iterator = list(storage.list(target_object=target_gs_object))
+    result = [blob.name for blob in iterator]
+    assert result == expected
