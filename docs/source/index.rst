@@ -16,6 +16,7 @@ Welcome to pysuite's documentation!
    sheets
    gmail
    vision
+   storage
    utilities
 
 Google Suite Applications have gained popularity among small to medium scaled companies. Many data science team also
