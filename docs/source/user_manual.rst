@@ -424,7 +424,9 @@ on them, they are not directly serializable. You can use `to_json` method to sto
 Storage
 -------
 This class provides python apis to work with Google Cloud Storage. It provides intuitive methods to move files and
-folders between local environment and Google Cloud Storage. This class uses Google Cloud Service authentication.
+folders between local environment and Google Cloud Storage. This class uses Google Cloud Service authentication. For
+details and instructions on Google Cloud Storage, please view
+`their doc web site <https://cloud.google.com/storage/docs>`_.
 
 Authentication
 ++++++++++++++
@@ -459,7 +461,28 @@ You can also upload a folder. This will recursively upload every file in the fol
     result = storage.upload(from_object="/home/user/my_local_folder",
                             to_object="gs://my_bucket/my/path/to/target_folder")
 
-You can download file or folder from Google Cloud.
+Note that this method persists the structure of source folder. In the above example, if the source folder structure is:
+
+.. code-block::
+
+   /home/user/my_local_folder
+    |_ a.txt
+    |_ subfolder
+        |_ b.txt
+        |_ c.txt
+
+Then the uploaded structure would be:
+
+.. code-block::
+
+   gs://my_bucket/my/path/to/target_folder
+    |_ a.txt
+    |_ subfolder
+        |_ b.txt
+        |_ c.txt
+
+You can download file or folder from Google Cloud. Similarly, if the source object is a folder, that this method
+persists the structure of source folder.
 
 .. code-block:: python
 
