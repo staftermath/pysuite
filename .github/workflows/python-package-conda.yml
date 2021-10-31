@@ -32,10 +32,7 @@ jobs:
       - name: set up dependencies
         shell: bash
         run: |
-          echo ${which conda}
-          echo ${HOME}
-          export CONDA_DIR=${HOME}/miniconda3
-          export PATH=${CONDA_DIR}/bin:${HOME}/.local/bin:$PATH
+          export PATH=${CONDA}/condabin:$PATH
           export TASK="${{ matrix.task }}"
           pip install $GITHUB_WORKSPACE
           pip install -r $GITHUB_WORKSPACE/test_requirements.txt
