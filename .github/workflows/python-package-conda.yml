@@ -1,34 +1,54 @@
 name: Pysuite Integration Test
 
-on: [push]
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+    branches:
+      - master
 
 jobs:
-  build-linux:
+  test:
+    name: ${{matrix.task}} (Python ${{matrix.python_version}})
     runs-on: ubuntu-latest
+    timeout-minutes: 60
     strategy:
-      max-parallel: 1
-
+      fail-fast: false
+      matrix:
+        include:
+          - task: pypkg
+            py_version: 3.6
+          - task: pypkg
+            py_version: 3.7
+          - task: pypkg
+            py_version: 3.8
+          - task: pypkg
+            py_version: 3.9
     steps:
-    - uses: actions/checkout@v2
-    - name: Set up Python 3.7
-      uses: actions/setup-python@v2
-      with:
-        python-version: 3.7
-    - name: Add conda to system path
-      run: |
-        # $CONDA is an environment variable pointing to the root of the miniconda directory
-        echo $CONDA/bin >> $GITHUB_PATH
-    - name: Install dependencies
-      run: |
-        conda install --file requirements.txt
-    - name: Lint with flake8
-      run: |
-        conda install flake8
-        # stop the build if there are Python syntax errors or undefined names
-        flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
-        # exit-zero treats all errors as warnings. The GitHub editor is 127 chars wide
-        flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
-    - name: Test with pytest
-      run: |
-        conda install pytest
-        python -m pytest tests
+      - name: checkout repository
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 1
+      - name: set up python
+        uses: conda-incubator/setup-miniconda@v2
+        with:
+          python-vesion: ${{matrix.py_version}}
+      - name: set up dependencies
+        shell: bash
+        run: |
+          export CONDA_DIR=${HOME}/miniconda3
+          export PATH=${CONDA_DIR}/bin:${HOME}/.local/bin:$PATH
+          $GITHUB_WORKSPACE/.ci/dependencies.sh
+          $GITHUB_WORKSPACE/.ci/install.sh
+      - name: run tests
+        shell: bash
+        run: |
+          $GITHUB_WORKSPACE/.ci/test.sh
+
+  all-successful:
+    runs-on: ubuntu-latest
+    needs: [test]
+    steps:
+      - name: Report Success
+        run: echo "CI completed"
