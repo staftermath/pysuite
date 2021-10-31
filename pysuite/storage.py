@@ -140,11 +140,15 @@ class Storage:
         :param target_object: Target google storage path.
         :return: A tuple of string. (bucket name, object path)
         """
-        if not target_object.startswith(GS_HEADER):
+        if not is_gcs_uri(target_uri=target_object):
             raise ValueError(f"{target_object} is not a valid gs object.")
 
         bucket, object_path = target_object[len(GS_HEADER):].split("/", 1)
         return bucket, object_path
+
+
+def is_gcs_uri(target_uri: str):
+    return isinstance(target_uri, str) and target_uri.startswith(GS_HEADER)
 
 
 def _add_folder_tree_to_new_base_dir(from_path: PosixPath, to_path: str) -> (PosixPath, str):

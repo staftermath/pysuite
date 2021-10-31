@@ -9,6 +9,9 @@ from google.cloud import vision as gv
 from google.cloud.vision_v1.types import AnnotateImageResponse
 from google.cloud.vision_v1.types.image_annotator import BatchAnnotateImagesResponse
 from google.cloud.vision_v1 import types, ImageAnnotatorClient
+from google.api_core.operation import Operation
+
+from pysuite.storage import is_gcs_uri
 
 
 class Vision:
@@ -33,14 +36,19 @@ class Vision:
             return image
 
     def add_request(self, image_path: Union[str, PosixPath], methods: Union[List[str], str]):
-        """Add a request to annotate a local image. Multiple annotation methods can be added at the same time. The
-        request will not be immediately submitted. This method is only useful for `batch_annotate_image`.
+        """Add a request to annotate a local or GCS image. Multiple annotation methods can be added at the same time.
+        The request will not be immediately submitted. This method is useful for `batch_annotate_image` and
+        `async_annotate_image`.
 
         :example:
 
         >>> vision.add_request("/my/image.png", methods=["LABEL_DETECTION", "test_detection"])
 
-        :param image_path: Path to the image file.
+        :example:
+
+        >>> vision.add_request("gs://my_gcs_bucket/image/path.jpg", methods=["LABEL_DETECTION", "test_detection"])
+
+        :param image_path: Local or GCS path to the image file.
         :param methods: A list of strings representing supported annotation methods. Please view
           google.cloud.vision_v1.types.Feature.Type for all supported methods. They are case-insensitive.
         :return: None
@@ -77,14 +85,25 @@ class Vision:
         response = self._service.batch_annotate_images(requests=self._requests)
         return response
 
-    def async_annotate_image(self):
-        raise NotImplementedError("This method has not been implemented.")
+    def async_annotate_image(self, output_gcs_uri: str, batch_size: int = 0) -> Optional[Operation]:
+        """Annotate images asynchronously and place output in Google Cloud Storage in batches.
 
+        :param output_gcs_uri: Target output location on Google Cloud Storage.
+        :param batch_size: Maximum number request processed in each batch. If there are 10 requests submitted together,
+          and `batch_size` is 2, there will be 5 output files (batches) created. Default is 0. Meaning only create one
+          batch.
+        :return: An Operation object. You can use it to wait until the process is completed.
+        """
         if not self._requests:
             logging.warning("No requests was prepared")
-            return
+            return None
 
-        response = self._service.async_batch_annotate_images(requests=self._requests, output_config=dict())
+        output_config = {
+            "gcs_destination": {"uri": output_gcs_uri},
+            "batch_size": batch_size
+        }
+
+        response = self._service.async_batch_annotate_images(requests=self._requests, output_config=output_config)
         return response
 
     @staticmethod
@@ -108,7 +127,13 @@ class Vision:
         for method in methods:
             features.append({"type_": Vision._translate_method(method)})
 
-        image = Vision.load_image(image_path)
+        if is_gcs_uri(image_path):
+            # Google storage image uri is provided
+            image = {"source": {"image_uri": image_path}}
+        else:
+            # Local image path is provided
+            image = Vision.load_image(image_path)
+
         request = {
             "image": image,
             "features": features
