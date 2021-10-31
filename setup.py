@@ -25,13 +25,14 @@ VERSION = get_version()
 
 REQUIRED = [
     "google-api-python-client>=1.7.8",
-    "google-api-core>=1.22.1",
+    "google-api-core>=1.31.1",
     "google-auth>=1.20.1",
     "pyparsing>=2.4.7, <3.0.0",
     "google-auth-httplib2>=0.0.4",
     "google-auth-oauthlib>=0.4.1",
     "googleapis-common-protos>=1.6",
-    "google-cloud-vision>=2.4.2"
+    "google-cloud-vision>=2.4.2",
+    "google-cloud-storage>=1.42.3"
 ]
 
 try:
