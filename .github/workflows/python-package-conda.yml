@@ -32,6 +32,8 @@ jobs:
       - name: set up dependencies
         shell: bash
         run: |
+          echo ${which conda}
+          echo ${HOME}
           export CONDA_DIR=${HOME}/miniconda3
           export PATH=${CONDA_DIR}/bin:${HOME}/.local/bin:$PATH
           export TASK="${{ matrix.task }}"
