@@ -29,6 +29,7 @@ jobs:
         with:
           python-version: ${{matrix.py_version}}
           activate-environment: test
+      - run: conda --version
       - name: set up dependencies
         shell: bash
         run: |
