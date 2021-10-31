@@ -2,5 +2,4 @@
 
 set -e
 
-TEST_DIR=$(pwd)/tests
-coverage run -m pytest ${TEST_DIR}
+${CONDA}/envs/test/bin/pytest $GITHUB_WORKSPACE/tests --cov=$GITHUB_WORKSPACE/pysuite --cov-report=xml

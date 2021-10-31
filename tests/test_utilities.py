@@ -5,7 +5,7 @@ from googleapiclient.errors import HttpError
 from pysuite.utilities import retry_on_out_of_quota, MAX_RETRY_ATTRIBUTE, SLEEP_ATTRIBUTE
 
 
-class TestClass:
+class DummyClass:
 
     def __init__(self, fail_times: int, max_retry: int, sleep: int):
         self.fail_times = fail_times
@@ -39,7 +39,7 @@ class TestClass:
                              "Quota exceeded what do we do"
                          ])
 def test_retry_on_out_of_quota_retry_correctly(error_msg):
-    test_class = TestClass(fail_times=2, max_retry=3, sleep=0.1)
+    test_class = DummyClass(fail_times=2, max_retry=3, sleep=0.1)
 
     with pytest.warns(UserWarning) as record:
         test_class.foo(error_msg)
@@ -53,7 +53,7 @@ def test_retry_on_out_of_quota_retry_correctly(error_msg):
                              "Quota exceeded what do we do"
                          ])
 def test_retry_on_out_of_quota_max_retry_fewer_than_fail_time_raise_error_correctly(error_msg):
-    test_class = TestClass(fail_times=2, max_retry=1, sleep=0.1)
+    test_class = DummyClass(fail_times=2, max_retry=1, sleep=0.1)
 
     with pytest.raises(HttpError), pytest.warns(UserWarning) as record:
         test_class.foo(error_msg)
@@ -62,7 +62,7 @@ def test_retry_on_out_of_quota_max_retry_fewer_than_fail_time_raise_error_correc
 
 
 def test_retry_on_out_of_quota_mismatch_error_raise_error_correctly():
-    test_class = TestClass(fail_times=1, max_retry=2, sleep=0.1)
+    test_class = DummyClass(fail_times=1, max_retry=2, sleep=0.1)
 
     with pytest.warns(None) as record, pytest.raises(HttpError):
         test_class.foo("mismatching error msg")

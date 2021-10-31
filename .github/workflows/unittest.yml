@@ -1,0 +1,74 @@
+name: Pysuite Integration Test
+
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+    branches:
+      - master
+
+jobs:
+  test:
+    name: ${{matrix.task}} (Python ${{matrix.python_version}})
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - task: py36
+            py_version: 3.6
+            sleep: 0s
+          - task: py37
+            py_version: 3.7
+            sleep: 30s
+          - task: py38
+            py_version: 3.8
+            sleep: 60s
+          - task: py39
+            py_version: 3.9
+            sleep: 90s
+    steps:
+      - name: checkout repository
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 1
+      - name: set up python
+        uses: conda-incubator/setup-miniconda@v2
+        with:
+          python-version: ${{matrix.py_version}}
+          activate-environment: test
+      - name: set up dependencies
+        shell: bash
+        run: |
+          export TASK="${{ matrix.task }}"
+          eval "$(${CONDA}/condabin/conda shell.bash hook)"
+          conda activate test
+          $GITHUB_WORKSPACE/.ci/install.sh
+          $GITHUB_WORKSPACE/.ci/dependencies.sh
+      - name: set up credentials
+        shell: bash
+        env:
+          credential_passphrase: ${{ secrets.credential_passphrase }}
+        run: |
+          $GITHUB_WORKSPACE/.ci/create_credentials.sh
+      - name: sleep to avoid simultaneous query
+        uses: juliangruber/sleep-action@v1.0.1
+        with:
+          time: ${{ matrix.sleep }}
+      - name: run tests
+        shell: bash
+        run: |
+          $GITHUB_WORKSPACE/.ci/test.sh
+      - name: Upload Coverage to Codecov
+        uses: codecov/codecov-action@v1
+        with:
+          fail_ci_if_error: true
+
+  all-successful:
+    runs-on: ubuntu-latest
+    needs: [test]
+    steps:
+      - name: Report Success
+        run: echo "CI completed"

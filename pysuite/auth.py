@@ -59,7 +59,7 @@ class Authentication:
                 raise ValueError(f"token is required for {self._services}.")
 
             if not Path(self._token_path).exists():
-                return self._load_credential_from_file(self._credential_path)
+                return self._load_credential_from_file(self._credential_path)  # pragma: no cover
 
             with open(self._token_path, 'r') as f:
                 token_json = json.load(f)
@@ -106,7 +106,7 @@ class Authentication:
         """
         if not self.is_google_cloud:
             if not self._credential.valid:
-                if self._credential.expired and self._credential.refresh_token:
+                if self._credential.expired and self._credential.refresh_token:  # pragma: no cover
                     self._credential.refresh(Request())
 
             self.write_token()
@@ -149,7 +149,7 @@ class Authentication:
             return storage.Client(credentials=self._credential)
         else:
             # Won't reach here
-            raise ValueError(f"Invalid service: {service}. This is an implementation error.")
+            raise ValueError(f"Invalid service: {service}. This is an implementation error.")  # pragma: no cover
 
     def _get_scopes(self) -> list:
         try:

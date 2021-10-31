@@ -4,6 +4,7 @@ import logging
 import json
 from pathlib import PosixPath
 from typing import Union, Optional, List
+import warnings
 
 from google.cloud import vision as gv
 from google.cloud.vision_v1.types import AnnotateImageResponse
@@ -79,7 +80,7 @@ class Vision:
         :return: An BatchAnnotateImagesResponse object with annotated content. Or None if no requests were prepared.
         """
         if not self._requests:
-            logging.warning("No requests was prepared")
+            warnings.warn("No requests was prepared", UserWarning)
             return
 
         response = self._service.batch_annotate_images(requests=self._requests)
@@ -95,7 +96,7 @@ class Vision:
         :return: An Operation object. You can use it to wait until the process is completed.
         """
         if not self._requests:
-            logging.warning("No requests was prepared")
+            warnings.warn("No requests was prepared", UserWarning)
             return None
 
         output_config = {
