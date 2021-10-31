@@ -29,15 +29,12 @@ jobs:
         with:
           python-version: ${{matrix.py_version}}
           activate-environment: test
-      - run: conda --version
-      - run: cat ~/.bashrc
-      - run: . ~/.bashrc
       - name: set up dependencies
         shell: bash
         run: |
           export TASK="${{ matrix.task }}"
-          conda --version
-          conda activate test
+          ${CONDA}/condabin/conda --version
+          ${CONDA}/condabin/conda activate test
           pip install $GITHUB_WORKSPACE
           pip install -r $GITHUB_WORKSPACE/test_requirements.txt
       - name: run tests
