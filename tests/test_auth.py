@@ -4,6 +4,7 @@ import json
 
 from googleapiclient.discovery import Resource
 from google.cloud.vision_v1 import ImageAnnotatorClient
+from google.cloud.storage.client import Client as StorageClient
 
 from pysuite.auth import Authentication
 
@@ -13,8 +14,7 @@ credential_file = credential_folder / "credential.json"
 drive_token_file = credential_folder / "drive_token.json"
 sheet_token_file = credential_folder / "sheets_token.json"
 gmail_token_file = credential_folder / "gmail_token.json"
-vision_service_file = credential_folder / "vision_service.json"
-vision_token_file = credential_file / "vision_token.json"
+cloud_service_file = credential_folder / "cloud_service.json"
 multi_token_file = credential_folder / "token.json"
 
 
@@ -97,7 +97,7 @@ def test_get_client_from_gmail_auth_return_correct_values(gmail_auth):
 
 @pytest.fixture(scope="session")
 def vision_auth():
-    return Authentication(credential=vision_service_file, token=None, services="vision")
+    return Authentication(credential=cloud_service_file, token=None, services="vision")
 
 
 def test_get_client_from_vision_auth_return_correct_values(vision_auth):
@@ -129,3 +129,13 @@ def test_get_service_when_multiple_service_authorized_and_no_service_arg_passed_
 def test_get_service_when_service_not_authorized_raise_exception(multi_auth, service):
     with pytest.raises(ValueError):
         multi_auth.get_service_client(service=service)
+
+
+@pytest.fixture(scope="session")
+def storage_auth():
+    return Authentication(credential=cloud_service_file, token=None, services="storage")
+
+
+def test_get_client_from_storage_auth_return_correct_values(storage_auth):
+    result = storage_auth.get_service_client()
+    assert isinstance(result, StorageClient)

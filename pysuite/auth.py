@@ -10,20 +10,26 @@ from google.oauth2.credentials import Credentials
 from google.auth.transport.requests import Request
 from google_auth_oauthlib.flow import InstalledAppFlow
 from google.cloud import vision as gv
+from google.cloud import storage
 from google.auth._default import load_credentials_from_file
+
 
 SCOPES = {
     "drive": "https://www.googleapis.com/auth/drive",
     "sheets": "https://www.googleapis.com/auth/spreadsheets",
     "gmail": "https://www.googleapis.com/auth/gmail.compose",
     "vision": "https://www.googleapis.com/auth/cloud-vision",
+    "storage": None,
 }
+
+CLOUD_SERVICES = {"vision", "storage"}
 
 DEFAULT_VERSIONS = {
     "drive": "v3",
     "sheets": "v4",
     "gmail": "v1",
     "vision": "v1",
+    "storage": None,
 }
 
 
@@ -34,7 +40,7 @@ class Authentication:
     """
     def __init__(self, credential: Union[PosixPath, str], services: Union[list, str],
                  token: Optional[Union[PosixPath, str]] = None):
-        self._token_path = Path(token) if token is not None else None  # can be None if service is vision
+        self._token_path = Path(token) if token is not None else None  # can be None if requesting google cloud service
         self._credential_path = Path(credential)
         self._services = self._get_services(services)
         self._scopes = self._get_scopes()
@@ -48,7 +54,7 @@ class Authentication:
         :param credential: path to the credential json file.
         :return: a Credential object
         """
-        if not self.is_vision:
+        if not self.is_google_cloud:
             if self._token_path is None:
                 raise ValueError(f"token is required for {self._services}.")
 
@@ -98,14 +104,14 @@ class Authentication:
 
         :return: None
         """
-        if not self.is_vision:
+        if not self.is_google_cloud:
             if not self._credential.valid:
                 if self._credential.expired and self._credential.refresh_token:
                     self._credential.refresh(Request())
 
             self.write_token()
         else:
-            logging.warning("Vision service do not require refresh of token.")
+            logging.warning("Google cloud service do not require refresh of token.")
 
     def write_token(self):
         token_json = {
@@ -135,11 +141,15 @@ class Authentication:
         if version is None:
             version = DEFAULT_VERSIONS[service]
 
-        if service != "vision":
+        if service not in CLOUD_SERVICES:
             return build(service, version, credentials=self._credential, cache_discovery=True)
+        elif service == "vision":
+            return gv.ImageAnnotatorClient(credentials=self._credential)
+        elif service == "storage":
+            return storage.Client(credentials=self._credential)
         else:
-            client = gv.ImageAnnotatorClient(credentials=self._credential)
-            return client
+            # Won't reach here
+            raise ValueError(f"Invalid service: {service}. This is an implementation error.")
 
     def _get_scopes(self) -> list:
         try:
@@ -155,9 +165,14 @@ class Authentication:
         if not set(services).issubset(SCOPES.keys()):
             raise ValueError(f"invalid services. got {services}, expecting {SCOPES.keys()}")
 
-        # TODO: validate that vision is not used together with other services
+        if set(services).intersection(CLOUD_SERVICES):
+            diff = set(services).difference(CLOUD_SERVICES)
+            if diff:
+                raise ValueError(f"Google cloud services {CLOUD_SERVICES} cannot be mixed with non cloud services. "
+                                 f"Found {diff}")
+
         return services
 
     @property
-    def is_vision(self):
-        return self._services == ["vision"]
+    def is_google_cloud(self):
+        return set(self._services).issubset(CLOUD_SERVICES)

@@ -368,7 +368,7 @@ required for vision.
 
 .. code-block:: python
 
-    vision_auth = Authentication(credential=vision_service_file, services="vision")
+    vision_auth = Authentication(credential=cloud_service_file, services="vision")
 
 Instantiate Vision Class
 ++++++++++++++++++++++++
@@ -420,4 +420,95 @@ on them, they are not directly serializable. You can use `to_json` method to sto
 
     json_result = Vision.to_json(result)
 
+
+Storage
+-------
+This class provides python apis to work with Google Cloud Storage. It provides intuitive methods to move files and
+folders between local environment and Google Cloud Storage. This class uses Google Cloud Service authentication. For
+details and instructions on Google Cloud Storage, please view
+`their doc web site <https://cloud.google.com/storage/docs>`_.
+
+Authentication
+++++++++++++++
+Google storage service credential file is similar to Google Vision credentials. You cannot authenticate it with Google
+Suite classes (drive, gmail and sheets).
+
+.. code-block:: python
+
+    storage_auth = Authentication(credential=cloud_service_file, services="storage")
+
+Instantiate Storage Class
++++++++++++++++++++++++++
+Using the authenticated object, you can instantiate a storage class by:
+
+.. code-block:: python
+
+    storage = Storage(service=storage_auth.get_service_client())
+
+Upload, Download, Move and Remove Files
++++++++++++++++++++++++++++++++++++++++
+You can upload a single file:
+
+.. code-block:: python
+
+    result = storage.upload(from_object="/home/user/my_local_file.txt",
+                            to_object="gs://my_bucket/my/path/to/target_file.txt")
+
+You can also upload a folder. This will recursively upload every file in the folder
+
+.. code-block:: python
+
+    result = storage.upload(from_object="/home/user/my_local_folder",
+                            to_object="gs://my_bucket/my/path/to/target_folder")
+
+Note that this method persists the structure of source folder. In the above example, if the source folder structure is:
+
+.. code-block::
+
+   /home/user/my_local_folder
+    |_ a.txt
+    |_ subfolder
+        |_ b.txt
+        |_ c.txt
+
+Then the uploaded structure would be:
+
+.. code-block::
+
+   gs://my_bucket/my/path/to/target_folder
+    |_ a.txt
+    |_ subfolder
+        |_ b.txt
+        |_ c.txt
+
+You can download file or folder from Google Cloud. Similarly, if the source object is a folder, that this method
+persists the structure of source folder.
+
+.. code-block:: python
+
+    result = storage.download(from_object="gs://my_bucket/my/path/to/target_folder",
+                              to_object="/home/user/my_local_folder")
+
+To copy files or folders from one Google Storage location to another:
+
+.. code-block:: python
+
+    result = storage.copy(from_object="gs://my_bucket/my/path/to/source_folder",
+                          to_object="gs://my_bucket/my/path/to/destination_folder")
+
+
+To remove files or folders on Google Cloud:
+
+.. code-block:: python
+
+    storage.remove(target_object="gs://my_bucket/my/path/to/target_folder")
+
+Create, Remove and Get Bucket
++++++++++++++++++++++++++++++
+
+.. code-block:: python
+
+    storage.create_bucket(bucket_name="my_bucket")
+    bucket = storage.get_bucket(bucket_name="my_bucket")
+    storage.remove_bucket(bucket_name="my_bucket")
 
