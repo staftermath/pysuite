@@ -35,7 +35,7 @@ jobs:
           export CONDA_DIR=${HOME}/miniconda3
           export PATH=${CONDA_DIR}/bin:${HOME}/.local/bin:$PATH
           export TASK="${{ matrix.task }}"
-          python ${pwd}/setup.py install
+          pip install $GITHUB_WORKSPACE
       - name: run tests
         shell: bash
         run: |
