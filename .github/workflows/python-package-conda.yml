@@ -19,27 +19,20 @@ jobs:
         include:
           - task: pypkg
             py_version: 3.6
-          - task: pypkg
-            py_version: 3.7
-          - task: pypkg
-            py_version: 3.8
-          - task: pypkg
-            py_version: 3.9
     steps:
       - name: checkout repository
         uses: actions/checkout@v2
         with:
           fetch-depth: 1
       - name: set up python
-        uses: conda-incubator/setup-miniconda@v2
+        uses: actions/setup-python@v1
         with:
           python-version: ${{matrix.py_version}}
       - name: set up dependencies
         shell: bash
         run: |
-          export CONDA_DIR=${HOME}/miniconda3
-          export PATH=${CONDA_DIR}/bin:${HOME}/.local/bin:$PATH
           export TASK="${{ matrix.task }}"
+          python -m pip install --upgrade pip
           $GITHUB_WORKSPACE/.ci/install.sh
       - name: run tests
         shell: bash
