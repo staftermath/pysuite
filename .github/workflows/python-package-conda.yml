@@ -30,7 +30,8 @@ jobs:
           python-version: ${{matrix.py_version}}
           activate-environment: test
       - run: conda --version
-      - run: conda init bash
+      - run: cat ~/.bashrc
+      - run: . ~/.bashrc
       - name: set up dependencies
         shell: bash
         run: |
