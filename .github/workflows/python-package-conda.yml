@@ -32,9 +32,9 @@ jobs:
       - name: set up dependencies
         shell: bash
         run: |
-          export PATH=${CONDA}/envs/test/bin:$PATH
+          export PATH=${CONDA}/condabin:$PATH
           export TASK="${{ matrix.task }}"
-          source activate ${CONDA}/envs/test
+          conda activate test
           pip install $GITHUB_WORKSPACE
           pip install -r $GITHUB_WORKSPACE/test_requirements.txt
       - name: run tests
