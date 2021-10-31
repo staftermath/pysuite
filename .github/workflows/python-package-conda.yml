@@ -39,7 +39,6 @@ jobs:
         run: |
           export CONDA_DIR=${HOME}/miniconda3
           export PATH=${CONDA_DIR}/bin:${HOME}/.local/bin:$PATH
-          $GITHUB_WORKSPACE/.ci/dependencies.sh
           $GITHUB_WORKSPACE/.ci/install.sh
       - name: run tests
         shell: bash
