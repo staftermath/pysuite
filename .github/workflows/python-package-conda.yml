@@ -36,7 +36,7 @@ jobs:
           export PATH=${CONDA_DIR}/bin:${HOME}/.local/bin:$PATH
           export TASK="${{ matrix.task }}"
           pip install $GITHUB_WORKSPACE
-          pip install coverage
+          pip install coverage pytest
       - name: run tests
         shell: bash
         run: |
