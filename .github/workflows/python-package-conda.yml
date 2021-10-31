@@ -32,15 +32,15 @@ jobs:
       - name: set up dependencies
         shell: bash
         run: |
-          export PATH=${CONDA}/condabin:$PATH
+          export PATH=${CONDA}/envs/test/bin:$PATH
           export TASK="${{ matrix.task }}"
-          export TEST_ENV=${CONDA}/envs/test/bin
-          ${TEST_ENV}/pip install $GITHUB_WORKSPACE
-          ${TEST_ENV}/pip install -r $GITHUB_WORKSPACE/test_requirements.txt
+          source activate ${CONDA}/envs/test
+          pip install $GITHUB_WORKSPACE
+          pip install -r $GITHUB_WORKSPACE/test_requirements.txt
       - name: run tests
         shell: bash
         run: |
-          ${TEST_ENV}/coverage run -m pytest $GITHUB_WORKSPACE/tests
+          coverage run -m pytest $GITHUB_WORKSPACE/tests
 
   all-successful:
     runs-on: ubuntu-latest
