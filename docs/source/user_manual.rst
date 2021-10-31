@@ -420,6 +420,30 @@ on them, they are not directly serializable. You can use `to_json` method to sto
 
     json_result = Vision.to_json(result)
 
+Async Annotation
+++++++++++++++++
+You can use `add_request` to add images on Google Cloud Storage and annotate them asynchronously.
+
+.. code-block:: python
+
+    gcs_test_image = "gc://my-bucket/path/to/my/image.jpg"
+    # Add multiple requests
+    vision.add_request(image_path=gcs_test_image, methods="text_detection")
+    vision.add_request(image_path=gcs_test_image, methods=["text_detection", "label_detection"])
+
+    # Trigger async annotation
+    output_path = "gc://my-bucket/path/to/output/
+    operator = vision.async_annotate_image(output_gcs_uri=output_path, batch_size=2)
+
+    # Wait until it finishes.
+    timeout = 90 # max time out seconds
+    response = operator.result(timeout)
+
+    # Download to local using Storage client if needed.
+    output_dir = "/my/local/dir"
+    storage.download(response.output_config.gcs_destination.uri, to_object=output_dir))
+
+Please note that currently async annotation only support input and output on GCS.
 
 Storage
 -------
