@@ -40,7 +40,7 @@ jobs:
       - name: run tests
         shell: bash
         run: |
-          coverage run -m pytest $GITHUB_WORKSPACE/tests
+          ${CONDA}/envs/test/bin/coverage run -m pytest $GITHUB_WORKSPACE/tests
 
   all-successful:
     runs-on: ubuntu-latest
