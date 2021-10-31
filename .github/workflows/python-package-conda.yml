@@ -34,7 +34,7 @@ jobs:
         run: |
           export TASK="${{ matrix.task }}"
           eval "$(${CONDA}/condabin/conda shell.bash hook)"
-          ${CONDA}/condabin/conda activate test
+          conda activate test
           pip install $GITHUB_WORKSPACE
           pip install -r $GITHUB_WORKSPACE/test_requirements.txt
       - name: run tests
