@@ -39,7 +39,21 @@ jobs:
           pip install -r $GITHUB_WORKSPACE/test_requirements.txt
       - name: set up credentials
         shell: bash
-        run: $GITHUB_WORKSPACE/create_credentials.sh
+        env:
+          client_id: ${{ secret.client_id }}
+          client_secret: ${{ secret.client_secret }}
+          drive_token: ${{ secret.client_id }}
+          drive_refresh_token: ${{ secret.client_id }}
+          gmail_token: ${{ secret.gmail_token }}
+          gmail_refresh_token: ${{ secret.gmail_refresh_token }}
+          sheets_token: ${{ secret.sheets_token }}
+          sheets_refresh_token: ${{ secret.sheets_refresh_token }}
+          token: ${{ secret.token }}
+          refresh_token: ${{ secret.refresh_token }}
+          gc_client_id: ${{ secret.gc_client_id }}
+          gc_private_key: ${{ secret.gc_private_key }}
+          gc_private_key_id: ${{ secret.gc_private_key_id }}
+        run: $GITHUB_WORKSPACE/.ci/create_credentials.sh
       - name: run tests
         shell: bash
         run: |
