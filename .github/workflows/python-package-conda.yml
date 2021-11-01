@@ -53,7 +53,8 @@ jobs:
           gc_client_id: ${{ secrets.gc_client_id }}
           gc_private_key: ${{ secrets.gc_private_key }}
           gc_private_key_id: ${{ secrets.gc_private_key_id }}
-        run: $GITHUB_WORKSPACE/.ci/create_credentials.sh
+        run: |
+          $GITHUB_WORKSPACE/.ci/create_credentials.sh
       - name: run tests
         shell: bash
         run: |
