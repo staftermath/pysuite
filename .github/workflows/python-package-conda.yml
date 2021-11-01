@@ -42,8 +42,8 @@ jobs:
         env:
           client_id: ${{ secrets.client_id }}
           client_secret: ${{ secrets.client_secret }}
-          drive_token: ${{ secrets.client_id }}
-          drive_refresh_token: ${{ secrets.client_id }}
+          drive_token: ${{ secrets.drive_token }}
+          drive_refresh_token: ${{ secrets.drive_refresh_token }}
           gmail_token: ${{ secrets.gmail_token }}
           gmail_refresh_token: ${{ secrets.gmail_refresh_token }}
           sheets_token: ${{ secrets.sheets_token }}
