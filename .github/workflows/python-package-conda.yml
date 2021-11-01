@@ -40,19 +40,19 @@ jobs:
       - name: set up credentials
         shell: bash
         env:
-          client_id: ${{ secret.client_id }}
-          client_secret: ${{ secret.client_secret }}
-          drive_token: ${{ secret.client_id }}
-          drive_refresh_token: ${{ secret.client_id }}
-          gmail_token: ${{ secret.gmail_token }}
-          gmail_refresh_token: ${{ secret.gmail_refresh_token }}
-          sheets_token: ${{ secret.sheets_token }}
-          sheets_refresh_token: ${{ secret.sheets_refresh_token }}
-          token: ${{ secret.token }}
-          refresh_token: ${{ secret.refresh_token }}
-          gc_client_id: ${{ secret.gc_client_id }}
-          gc_private_key: ${{ secret.gc_private_key }}
-          gc_private_key_id: ${{ secret.gc_private_key_id }}
+          client_id: ${{ secrets.client_id }}
+          client_secret: ${{ secrets.client_secret }}
+          drive_token: ${{ secrets.client_id }}
+          drive_refresh_token: ${{ secrets.client_id }}
+          gmail_token: ${{ secrets.gmail_token }}
+          gmail_refresh_token: ${{ secrets.gmail_refresh_token }}
+          sheets_token: ${{ secrets.sheets_token }}
+          sheets_refresh_token: ${{ secrets.sheets_refresh_token }}
+          token: ${{ secrets.token }}
+          refresh_token: ${{ secrets.refresh_token }}
+          gc_client_id: ${{ secrets.gc_client_id }}
+          gc_private_key: ${{ secrets.gc_private_key }}
+          gc_private_key_id: ${{ secrets.gc_private_key_id }}
         run: $GITHUB_WORKSPACE/.ci/create_credentials.sh
       - name: run tests
         shell: bash
