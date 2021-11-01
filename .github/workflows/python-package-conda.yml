@@ -37,6 +37,9 @@ jobs:
           conda activate test
           pip install $GITHUB_WORKSPACE
           pip install -r $GITHUB_WORKSPACE/test_requirements.txt
+      - name: set up credentials
+        shell: bash
+        run: $GITHUB_WORKSPACE/create_credentials.sh
       - name: run tests
         shell: bash
         run: |
