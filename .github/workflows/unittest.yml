@@ -35,8 +35,8 @@ jobs:
           export TASK="${{ matrix.task }}"
           eval "$(${CONDA}/condabin/conda shell.bash hook)"
           conda activate test
-          pip install $GITHUB_WORKSPACE
-          pip install -r $GITHUB_WORKSPACE/test_requirements.txt
+          $GITHUB_WORKSPACE/.ci/install.sh
+          $GITHUB_WORKSPACE/.ci/dependencies.sh
       - name: set up credentials
         shell: bash
         env:
@@ -46,7 +46,7 @@ jobs:
       - name: run tests
         shell: bash
         run: |
-          ${CONDA}/envs/test/bin/coverage run -m pytest $GITHUB_WORKSPACE/tests
+          $GITHUB_WORKSPACE/.ci/test.sh
 
   all-successful:
     runs-on: ubuntu-latest

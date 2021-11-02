@@ -2,5 +2,4 @@
 
 set -e
 
-echo $(which python)
-pip install $(pwd)
+pip install $GITHUB_WORKSPACE

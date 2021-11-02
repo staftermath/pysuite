@@ -2,5 +2,4 @@
 
 set -e
 
-TEST_DIR=$(pwd)/tests
-coverage run -m pytest ${TEST_DIR}
+${CONDA}/envs/test/bin/coverage run -m pytest $GITHUB_WORKSPACE/tests
