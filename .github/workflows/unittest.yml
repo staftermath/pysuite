@@ -19,16 +19,16 @@ jobs:
         include:
           - task: py36
             py_version: 3.6
-            sleep: 0
+            sleep: 0s
           - task: py37
             py_version: 3.7
-            sleep: 30
+            sleep: 30s
           - task: py38
             py_version: 3.8
-            sleep: 60
+            sleep: 60s
           - task: py39
             py_version: 3.9
-            sleep: 90
+            sleep: 90s
     steps:
       - name: checkout repository
         uses: actions/checkout@v2
