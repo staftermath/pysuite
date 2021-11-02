@@ -17,8 +17,14 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - task: pypkg
+          - task: py36
             py_version: 3.6
+          - task: py37
+            py_version: 3.7
+          - task: py38
+            py_version: 3.8
+          - task: py39
+            py_version: 3.9
     steps:
       - name: checkout repository
         uses: actions/checkout@v2
