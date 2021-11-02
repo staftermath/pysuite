@@ -56,7 +56,7 @@ jobs:
       - name: sleep to avoid simultaneous query
         uses: juliangruber/sleep-action@v1.0.1
         with:
-          time: $${{ matrix.sleep }}
+          time: ${{ matrix.sleep }}
       - name: run tests
         shell: bash
         run: |
