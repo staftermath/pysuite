@@ -19,12 +19,16 @@ jobs:
         include:
           - task: py36
             py_version: 3.6
+            sleep: 0
           - task: py37
             py_version: 3.7
+            sleep: 30
           - task: py38
             py_version: 3.8
+            sleep: 60
           - task: py39
             py_version: 3.9
+            sleep: 90
     steps:
       - name: checkout repository
         uses: actions/checkout@v2
@@ -49,6 +53,10 @@ jobs:
           credential_passphrase: ${{ secrets.credential_passphrase }}
         run: |
           $GITHUB_WORKSPACE/.ci/create_credentials.sh
+      - name: sleep to avoid simultaneous query
+        uses: juliangruber/sleep-action@v1.0.1
+        with:
+          time: $${{ matrix.sleep }}
       - name: run tests
         shell: bash
         run: |
