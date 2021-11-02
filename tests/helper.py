@@ -18,11 +18,16 @@ def purge_temp_file(drive: Drive, prefix: str):
         drive.delete(object["id"])
 
 
-def random_string(length: int=8, seed: Optional[int]=None):
+def random_string(length: int=8, seed: Optional[int]=None, lower: bool=False):
     if seed is None:
         seed = datetime.now().microsecond
     random.seed(seed)
-    result = ''.join(random.choice(string.ascii_letters) for _ in range(length))
+    if lower:
+        char_pool = string.ascii_lowercase
+    else:
+        char_pool = string.ascii_letters
+
+    result = ''.join(random.choice(char_pool) for _ in range(length))
     return result
 
 
@@ -30,3 +35,9 @@ def random_string(length: int=8, seed: Optional[int]=None):
 def prefix():
     max_length = 26 # google api search for string longer than 26 char
     return random_string(max_length)+"_"
+
+
+@pytest.fixture(scope="session")
+def prefix_lower():
+    max_length = 26 # google api search for string longer than 26 char
+    return random_string(max_length, lower=True)+"_"

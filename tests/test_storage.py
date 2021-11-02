@@ -7,10 +7,14 @@ from google.api_core.exceptions import NotFound
 
 from pysuite.storage import Storage, _add_folder_tree_to_new_base_dir
 from tests.test_auth import storage_auth
-from tests.helper import resource_folder
+from tests.helper import resource_folder, prefix_lower
 
 TEST_BUCKET = "pysuite_bucket"
 SINGLE_FILE = "base.txt"
+
+@pytest.fixture(scope="module")
+def tmp_bucket(prefix_lower):
+    return f"{prefix_lower}{TEST_BUCKET}"
 
 
 @pytest.fixture()
@@ -39,11 +43,11 @@ def test_split_gs_object_return_correct_value_or_raise_error_correctly(storage, 
 
 
 @pytest.fixture()
-def prepare_env(storage):
+def prepare_env(storage, tmp_bucket):
 
     def purge():
         try:
-            storage.remove_bucket(TEST_BUCKET, force=True)
+            storage.remove_bucket(tmp_bucket, force=True)
         except:
             pass
 
@@ -52,20 +56,20 @@ def prepare_env(storage):
     purge()
 
 
-def test_create_bucket_and_delete_bucket_and_get_bucket_execute_correctly(storage, prepare_env):
+def test_create_bucket_and_delete_bucket_and_get_bucket_execute_correctly(storage, tmp_bucket, prepare_env):
     with pytest.raises(NotFound):  # test bucket should not exist to begin with
-        storage.get_bucket(TEST_BUCKET)
+        storage.get_bucket(tmp_bucket)
 
-    result = storage.create_bucket(TEST_BUCKET)
+    result = storage.create_bucket(tmp_bucket)
     assert isinstance(result, Bucket)
 
-    result = storage.get_bucket(TEST_BUCKET)
+    result = storage.get_bucket(tmp_bucket)
     assert isinstance(result, Bucket)
 
-    storage.remove_bucket(TEST_BUCKET)
+    storage.remove_bucket(tmp_bucket)
 
     with pytest.raises(NotFound):  # test bucket should now be removed
-        storage.get_bucket(TEST_BUCKET)
+        storage.get_bucket(tmp_bucket)
 
 
 @pytest.fixture()
@@ -98,7 +102,7 @@ def prepare_files(storage, tmpdir):
 )
 def test_upload_and_download_file_create_files_correctly(storage, create_bucket, prepare_files,
                                                          tmpdir, is_folder, path_tree):
-    target_gs_object = f"gs://{TEST_BUCKET}/test"
+    target_gs_object = f"gs://{create_bucket}/test"
     downloaded_target = Path(tmpdir.mkdir("downloaded"))
     if is_folder:
         from_object = prepare_files
@@ -131,13 +135,14 @@ def test_add_folder_tree_to_new_base_dir_return_value_correctly(prepare_files):
 
 
 @pytest.fixture()
-def create_bucket(storage, prepare_env):
-    storage.create_bucket(TEST_BUCKET)
+def create_bucket(storage, prepare_env, tmp_bucket):
+    storage.create_bucket(tmp_bucket)
+    return tmp_bucket
 
 
 @pytest.fixture()
 def upload_file(storage, create_bucket, prepare_files):
-    target_gs_object = f"gs://{TEST_BUCKET}/test"
+    target_gs_object = f"gs://{create_bucket}/test"
     storage.upload(from_object=prepare_files, to_object=target_gs_object)
     return target_gs_object
 
@@ -182,8 +187,8 @@ def test_remove_delete_target_correctly(storage, upload_file, is_folder):
         [False, ['copied/base.txt']]
     ]
 )
-def test_copy_create_files_correctly(storage, upload_file, is_folder, expected):
-    target_gs_object = f"gs://{TEST_BUCKET}/copied"
+def test_copy_create_files_correctly(storage, tmp_bucket, upload_file, is_folder, expected):
+    target_gs_object = f"gs://{tmp_bucket}/copied"
     if is_folder:
         gs_object = upload_file
     else:
