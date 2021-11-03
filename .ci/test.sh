@@ -2,4 +2,4 @@
 
 set -e
 
-${CONDA}/envs/test/bin/coverage run -m pytest $GITHUB_WORKSPACE/tests
+${CONDA}/envs/test/bin/pytest $GITHUB_WORKSPACE/tests --cov=./ --cov-report=xml
