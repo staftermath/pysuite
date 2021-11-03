@@ -149,7 +149,7 @@ class Authentication:
             return storage.Client(credentials=self._credential)
         else:
             # Won't reach here
-            raise ValueError(f"Invalid service: {service}. This is an implementation error.")
+            raise ValueError(f"Invalid service: {service}. This is an implementation error.")  # pragma: no cover
 
     def _get_scopes(self) -> list:
         try:
