@@ -85,6 +85,11 @@ def prepare_files(storage, tmpdir):
     return base_dir
 
 
+def test_upload_when_local_object_doesnot_exist_raise_exception_correctly(storage):
+    with pytest.raises(IOError):
+        storage.upload(from_object="non_existent_file.csv", to_object="gs://bucket_not_exists/file.csv")
+
+
 @pytest.mark.parametrize(
     ("is_folder", "path_tree"),
     [
