@@ -48,6 +48,20 @@ def test_when_token_file_has_incorrect_format_raise_exception(tmpdir, token_dict
 
 
 @pytest.mark.parametrize(
+    "service",
+    [
+        "drive",
+        "gmail",
+        "sheets",
+        ["drive", "gmail", "sheets"]
+    ]
+)
+def test_init_non_cloud_service_when_token_file_not_provided_raise_exception_correctly(service):
+    with pytest.raises(ValueError):
+        Authentication(credential=credential_file, token=None, services=service)
+
+
+@pytest.mark.parametrize(
     ("credential_dict"),
     [
         {"missing_installed": {"irrelevant": "a"}},  # need "installed" key
