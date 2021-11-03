@@ -106,7 +106,7 @@ class Authentication:
         """
         if not self.is_google_cloud:
             if not self._credential.valid:
-                if self._credential.expired and self._credential.refresh_token:
+                if self._credential.expired and self._credential.refresh_token:  # pragma: no cover
                     self._credential.refresh(Request())
 
             self.write_token()
