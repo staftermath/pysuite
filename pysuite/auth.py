@@ -59,7 +59,7 @@ class Authentication:
                 raise ValueError(f"token is required for {self._services}.")
 
             if not Path(self._token_path).exists():
-                return self._load_credential_from_file(self._credential_path)
+                return self._load_credential_from_file(self._credential_path)  # pragma: no cover
 
             with open(self._token_path, 'r') as f:
                 token_json = json.load(f)
