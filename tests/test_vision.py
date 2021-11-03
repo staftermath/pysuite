@@ -31,15 +31,36 @@ def test_vision_annotate_image_return_values_correctly(vision, methods, expected
     assert Vision.to_json(result) == expected
 
 
-def test_batch_annotate_image_return_values_correctly(vision):
-    vision.add_request(image_path=test_image, methods="text_detection")
-    vision.add_request(image_path=test_image, methods=["text_detection", "label_detection"])
+def test_vision_to_json_when_input_type_incorrect_raise_exception_correctly():
+    with pytest.raises(TypeError):
+        Vision.to_json("random object")
 
-    result = vision.batch_annotate_image()
-    with open(resource_folder / "expected_batch_annotation.json", "r") as f:
-        expected = json.load(f)
 
-    assert Vision.to_json(result) == expected
+def test_add_request_when_method_not_implemented_raise_exception_correctly(vision):
+    with pytest.raises(NotImplementedError):
+        vision.add_request(image_path=test_image, methods="Non existent method")
+
+
+@pytest.mark.parametrize(
+    "add_request",
+    [True, False]
+)
+def test_batch_annotate_image_return_values_correctly(vision, add_request):
+    if add_request:
+        vision.add_request(image_path=test_image, methods="text_detection")
+        vision.add_request(image_path=test_image, methods=["text_detection", "label_detection"])
+        with open(resource_folder / "expected_batch_annotation.json", "r") as f:
+            expected = json.load(f)
+        response = vision.batch_annotate_image()
+        result = Vision.to_json(response)
+
+        assert result == expected
+    else:
+        with pytest.warns(UserWarning) as w:
+            result = vision.batch_annotate_image()
+            assert result is None
+            result_warning = str(w.list[0].message)
+            assert result_warning == "No requests was prepared"
 
 
 @pytest.fixture()
@@ -75,3 +96,11 @@ def test_async_annotate_image_return_values_correctly(vision, prepare_asycn_imag
             expected_json['responses'][0]['context']['uri'] = gcs_test_image
             result_json = json.load(result_f)
             assert result_json == expected_json, "created output file content incorrect."
+
+
+def test_async_annotate_image_when_no_request_is_added_return_values_correctly(vision, caplog):
+    with pytest.warns(UserWarning) as w:
+        result = vision.async_annotate_image(output_gcs_uri="gs://bucket_not_exist/no_output_needed/", batch_size=2)
+        assert result is None
+        result_warning = str(w.list[0].message)
+        assert result_warning == "No requests was prepared"
