@@ -1,6 +1,3 @@
 #!/bin/bash
 
-pip install -r $(pwd)/requirements.txt
-pip install pandas
-pip install codecov
-pip freeze
+pip install -r $GITHUB_WORKSPACE/test_requirements.txt

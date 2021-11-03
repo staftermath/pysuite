@@ -2,4 +2,4 @@
 
 set -e
 
-python $(pwd)/setup.py install
+pip install $GITHUB_WORKSPACE
