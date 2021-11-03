@@ -2,4 +2,4 @@
 
 set -e
 
-${CONDA}/envs/test/bin/pytest $GITHUB_WORKSPACE/tests --cov=./ --cov-report=xml
+${CONDA}/envs/test/bin/pytest $GITHUB_WORKSPACE/tests --cov=$GITHUB_WORKSPACE/pysuite --cov-report=xml
