@@ -79,6 +79,11 @@ def test_when_credential_file_has_incorrect_format_raise_exception(tmpdir, crede
         Authentication(credential=temp_credential_file, token=drive_token_file, services="drive")
 
 
+def test_when_mixing_cloud_and_non_cloud_service_raise_exception_correctly():
+    with pytest.raises(ValueError):
+        Authentication(credential=credential_file, token=multi_token_file, services=["drive", "vision"])
+
+
 @pytest.fixture(scope="session")
 def drive_auth():
     return Authentication(credential=credential_file, token=drive_token_file, services="drive")
