@@ -7,7 +7,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Index &mdash; pysuite 0.3.1 documentation</title>
+  <title>Index &mdash; pysuite 0.4.0 documentation</title>
   
 
   
@@ -87,6 +87,8 @@
 <li class="toctree-l1"><a class="reference internal" href="drive.html">Drive</a></li>
 <li class="toctree-l1"><a class="reference internal" href="sheets.html">Sheets</a></li>
 <li class="toctree-l1"><a class="reference internal" href="gmail.html">GMail</a></li>
+<li class="toctree-l1"><a class="reference internal" href="vision.html">Vision</a></li>
+<li class="toctree-l1"><a class="reference internal" href="storage.html">Storage</a></li>
 <li class="toctree-l1"><a class="reference internal" href="utilities.html">utilities</a></li>
 </ul>
 
@@ -161,6 +163,7 @@
  | <a href="#D"><strong>D</strong></a>
  | <a href="#F"><strong>F</strong></a>
  | <a href="#G"><strong>G</strong></a>
+ | <a href="#I"><strong>I</strong></a>
  | <a href="#L"><strong>L</strong></a>
  | <a href="#M"><strong>M</strong></a>
  | <a href="#P"><strong>P</strong></a>
@@ -168,12 +171,21 @@
  | <a href="#S"><strong>S</strong></a>
  | <a href="#T"><strong>T</strong></a>
  | <a href="#U"><strong>U</strong></a>
+ | <a href="#V"><strong>V</strong></a>
  | <a href="#W"><strong>W</strong></a>
  
 </div>
 <h2 id="A">A</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="vision.html#pysuite.vision.Vision.add_request">add_request() (pysuite.vision.Vision method)</a>
+</li>
+      <li><a href="vision.html#pysuite.vision.Vision.annotate_image">annotate_image() (pysuite.vision.Vision method)</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="vision.html#pysuite.vision.Vision.async_annotate_image">async_annotate_image() (pysuite.vision.Vision method)</a>
+</li>
       <li><a href="auth.html#pysuite.auth.Authentication">Authentication (class in pysuite.auth)</a>
 </li>
   </ul></td>
@@ -181,6 +193,10 @@
 
 <h2 id="B">B</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="vision.html#pysuite.vision.Vision.batch_annotate_image">batch_annotate_image() (pysuite.vision.Vision method)</a>
+</li>
+  </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="sheets.html#pysuite.sheets.Sheets.batch_update">batch_update() (pysuite.sheets.Sheets method)</a>
 </li>
@@ -195,9 +211,15 @@
       <li><a href="gmail.html#pysuite.gmail.GMail.compose">compose() (pysuite.gmail.GMail method)</a>
 </li>
       <li><a href="drive.html#pysuite.drive.Drive.copy">copy() (pysuite.drive.Drive method)</a>
+
+      <ul>
+        <li><a href="storage.html#pysuite.storage.Storage.copy">(pysuite.storage.Storage method)</a>
 </li>
+      </ul></li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="storage.html#pysuite.storage.Storage.create_bucket">create_bucket() (pysuite.storage.Storage method)</a>
+</li>
       <li><a href="drive.html#pysuite.drive.Drive.create_folder">create_folder() (pysuite.drive.Drive method)</a>
 </li>
       <li><a href="sheets.html#pysuite.sheets.Sheets.create_sheet">create_sheet() (pysuite.sheets.Sheets method)</a>
@@ -214,14 +236,16 @@
 </li>
       <li><a href="sheets.html#pysuite.sheets.Sheets.delete_sheet">delete_sheet() (pysuite.sheets.Sheets method)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="drive.html#pysuite.drive.Drive.download">download() (pysuite.drive.Drive method)</a>
 
       <ul>
         <li><a href="sheets.html#pysuite.sheets.Sheets.download">(pysuite.sheets.Sheets method)</a>
 </li>
+        <li><a href="storage.html#pysuite.storage.Storage.download">(pysuite.storage.Storage method)</a>
+</li>
       </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="drive.html#pysuite.drive.Drive">Drive (class in pysuite.drive)</a>
 </li>
   </ul></td>
@@ -238,14 +262,16 @@
 <h2 id="G">G</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="storage.html#pysuite.storage.Storage.get_bucket">get_bucket() (pysuite.storage.Storage method)</a>
+</li>
       <li><a href="sheets.html#pysuite.sheets.get_col_counts_from_range">get_col_counts_from_range() (in module pysuite.sheets)</a>
 </li>
       <li><a href="sheets.html#pysuite.sheets.get_column_number">get_column_number() (in module pysuite.sheets)</a>
 </li>
-      <li><a href="drive.html#pysuite.drive.Drive.get_id">get_id() (pysuite.drive.Drive method)</a>
-</li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="drive.html#pysuite.drive.Drive.get_id">get_id() (pysuite.drive.Drive method)</a>
+</li>
       <li><a href="drive.html#pysuite.drive.Drive.get_name">get_name() (pysuite.drive.Drive method)</a>
 </li>
       <li><a href="auth.html#pysuite.auth.Authentication.get_service_client">get_service_client() (pysuite.auth.Authentication method)</a>
@@ -255,14 +281,32 @@
   </ul></td>
 </tr></table>
 
+<h2 id="I">I</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="storage.html#pysuite.storage.is_gcs_uri">is_gcs_uri() (in module pysuite.storage)</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="auth.html#pysuite.auth.Authentication.is_google_cloud">is_google_cloud() (pysuite.auth.Authentication property)</a>
+</li>
+  </ul></td>
+</tr></table>
+
 <h2 id="L">L</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="drive.html#pysuite.drive.Drive.list">list() (pysuite.drive.Drive method)</a>
+
+      <ul>
+        <li><a href="storage.html#pysuite.storage.Storage.list">(pysuite.storage.Storage method)</a>
 </li>
+      </ul></li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="auth.html#pysuite.auth.Authentication.load_credential">load_credential() (pysuite.auth.Authentication method)</a>
+</li>
+      <li><a href="vision.html#pysuite.vision.Vision.load_image">load_image() (pysuite.vision.Vision static method)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -282,7 +326,11 @@
 </li>
         <li><a href="sheets.html#module-pysuite.sheets">pysuite.sheets</a>
 </li>
+        <li><a href="storage.html#module-pysuite.storage">pysuite.storage</a>
+</li>
         <li><a href="utilities.html#module-pysuite.utilities">pysuite.utilities</a>
+</li>
+        <li><a href="vision.html#module-pysuite.vision">pysuite.vision</a>
 </li>
       </ul></li>
   </ul></td>
@@ -312,8 +360,6 @@
         <li><a href="gmail.html#module-pysuite.gmail">module</a>
 </li>
       </ul></li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li>
     pysuite.sheets
 
@@ -321,11 +367,27 @@
         <li><a href="sheets.html#module-pysuite.sheets">module</a>
 </li>
       </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li>
+    pysuite.storage
+
+      <ul>
+        <li><a href="storage.html#module-pysuite.storage">module</a>
+</li>
+      </ul></li>
       <li>
     pysuite.utilities
 
       <ul>
         <li><a href="utilities.html#module-pysuite.utilities">module</a>
+</li>
+      </ul></li>
+      <li>
+    pysuite.vision
+
+      <ul>
+        <li><a href="vision.html#module-pysuite.vision">module</a>
 </li>
       </ul></li>
   </ul></td>
@@ -338,11 +400,17 @@
 </li>
       <li><a href="auth.html#pysuite.auth.Authentication.refresh">refresh() (pysuite.auth.Authentication method)</a>
 </li>
+      <li><a href="storage.html#pysuite.storage.Storage.remove">remove() (pysuite.storage.Storage method)</a>
+</li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="storage.html#pysuite.storage.Storage.remove_bucket">remove_bucket() (pysuite.storage.Storage method)</a>
+</li>
       <li><a href="sheets.html#pysuite.sheets.Sheets.rename_sheet">rename_sheet() (pysuite.sheets.Sheets method)</a>
 </li>
       <li><a href="utilities.html#pysuite.utilities.retry_on_out_of_quota">retry_on_out_of_quota() (in module pysuite.utilities)</a>
+</li>
+      <li><a href="utilities.html#pysuite.utilities.retry_on_type_and_msg">retry_on_type_and_msg() (in module pysuite.utilities)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -356,11 +424,17 @@
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="sheets.html#pysuite.sheets.Sheets">Sheets (class in pysuite.sheets)</a>
 </li>
+      <li><a href="storage.html#pysuite.storage.Storage">Storage (class in pysuite.storage)</a>
+</li>
   </ul></td>
 </tr></table>
 
 <h2 id="T">T</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="vision.html#pysuite.vision.Vision.to_json">to_json() (pysuite.vision.Vision static method)</a>
+</li>
+  </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="sheets.html#pysuite.sheets.Sheets.to_sheet">to_sheet() (pysuite.sheets.Sheets method)</a>
 </li>
@@ -372,14 +446,22 @@
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="drive.html#pysuite.drive.Drive.update">update() (pysuite.drive.Drive method)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="drive.html#pysuite.drive.Drive.upload">upload() (pysuite.drive.Drive method)</a>
 
       <ul>
         <li><a href="sheets.html#pysuite.sheets.Sheets.upload">(pysuite.sheets.Sheets method)</a>
 </li>
+        <li><a href="storage.html#pysuite.storage.Storage.upload">(pysuite.storage.Storage method)</a>
+</li>
       </ul></li>
+  </ul></td>
+</tr></table>
+
+<h2 id="V">V</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="vision.html#pysuite.vision.Vision">Vision (class in pysuite.vision)</a>
+</li>
   </ul></td>
 </tr></table>
 

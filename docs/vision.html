@@ -1,0 +1,346 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Vision &mdash; pysuite 0.4.0 documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+
+  
+  
+  
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/doctools.js"></script>
+        <script src="_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Storage" href="storage.html" />
+    <link rel="prev" title="GMail" href="gmail.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="index.html" class="icon icon-home" alt="Documentation Home"> pysuite
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="user_manual.html">User Manual</a></li>
+<li class="toctree-l1"><a class="reference internal" href="auth.html">Auth</a></li>
+<li class="toctree-l1"><a class="reference internal" href="drive.html">Drive</a></li>
+<li class="toctree-l1"><a class="reference internal" href="sheets.html">Sheets</a></li>
+<li class="toctree-l1"><a class="reference internal" href="gmail.html">GMail</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Vision</a></li>
+<li class="toctree-l1"><a class="reference internal" href="storage.html">Storage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="utilities.html">utilities</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">pysuite</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
+        
+      <li>Vision</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="_sources/vision.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="vision">
+<span id="id1"></span><h1>Vision<a class="headerlink" href="#vision" title="Permalink to this headline">¶</a></h1>
+<span class="target" id="module-pysuite.vision"></span><p>Implement api to access google vision API</p>
+<dl class="py class">
+<dt id="pysuite.vision.Vision">
+<em class="property">class </em><code class="sig-prename descclassname">pysuite.vision.</code><code class="sig-name descname">Vision</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">service</span><span class="p">:</span> <span class="n">google.cloud.vision_v1.ImageAnnotatorClient</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pysuite/vision.html#Vision"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pysuite.vision.Vision" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Class to interact with Google Vision API.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>service</strong> – an authorized Google Vision service client.</p>
+</dd>
+</dl>
+<dl class="py method">
+<dt id="pysuite.vision.Vision.add_request">
+<code class="sig-name descname">add_request</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">image_path</span><span class="p">:</span> <span class="n">Union<span class="p">[</span>str<span class="p">, </span>pathlib.PosixPath<span class="p">]</span></span></em>, <em class="sig-param"><span class="n">methods</span><span class="p">:</span> <span class="n">Union<span class="p">[</span>List<span class="p">[</span>str<span class="p">]</span><span class="p">, </span>str<span class="p">]</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pysuite/vision.html#Vision.add_request"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pysuite.vision.Vision.add_request" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add a request to annotate a local or GCS image. Multiple annotation methods can be added at the same time.
+The request will not be immediately submitted. This method is useful for <cite>batch_annotate_image</cite> and
+<cite>async_annotate_image</cite>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Example</dt>
+<dd class="field-odd"><p></p></dd>
+</dl>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">vision</span><span class="o">.</span><span class="n">add_request</span><span class="p">(</span><span class="s2">&quot;/my/image.png&quot;</span><span class="p">,</span> <span class="n">methods</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;LABEL_DETECTION&quot;</span><span class="p">,</span> <span class="s2">&quot;test_detection&quot;</span><span class="p">])</span>
+</pre></div>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Example</dt>
+<dd class="field-odd"><p></p></dd>
+</dl>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">vision</span><span class="o">.</span><span class="n">add_request</span><span class="p">(</span><span class="s2">&quot;gs://my_gcs_bucket/image/path.jpg&quot;</span><span class="p">,</span> <span class="n">methods</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;LABEL_DETECTION&quot;</span><span class="p">,</span> <span class="s2">&quot;test_detection&quot;</span><span class="p">])</span>
+</pre></div>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>image_path</strong> – Local or GCS path to the image file.</p></li>
+<li><p><strong>methods</strong> – A list of strings representing supported annotation methods. Please view
+google.cloud.vision_v1.types.Feature.Type for all supported methods. They are case-insensitive.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>None</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pysuite.vision.Vision.annotate_image">
+<code class="sig-name descname">annotate_image</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">image_path</span><span class="p">:</span> <span class="n">Union<span class="p">[</span>str<span class="p">, </span>pathlib.PosixPath<span class="p">]</span></span></em>, <em class="sig-param"><span class="n">methods</span><span class="p">:</span> <span class="n">Union<span class="p">[</span>List<span class="p">[</span>str<span class="p">]</span><span class="p">, </span>str<span class="p">]</span></span></em><span class="sig-paren">)</span> &#x2192; google.cloud.vision_v1.types.image_annotator.AnnotateImageResponse<a class="reference internal" href="_modules/pysuite/vision.html#Vision.annotate_image"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pysuite.vision.Vision.annotate_image" title="Permalink to this definition">¶</a></dt>
+<dd><p>Submit a request to annotate a local image using specified methods.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>image_path</strong> – Path to the image file.</p></li>
+<li><p><strong>methods</strong> – A list of strings representing supported annotation methods. Please view
+google.cloud.vision_v1.types.Feature.Type for all supported methods. They are case-insensitive.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>An AnnotateImageResponse object with annotated content.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pysuite.vision.Vision.async_annotate_image">
+<code class="sig-name descname">async_annotate_image</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">output_gcs_uri</span><span class="p">:</span> <span class="n">str</span></em>, <em class="sig-param"><span class="n">batch_size</span><span class="p">:</span> <span class="n">int</span> <span class="o">=</span> <span class="default_value">0</span></em><span class="sig-paren">)</span> &#x2192; Optional<span class="p">[</span>google.api_core.operation.Operation<span class="p">]</span><a class="reference internal" href="_modules/pysuite/vision.html#Vision.async_annotate_image"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pysuite.vision.Vision.async_annotate_image" title="Permalink to this definition">¶</a></dt>
+<dd><p>Annotate images asynchronously and place output in Google Cloud Storage in batches.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>output_gcs_uri</strong> – Target output location on Google Cloud Storage.</p></li>
+<li><p><strong>batch_size</strong> – Maximum number request processed in each batch. If there are 10 requests submitted together,
+and <cite>batch_size</cite> is 2, there will be 5 output files (batches) created. Default is 0. Meaning only create one
+batch.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>An Operation object. You can use it to wait until the process is completed.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pysuite.vision.Vision.batch_annotate_image">
+<code class="sig-name descname">batch_annotate_image</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; Optional<span class="p">[</span>google.cloud.vision_v1.types.image_annotator.BatchAnnotateImagesResponse<span class="p">]</span><a class="reference internal" href="_modules/pysuite/vision.html#Vision.batch_annotate_image"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pysuite.vision.Vision.batch_annotate_image" title="Permalink to this definition">¶</a></dt>
+<dd><p>Submit the prepared requests to annotate images and return a response with annotated content. You must first
+call <cite>add_request</cite> to prepare the configurations. If no configurations were prepared, this method will return
+None.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>An BatchAnnotateImagesResponse object with annotated content. Or None if no requests were prepared.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pysuite.vision.Vision.load_image">
+<em class="property">static </em><code class="sig-name descname">load_image</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">image_path</span><span class="p">:</span> <span class="n">Union<span class="p">[</span>str<span class="p">, </span>pathlib.PosixPath<span class="p">]</span></span></em><span class="sig-paren">)</span> &#x2192; google.cloud.vision_v1.types.image_annotator.Image<a class="reference internal" href="_modules/pysuite/vision.html#Vision.load_image"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pysuite.vision.Vision.load_image" title="Permalink to this definition">¶</a></dt>
+<dd><p>Load a local image as Image class that can be used to submit image annotation requests.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>image_path</strong> – Path to the image file.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Loaded Image object from the target file</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pysuite.vision.Vision.to_json">
+<em class="property">static </em><code class="sig-name descname">to_json</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">response</span><span class="p">:</span> <span class="n">Union<span class="p">[</span>google.cloud.vision_v1.types.image_annotator.AnnotateImageResponse<span class="p">, </span>google.cloud.vision_v1.types.image_annotator.BatchAnnotateImagesResponse<span class="p">]</span></span></em><span class="sig-paren">)</span> &#x2192; dict<a class="reference internal" href="_modules/pysuite/vision.html#Vision.to_json"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pysuite.vision.Vision.to_json" title="Permalink to this definition">¶</a></dt>
+<dd><p>Convert possible image responses to dictionary. If it’s not a supported response, a type error will be
+raised.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>response</strong> – A response returned from <cite>annotate_image</cite> or <cite>batch_annotate_image</cite>.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>A dictionary containing annotated contents.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="storage.html" class="btn btn-neutral float-right" title="Storage" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="gmail.html" class="btn btn-neutral float-left" title="GMail" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        
+        &copy; Copyright 2020, Weiwen Gu
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

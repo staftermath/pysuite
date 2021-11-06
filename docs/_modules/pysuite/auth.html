@@ -7,7 +7,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>pysuite.auth &mdash; pysuite 0.3.1 documentation</title>
+  <title>pysuite.auth &mdash; pysuite 0.4.0 documentation</title>
   
 
   
@@ -87,6 +87,8 @@
 <li class="toctree-l1"><a class="reference internal" href="../../drive.html">Drive</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../sheets.html">Sheets</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../gmail.html">GMail</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../vision.html">Vision</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../storage.html">Storage</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../utilities.html">utilities</a></li>
 </ul>
 
@@ -163,17 +165,27 @@
 <span class="kn">from</span> <span class="nn">google.oauth2.credentials</span> <span class="kn">import</span> <span class="n">Credentials</span>
 <span class="kn">from</span> <span class="nn">google.auth.transport.requests</span> <span class="kn">import</span> <span class="n">Request</span>
 <span class="kn">from</span> <span class="nn">google_auth_oauthlib.flow</span> <span class="kn">import</span> <span class="n">InstalledAppFlow</span>
+<span class="kn">from</span> <span class="nn">google.cloud</span> <span class="kn">import</span> <span class="n">vision</span> <span class="k">as</span> <span class="n">gv</span>
+<span class="kn">from</span> <span class="nn">google.cloud</span> <span class="kn">import</span> <span class="n">storage</span>
+<span class="kn">from</span> <span class="nn">google.auth._default</span> <span class="kn">import</span> <span class="n">load_credentials_from_file</span>
+
 
 <span class="n">SCOPES</span> <span class="o">=</span> <span class="p">{</span>
     <span class="s2">&quot;drive&quot;</span><span class="p">:</span> <span class="s2">&quot;https://www.googleapis.com/auth/drive&quot;</span><span class="p">,</span>
     <span class="s2">&quot;sheets&quot;</span><span class="p">:</span> <span class="s2">&quot;https://www.googleapis.com/auth/spreadsheets&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;gmail&quot;</span><span class="p">:</span> <span class="s2">&quot;https://www.googleapis.com/auth/gmail.compose&quot;</span>
+    <span class="s2">&quot;gmail&quot;</span><span class="p">:</span> <span class="s2">&quot;https://www.googleapis.com/auth/gmail.compose&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;vision&quot;</span><span class="p">:</span> <span class="s2">&quot;https://www.googleapis.com/auth/cloud-vision&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;storage&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
 <span class="p">}</span>
+
+<span class="n">CLOUD_SERVICES</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;vision&quot;</span><span class="p">,</span> <span class="s2">&quot;storage&quot;</span><span class="p">}</span>
 
 <span class="n">DEFAULT_VERSIONS</span> <span class="o">=</span> <span class="p">{</span>
     <span class="s2">&quot;drive&quot;</span><span class="p">:</span> <span class="s2">&quot;v3&quot;</span><span class="p">,</span>
     <span class="s2">&quot;sheets&quot;</span><span class="p">:</span> <span class="s2">&quot;v4&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;gmail&quot;</span><span class="p">:</span> <span class="s2">&quot;v1&quot;</span>
+    <span class="s2">&quot;gmail&quot;</span><span class="p">:</span> <span class="s2">&quot;v1&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;vision&quot;</span><span class="p">:</span> <span class="s2">&quot;v1&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;storage&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
 <span class="p">}</span>
 
 
@@ -182,8 +194,9 @@
 <span class="sd">    file does not exists, confirmation is needed from browser prompt and the token file will be created. You can pass</span>
 <span class="sd">    a list of services or one service.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">credential</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">PosixPath</span><span class="p">,</span> <span class="nb">str</span><span class="p">],</span> <span class="n">token</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">PosixPath</span><span class="p">,</span> <span class="nb">str</span><span class="p">],</span> <span class="n">services</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">list</span><span class="p">,</span> <span class="nb">str</span><span class="p">]):</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_token_path</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">token</span><span class="p">)</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">credential</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">PosixPath</span><span class="p">,</span> <span class="nb">str</span><span class="p">],</span> <span class="n">services</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">list</span><span class="p">,</span> <span class="nb">str</span><span class="p">],</span>
+                 <span class="n">token</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Union</span><span class="p">[</span><span class="n">PosixPath</span><span class="p">,</span> <span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_token_path</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">token</span><span class="p">)</span> <span class="k">if</span> <span class="n">token</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="kc">None</span>  <span class="c1"># can be None if requesting google cloud service</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_credential_path</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">credential</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_services</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_services</span><span class="p">(</span><span class="n">services</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_scopes</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_scopes</span><span class="p">()</span>
@@ -197,29 +210,35 @@
 <span class="sd">        :param credential: path to the credential json file.</span>
 <span class="sd">        :return: a Credential object</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="n">Path</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_token_path</span><span class="p">)</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
-            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_load_credential_from_file</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_credential_path</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_google_cloud</span><span class="p">:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_token_path</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;token is required for </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_services</span><span class="si">}</span><span class="s2">.&quot;</span><span class="p">)</span>
 
-        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_token_path</span><span class="p">,</span> <span class="s1">&#39;r&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
-            <span class="n">token_json</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">Path</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_token_path</span><span class="p">)</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
+                <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_load_credential_from_file</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_credential_path</span><span class="p">)</span>  <span class="c1"># pragma: no cover</span>
 
-        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_credential_path</span><span class="p">,</span> <span class="s1">&#39;r&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+            <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_token_path</span><span class="p">,</span> <span class="s1">&#39;r&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+                <span class="n">token_json</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
+
+            <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_credential_path</span><span class="p">,</span> <span class="s1">&#39;r&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+                <span class="k">try</span><span class="p">:</span>
+                    <span class="n">cred_json</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">f</span><span class="p">)[</span><span class="s2">&quot;installed&quot;</span><span class="p">]</span>
+                <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+                    <span class="k">raise</span> <span class="ne">KeyError</span><span class="p">(</span><span class="s2">&quot;&#39;installed&#39; does not exist in credential file. please check the format&quot;</span><span class="p">)</span>
+
             <span class="k">try</span><span class="p">:</span>
-                <span class="n">cred_json</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">f</span><span class="p">)[</span><span class="s2">&quot;installed&quot;</span><span class="p">]</span>
-            <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
-                <span class="k">raise</span> <span class="ne">KeyError</span><span class="p">(</span><span class="s2">&quot;&#39;installed&#39; does not exist in credential file. please check the format&quot;</span><span class="p">)</span>
-
-        <span class="k">try</span><span class="p">:</span>
-            <span class="n">credential</span> <span class="o">=</span> <span class="n">Credentials</span><span class="p">(</span><span class="n">token</span><span class="o">=</span><span class="n">token_json</span><span class="p">[</span><span class="s2">&quot;token&quot;</span><span class="p">],</span>
-                                     <span class="n">refresh_token</span><span class="o">=</span><span class="n">token_json</span><span class="p">[</span><span class="s2">&quot;refresh_token&quot;</span><span class="p">],</span>
-                                     <span class="n">token_uri</span><span class="o">=</span><span class="n">cred_json</span><span class="p">[</span><span class="s2">&quot;token_uri&quot;</span><span class="p">],</span>
-                                     <span class="n">client_id</span><span class="o">=</span><span class="n">cred_json</span><span class="p">[</span><span class="s2">&quot;client_id&quot;</span><span class="p">],</span>
-                                     <span class="n">client_secret</span><span class="o">=</span><span class="n">cred_json</span><span class="p">[</span><span class="s2">&quot;client_secret&quot;</span><span class="p">],</span>
-                                     <span class="n">scopes</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_scopes</span><span class="p">,</span>
-                                     <span class="p">)</span>
-        <span class="k">except</span> <span class="ne">KeyError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
-            <span class="n">logging</span><span class="o">.</span><span class="n">critical</span><span class="p">(</span><span class="s2">&quot;missing key value in credential or token file&quot;</span><span class="p">)</span>
-            <span class="k">raise</span> <span class="n">e</span>
+                <span class="n">credential</span> <span class="o">=</span> <span class="n">Credentials</span><span class="p">(</span><span class="n">token</span><span class="o">=</span><span class="n">token_json</span><span class="p">[</span><span class="s2">&quot;token&quot;</span><span class="p">],</span>
+                                         <span class="n">refresh_token</span><span class="o">=</span><span class="n">token_json</span><span class="p">[</span><span class="s2">&quot;refresh_token&quot;</span><span class="p">],</span>
+                                         <span class="n">token_uri</span><span class="o">=</span><span class="n">cred_json</span><span class="p">[</span><span class="s2">&quot;token_uri&quot;</span><span class="p">],</span>
+                                         <span class="n">client_id</span><span class="o">=</span><span class="n">cred_json</span><span class="p">[</span><span class="s2">&quot;client_id&quot;</span><span class="p">],</span>
+                                         <span class="n">client_secret</span><span class="o">=</span><span class="n">cred_json</span><span class="p">[</span><span class="s2">&quot;client_secret&quot;</span><span class="p">],</span>
+                                         <span class="n">scopes</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_scopes</span><span class="p">,</span>
+                                         <span class="p">)</span>
+            <span class="k">except</span> <span class="ne">KeyError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+                <span class="n">logging</span><span class="o">.</span><span class="n">critical</span><span class="p">(</span><span class="s2">&quot;missing key value in credential or token file&quot;</span><span class="p">)</span>
+                <span class="k">raise</span> <span class="n">e</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">credential</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">load_credentials_from_file</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_credential_path</span><span class="p">))</span>
 
         <span class="k">return</span> <span class="n">credential</span></div>
 
@@ -241,11 +260,14 @@
 
 <span class="sd">        :return: None</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_credential</span><span class="o">.</span><span class="n">valid</span><span class="p">:</span>
-            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_credential</span><span class="o">.</span><span class="n">expired</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">_credential</span><span class="o">.</span><span class="n">refresh_token</span><span class="p">:</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">_credential</span><span class="o">.</span><span class="n">refresh</span><span class="p">(</span><span class="n">Request</span><span class="p">())</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_google_cloud</span><span class="p">:</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_credential</span><span class="o">.</span><span class="n">valid</span><span class="p">:</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_credential</span><span class="o">.</span><span class="n">expired</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">_credential</span><span class="o">.</span><span class="n">refresh_token</span><span class="p">:</span>  <span class="c1"># pragma: no cover</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_credential</span><span class="o">.</span><span class="n">refresh</span><span class="p">(</span><span class="n">Request</span><span class="p">())</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">write_token</span><span class="p">()</span></div>
+            <span class="bp">self</span><span class="o">.</span><span class="n">write_token</span><span class="p">()</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">logging</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;Google cloud service do not require refresh of token.&quot;</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="Authentication.write_token"><a class="viewcode-back" href="../../auth.html#pysuite.auth.Authentication.write_token">[docs]</a>    <span class="k">def</span> <span class="nf">write_token</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="n">token_json</span> <span class="o">=</span> <span class="p">{</span>
@@ -275,7 +297,15 @@
         <span class="k">if</span> <span class="n">version</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">version</span> <span class="o">=</span> <span class="n">DEFAULT_VERSIONS</span><span class="p">[</span><span class="n">service</span><span class="p">]</span>
 
-        <span class="k">return</span> <span class="n">build</span><span class="p">(</span><span class="n">service</span><span class="p">,</span> <span class="n">version</span><span class="p">,</span> <span class="n">credentials</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_credential</span><span class="p">,</span> <span class="n">cache_discovery</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span></div>
+        <span class="k">if</span> <span class="n">service</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">CLOUD_SERVICES</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">build</span><span class="p">(</span><span class="n">service</span><span class="p">,</span> <span class="n">version</span><span class="p">,</span> <span class="n">credentials</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_credential</span><span class="p">,</span> <span class="n">cache_discovery</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">service</span> <span class="o">==</span> <span class="s2">&quot;vision&quot;</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">gv</span><span class="o">.</span><span class="n">ImageAnnotatorClient</span><span class="p">(</span><span class="n">credentials</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_credential</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">service</span> <span class="o">==</span> <span class="s2">&quot;storage&quot;</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">storage</span><span class="o">.</span><span class="n">Client</span><span class="p">(</span><span class="n">credentials</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_credential</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c1"># Won&#39;t reach here</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Invalid service: </span><span class="si">{</span><span class="n">service</span><span class="si">}</span><span class="s2">. This is an implementation error.&quot;</span><span class="p">)</span>  <span class="c1"># pragma: no cover</span></div>
 
     <span class="k">def</span> <span class="nf">_get_scopes</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">:</span>
         <span class="k">try</span><span class="p">:</span>
@@ -291,7 +321,17 @@
         <span class="k">if</span> <span class="ow">not</span> <span class="nb">set</span><span class="p">(</span><span class="n">services</span><span class="p">)</span><span class="o">.</span><span class="n">issubset</span><span class="p">(</span><span class="n">SCOPES</span><span class="o">.</span><span class="n">keys</span><span class="p">()):</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;invalid services. got </span><span class="si">{</span><span class="n">services</span><span class="si">}</span><span class="s2">, expecting </span><span class="si">{</span><span class="n">SCOPES</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 
-        <span class="k">return</span> <span class="n">services</span></div>
+        <span class="k">if</span> <span class="nb">set</span><span class="p">(</span><span class="n">services</span><span class="p">)</span><span class="o">.</span><span class="n">intersection</span><span class="p">(</span><span class="n">CLOUD_SERVICES</span><span class="p">):</span>
+            <span class="n">diff</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">services</span><span class="p">)</span><span class="o">.</span><span class="n">difference</span><span class="p">(</span><span class="n">CLOUD_SERVICES</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">diff</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Google cloud services </span><span class="si">{</span><span class="n">CLOUD_SERVICES</span><span class="si">}</span><span class="s2"> cannot be mixed with non cloud services. &quot;</span>
+                                 <span class="sa">f</span><span class="s2">&quot;Found </span><span class="si">{</span><span class="n">diff</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">services</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">is_google_cloud</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">set</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_services</span><span class="p">)</span><span class="o">.</span><span class="n">issubset</span><span class="p">(</span><span class="n">CLOUD_SERVICES</span><span class="p">)</span></div>
 </pre></div>
 
            </div>

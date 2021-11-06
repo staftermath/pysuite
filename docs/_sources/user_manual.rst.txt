@@ -198,7 +198,7 @@ Create a folder on google drive.
 Sheets
 ------
 This class provides APIs used to access and operate with Google spreadsheet files. Many `Sheets` methods has parameter
-:code:`range`. This needs to follow `A1 Notation <https://developers.google.com/sheets/api/guides/concepts#a1_notation`_.
+:code:`range`. This needs to follow `A1 Notation <https://developers.google.com/sheets/api/guides/concepts#a1_notation>`_.
 To instantiate Sheets class:
 
 .. code-block:: python
@@ -346,3 +346,193 @@ directly in the body as external links.
                   local_files=["/tmp/file.txt", "/tmp/another_file.csv"],
                   gdrive_ids=["gdrivefile_id1", "gdrive_file_id2"]
                   )
+
+Credential for Google Cloud
+---------------------------
+Pysuite also provides python apis for some Google Cloud services such as Google Vision. These class requires Google Cloud
+Service credential. It is a completely different credential from that for drive, gmail and sheets API. You can find
+the steps to obtain the credential file from `this page <https://cloud.google.com/vision/docs/before-you-begin>`_.
+
+
+Vision
+------
+This class provides python apis to access Google Vision api. You can get started to understand what Google Vision
+provides from this `quickstarts <https://cloud.google.com/vision/docs/quickstarts>`_. Currently please note that
+asynchronized apis are not supported. This will be supported in the future update.
+
+Authentication
+++++++++++++++
+You can authenticate the connection in the same way as drive, gmail or sheets. Since the vision service credential file
+is different from that for drive, gmail or sheets, you cannot authenticate them together. Additionally, `token` is not
+required for vision.
+
+.. code-block:: python
+
+    vision_auth = Authentication(credential=cloud_service_file, services="vision")
+
+Instantiate Vision Class
+++++++++++++++++++++++++
+Using the authenticated object, you can instantiate a vision class by:
+
+.. code-block:: python
+
+    vision = Vision(service=vision_auth.get_service_client())
+
+Service Types
++++++++++++++
+All vision annotation services provided by Google Vision API are supported. You can find some examples from the official
+document, such as `OCR <https://cloud.google.com/vision/docs/ocr>`_,
+`label detection <https://cloud.google.com/vision/docs/labels>`_ and more. Please see the following sections for examples
+of making various annotation requests. You can find the complete list of features from
+`google vision github <https://github.com/googleapis/python-vision/blob/main/google/cloud/vision_v1/types/image_annotator.py#L105-L119>`_.
+For example, "TEXT_DETECTION" is listed as one of the service, hence you can pass a string of `"TEXT_DETECTION"` or
+`["TEXT_DETECTION"]` to `methods` to request a test detection annotation. This is case insensitive.
+
+Annotate One Image
+++++++++++++++++++
+If you want to annotate just one image, you can utilize `annotate_image` method:
+
+.. code-block:: python
+
+    result = vision.annotate_image(test_image, methods=["text_detection"])
+
+Here `test_image` is the path to the image file to be annotated. You can pass a single string or a list of strings to
+`methods`. They will be allowed vision services. The returned object is an `AnnotateImageResponse` object containing
+very granular information on the results.
+
+Batch Annotations
++++++++++++++++++
+If you have a few images, you can utlize `add_request` and `batch_annotate_image` methods to annotate them in one api
+call:
+
+.. code-block:: python
+
+    vision.add_request(image_path=first_test_image, methods="text_detection")
+    vision.add_request(image_path=second_test_image, methods=["text_detection", "label_detection"])
+    result = vision.batch_annotate_image()
+
+Convert To Json
++++++++++++++++
+The results from API calls are `AnnotateImageResponse` objects. While they have many convenient methods to help operate
+on them, they are not directly serializable. You can use `to_json` method to store these objects to serializable object:
+
+.. code-block:: python
+
+    json_result = Vision.to_json(result)
+
+Async Annotation
+++++++++++++++++
+You can use `add_request` to add images on Google Cloud Storage and annotate them asynchronously.
+
+.. code-block:: python
+
+    gcs_test_image = "gc://my-bucket/path/to/my/image.jpg"
+    # Add multiple requests
+    vision.add_request(image_path=gcs_test_image, methods="text_detection")
+    vision.add_request(image_path=gcs_test_image, methods=["text_detection", "label_detection"])
+
+    # Trigger async annotation
+    output_path = "gc://my-bucket/path/to/output/
+    operator = vision.async_annotate_image(output_gcs_uri=output_path, batch_size=2)
+
+    # Wait until it finishes.
+    timeout = 90 # max time out seconds
+    response = operator.result(timeout)
+
+    # Download to local using Storage client if needed.
+    output_dir = "/my/local/dir"
+    storage.download(response.output_config.gcs_destination.uri, to_object=output_dir))
+
+Please note that currently async annotation only support input and output on GCS.
+
+Storage
+-------
+This class provides python apis to work with Google Cloud Storage. It provides intuitive methods to move files and
+folders between local environment and Google Cloud Storage. This class uses Google Cloud Service authentication. For
+details and instructions on Google Cloud Storage, please view
+`their doc web site <https://cloud.google.com/storage/docs>`_.
+
+Authentication
+++++++++++++++
+Google storage service credential file is similar to Google Vision credentials. You cannot authenticate it with Google
+Suite classes (drive, gmail and sheets).
+
+.. code-block:: python
+
+    storage_auth = Authentication(credential=cloud_service_file, services="storage")
+
+Instantiate Storage Class
++++++++++++++++++++++++++
+Using the authenticated object, you can instantiate a storage class by:
+
+.. code-block:: python
+
+    storage = Storage(service=storage_auth.get_service_client())
+
+Upload, Download, Move and Remove Files
++++++++++++++++++++++++++++++++++++++++
+You can upload a single file:
+
+.. code-block:: python
+
+    result = storage.upload(from_object="/home/user/my_local_file.txt",
+                            to_object="gs://my_bucket/my/path/to/target_file.txt")
+
+You can also upload a folder. This will recursively upload every file in the folder
+
+.. code-block:: python
+
+    result = storage.upload(from_object="/home/user/my_local_folder",
+                            to_object="gs://my_bucket/my/path/to/target_folder")
+
+Note that this method persists the structure of source folder. In the above example, if the source folder structure is:
+
+.. code-block::
+
+   /home/user/my_local_folder
+    |_ a.txt
+    |_ subfolder
+        |_ b.txt
+        |_ c.txt
+
+Then the uploaded structure would be:
+
+.. code-block::
+
+   gs://my_bucket/my/path/to/target_folder
+    |_ a.txt
+    |_ subfolder
+        |_ b.txt
+        |_ c.txt
+
+You can download file or folder from Google Cloud. Similarly, if the source object is a folder, that this method
+persists the structure of source folder.
+
+.. code-block:: python
+
+    result = storage.download(from_object="gs://my_bucket/my/path/to/target_folder",
+                              to_object="/home/user/my_local_folder")
+
+To copy files or folders from one Google Storage location to another:
+
+.. code-block:: python
+
+    result = storage.copy(from_object="gs://my_bucket/my/path/to/source_folder",
+                          to_object="gs://my_bucket/my/path/to/destination_folder")
+
+
+To remove files or folders on Google Cloud:
+
+.. code-block:: python
+
+    storage.remove(target_object="gs://my_bucket/my/path/to/target_folder")
+
+Create, Remove and Get Bucket
++++++++++++++++++++++++++++++
+
+.. code-block:: python
+
+    storage.create_bucket(bucket_name="my_bucket")
+    bucket = storage.get_bucket(bucket_name="my_bucket")
+    storage.remove_bucket(bucket_name="my_bucket")
+
