@@ -1,0 +1,370 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Storage &mdash; pysuite 0.4.0 documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+
+  
+  
+  
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/doctools.js"></script>
+        <script src="_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="utilities" href="utilities.html" />
+    <link rel="prev" title="Vision" href="vision.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="index.html" class="icon icon-home" alt="Documentation Home"> pysuite
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="user_manual.html">User Manual</a></li>
+<li class="toctree-l1"><a class="reference internal" href="auth.html">Auth</a></li>
+<li class="toctree-l1"><a class="reference internal" href="drive.html">Drive</a></li>
+<li class="toctree-l1"><a class="reference internal" href="sheets.html">Sheets</a></li>
+<li class="toctree-l1"><a class="reference internal" href="gmail.html">GMail</a></li>
+<li class="toctree-l1"><a class="reference internal" href="vision.html">Vision</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Storage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="utilities.html">utilities</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">pysuite</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
+        
+      <li>Storage</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="_sources/storage.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="storage">
+<span id="id1"></span><h1>Storage<a class="headerlink" href="#storage" title="Permalink to this headline">¶</a></h1>
+<span class="target" id="module-pysuite.storage"></span><p>Implement api to access google storage API</p>
+<dl class="py class">
+<dt id="pysuite.storage.Storage">
+<em class="property">class </em><code class="sig-prename descclassname">pysuite.storage.</code><code class="sig-name descname">Storage</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">service</span><span class="p">:</span> <span class="n">google.cloud.storage.client.Client</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pysuite/storage.html#Storage"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pysuite.storage.Storage" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Class to interact with Google Storage API.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>service</strong> – an authorized Google Storage service client.</p>
+</dd>
+</dl>
+<dl class="py method">
+<dt id="pysuite.storage.Storage.copy">
+<code class="sig-name descname">copy</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">from_object</span><span class="p">:</span> <span class="n">str</span></em>, <em class="sig-param"><span class="n">to_object</span><span class="p">:</span> <span class="n">str</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pysuite/storage.html#Storage.copy"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pysuite.storage.Storage.copy" title="Permalink to this definition">¶</a></dt>
+<dd><p>Copy Google storage file or folder from one location to another. If <cite>from_object</cite> is a folder, this will
+copy it recursively.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>from_object</strong> – Source Google storage file or folder. This is a string that looks like “gs://xxxx”</p></li>
+<li><p><strong>to_object</strong> – Destination Google storage file or folder. This is a string that looks like “gs://xxxx”</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>None</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pysuite.storage.Storage.create_bucket">
+<code class="sig-name descname">create_bucket</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">bucket_name</span><span class="p">:</span> <span class="n">str</span></em><span class="sig-paren">)</span> &#x2192; google.cloud.storage.bucket.Bucket<a class="reference internal" href="_modules/pysuite/storage.html#Storage.create_bucket"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pysuite.storage.Storage.create_bucket" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create a bucket in Google Storage.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>bucket_name</strong> – The name of the Google storage bucket.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>None</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pysuite.storage.Storage.download">
+<code class="sig-name descname">download</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">from_object</span><span class="p">:</span> <span class="n">str</span></em>, <em class="sig-param"><span class="n">to_object</span><span class="p">:</span> <span class="n">Union<span class="p">[</span>str<span class="p">, </span>pathlib.PosixPath<span class="p">]</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pysuite/storage.html#Storage.download"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pysuite.storage.Storage.download" title="Permalink to this definition">¶</a></dt>
+<dd><p>Download target Google storage file or folder to local. If <cite>from_object</cite> is a folder, this method will
+download it recursively.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>from_object</strong> – Target Google storage path to be downloaded. This is a string that looks like “gs://xxxx”</p></li>
+<li><p><strong>to_object</strong> – Path to the local file or folder. If <cite>from_object</cite> is a file, this will be a file. If
+<cite>from_object</cite> is a folder, this will be a folder.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>None</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pysuite.storage.Storage.get_bucket">
+<code class="sig-name descname">get_bucket</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">bucket_name</span><span class="p">:</span> <span class="n">str</span></em><span class="sig-paren">)</span> &#x2192; google.cloud.storage.bucket.Bucket<a class="reference internal" href="_modules/pysuite/storage.html#Storage.get_bucket"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pysuite.storage.Storage.get_bucket" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get a Bucket object for the target Google storage bucket.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>bucket_name</strong> – The name of the target bucket.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>A Bucket object for the target bucket.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pysuite.storage.Storage.list">
+<code class="sig-name descname">list</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">target_object</span><span class="p">:</span> <span class="n">str</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pysuite/storage.html#Storage.list"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pysuite.storage.Storage.list" title="Permalink to this definition">¶</a></dt>
+<dd><p>Search Google storage target location and return an iterator. This iterator generates all files under the
+target location. If the target is a single file, the iterator only one object.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>target_object</strong> – Target Google storage location. This could be a file or a folder. This is a string that
+looks like “gs://xxxxx”</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>An iterator that iterates over the target location. Each item is a Blob object.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pysuite.storage.Storage.remove">
+<code class="sig-name descname">remove</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">target_object</span><span class="p">:</span> <span class="n">str</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pysuite/storage.html#Storage.remove"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pysuite.storage.Storage.remove" title="Permalink to this definition">¶</a></dt>
+<dd><p>Remove target Google storage file or folder. If <cite>target_object</cite> is a folder, this will remove it recursively.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>target_object</strong> – Target Google storage file or folder. This is a string that looks like “gs://xxxx”</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>None</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pysuite.storage.Storage.remove_bucket">
+<code class="sig-name descname">remove_bucket</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">bucket_name</span><span class="p">:</span> <span class="n">str</span></em>, <em class="sig-param"><span class="n">force</span><span class="p">:</span> <span class="n">bool</span> <span class="o">=</span> <span class="default_value">False</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pysuite/storage.html#Storage.remove_bucket"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pysuite.storage.Storage.remove_bucket" title="Permalink to this definition">¶</a></dt>
+<dd><p>Remove the target bucket.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>bucket_name</strong> – Target bucket name.</p></li>
+<li><p><strong>force</strong> – Whether force remove the target bucket. If True, even if the bucket is not empty, it will be
+removed. Default is False.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pysuite.storage.Storage.upload">
+<code class="sig-name descname">upload</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">from_object</span><span class="p">:</span> <span class="n">Union<span class="p">[</span>str<span class="p">, </span>pathlib.PosixPath<span class="p">]</span></span></em>, <em class="sig-param"><span class="n">to_object</span><span class="p">:</span> <span class="n">str</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pysuite/storage.html#Storage.upload"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pysuite.storage.Storage.upload" title="Permalink to this definition">¶</a></dt>
+<dd><p>Upload a file or a folder to google storage. If <cite>from_object</cite> is a folder, this method will
+upload it recursively.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>from_object</strong> – Path to the local file or folder to be uploaded.</p></li>
+<li><p><strong>to_object</strong> – Target Google storage object location. If <cite>from_object</cite> is a file, this will be a file. If
+<cite>from_object</cite> is a folder, this will be a folder. This is a string that looks like “gs://xxxxx”</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>None</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt id="pysuite.storage.is_gcs_uri">
+<code class="sig-prename descclassname">pysuite.storage.</code><code class="sig-name descname">is_gcs_uri</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">target_uri</span><span class="p">:</span> <span class="n">str</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pysuite/storage.html#is_gcs_uri"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pysuite.storage.is_gcs_uri" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="utilities.html" class="btn btn-neutral float-right" title="utilities" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="vision.html" class="btn btn-neutral float-left" title="Vision" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        
+        &copy; Copyright 2020, Weiwen Gu
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

@@ -7,7 +7,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>User Manual &mdash; pysuite 0.3.1 documentation</title>
+  <title>User Manual &mdash; pysuite 0.4.0 documentation</title>
   
 
   
@@ -117,12 +117,32 @@
 <li class="toctree-l3"><a class="reference internal" href="#compose">compose</a></li>
 </ul>
 </li>
+<li class="toctree-l2"><a class="reference internal" href="#credential-for-google-cloud">Credential for Google Cloud</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#vision">Vision</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#id5">Authentication</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#instantiate-vision-class">Instantiate Vision Class</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#service-types">Service Types</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#annotate-one-image">Annotate One Image</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#batch-annotations">Batch Annotations</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#convert-to-json">Convert To Json</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#async-annotation">Async Annotation</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#storage">Storage</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#id6">Authentication</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#instantiate-storage-class">Instantiate Storage Class</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#upload-download-move-and-remove-files">Upload, Download, Move and Remove Files</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#create-remove-and-get-bucket">Create, Remove and Get Bucket</a></li>
+</ul>
+</li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="auth.html">Auth</a></li>
 <li class="toctree-l1"><a class="reference internal" href="drive.html">Drive</a></li>
 <li class="toctree-l1"><a class="reference internal" href="sheets.html">Sheets</a></li>
 <li class="toctree-l1"><a class="reference internal" href="gmail.html">GMail</a></li>
+<li class="toctree-l1"><a class="reference internal" href="vision.html">Vision</a></li>
+<li class="toctree-l1"><a class="reference internal" href="storage.html">Storage</a></li>
 <li class="toctree-l1"><a class="reference internal" href="utilities.html">utilities</a></li>
 </ul>
 
@@ -359,7 +379,7 @@ to a maximum depth. This may save some time if you do not intend to search deepl
 <div class="section" id="sheets">
 <h2>Sheets<a class="headerlink" href="#sheets" title="Permalink to this headline">¶</a></h2>
 <p>This class provides APIs used to access and operate with Google spreadsheet files. Many <cite>Sheets</cite> methods has parameter
-<code class="code docutils literal notranslate"><span class="pre">range</span></code>. This needs to follow <a href="#id5"><span class="problematic" id="id6">`A1 Notation &lt;https://developers.google.com/sheets/api/guides/concepts#a1_notation`_</span></a>.
+<code class="code docutils literal notranslate"><span class="pre">range</span></code>. This needs to follow <a class="reference external" href="https://developers.google.com/sheets/api/guides/concepts#a1_notation">A1 Notation</a>.
 To instantiate Sheets class:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">pysuite</span> <span class="kn">import</span> <span class="n">Sheets</span>
 <span class="c1"># sheets_auth is an Authentication object with &#39;sheets&#39; type of service authorized</span>
@@ -483,6 +503,169 @@ directly in the body as external links.</p>
               <span class="n">local_files</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;/tmp/file.txt&quot;</span><span class="p">,</span> <span class="s2">&quot;/tmp/another_file.csv&quot;</span><span class="p">],</span>
               <span class="n">gdrive_ids</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;gdrivefile_id1&quot;</span><span class="p">,</span> <span class="s2">&quot;gdrive_file_id2&quot;</span><span class="p">]</span>
               <span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="section" id="credential-for-google-cloud">
+<h2>Credential for Google Cloud<a class="headerlink" href="#credential-for-google-cloud" title="Permalink to this headline">¶</a></h2>
+<p>Pysuite also provides python apis for some Google Cloud services such as Google Vision. These class requires Google Cloud
+Service credential. It is a completely different credential from that for drive, gmail and sheets API. You can find
+the steps to obtain the credential file from <a class="reference external" href="https://cloud.google.com/vision/docs/before-you-begin">this page</a>.</p>
+</div>
+<div class="section" id="vision">
+<h2>Vision<a class="headerlink" href="#vision" title="Permalink to this headline">¶</a></h2>
+<p>This class provides python apis to access Google Vision api. You can get started to understand what Google Vision
+provides from this <a class="reference external" href="https://cloud.google.com/vision/docs/quickstarts">quickstarts</a>. Currently please note that
+asynchronized apis are not supported. This will be supported in the future update.</p>
+<div class="section" id="id5">
+<h3>Authentication<a class="headerlink" href="#id5" title="Permalink to this headline">¶</a></h3>
+<p>You can authenticate the connection in the same way as drive, gmail or sheets. Since the vision service credential file
+is different from that for drive, gmail or sheets, you cannot authenticate them together. Additionally, <cite>token</cite> is not
+required for vision.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">vision_auth</span> <span class="o">=</span> <span class="n">Authentication</span><span class="p">(</span><span class="n">credential</span><span class="o">=</span><span class="n">cloud_service_file</span><span class="p">,</span> <span class="n">services</span><span class="o">=</span><span class="s2">&quot;vision&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="instantiate-vision-class">
+<h3>Instantiate Vision Class<a class="headerlink" href="#instantiate-vision-class" title="Permalink to this headline">¶</a></h3>
+<p>Using the authenticated object, you can instantiate a vision class by:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">vision</span> <span class="o">=</span> <span class="n">Vision</span><span class="p">(</span><span class="n">service</span><span class="o">=</span><span class="n">vision_auth</span><span class="o">.</span><span class="n">get_service_client</span><span class="p">())</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="service-types">
+<h3>Service Types<a class="headerlink" href="#service-types" title="Permalink to this headline">¶</a></h3>
+<p>All vision annotation services provided by Google Vision API are supported. You can find some examples from the official
+document, such as <a class="reference external" href="https://cloud.google.com/vision/docs/ocr">OCR</a>,
+<a class="reference external" href="https://cloud.google.com/vision/docs/labels">label detection</a> and more. Please see the following sections for examples
+of making various annotation requests. You can find the complete list of features from
+<a class="reference external" href="https://github.com/googleapis/python-vision/blob/main/google/cloud/vision_v1/types/image_annotator.py#L105-L119">google vision github</a>.
+For example, “TEXT_DETECTION” is listed as one of the service, hence you can pass a string of <cite>“TEXT_DETECTION”</cite> or
+<cite>[“TEXT_DETECTION”]</cite> to <cite>methods</cite> to request a test detection annotation. This is case insensitive.</p>
+</div>
+<div class="section" id="annotate-one-image">
+<h3>Annotate One Image<a class="headerlink" href="#annotate-one-image" title="Permalink to this headline">¶</a></h3>
+<p>If you want to annotate just one image, you can utilize <cite>annotate_image</cite> method:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">result</span> <span class="o">=</span> <span class="n">vision</span><span class="o">.</span><span class="n">annotate_image</span><span class="p">(</span><span class="n">test_image</span><span class="p">,</span> <span class="n">methods</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;text_detection&quot;</span><span class="p">])</span>
+</pre></div>
+</div>
+<p>Here <cite>test_image</cite> is the path to the image file to be annotated. You can pass a single string or a list of strings to
+<cite>methods</cite>. They will be allowed vision services. The returned object is an <cite>AnnotateImageResponse</cite> object containing
+very granular information on the results.</p>
+</div>
+<div class="section" id="batch-annotations">
+<h3>Batch Annotations<a class="headerlink" href="#batch-annotations" title="Permalink to this headline">¶</a></h3>
+<p>If you have a few images, you can utlize <cite>add_request</cite> and <cite>batch_annotate_image</cite> methods to annotate them in one api
+call:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">vision</span><span class="o">.</span><span class="n">add_request</span><span class="p">(</span><span class="n">image_path</span><span class="o">=</span><span class="n">first_test_image</span><span class="p">,</span> <span class="n">methods</span><span class="o">=</span><span class="s2">&quot;text_detection&quot;</span><span class="p">)</span>
+<span class="n">vision</span><span class="o">.</span><span class="n">add_request</span><span class="p">(</span><span class="n">image_path</span><span class="o">=</span><span class="n">second_test_image</span><span class="p">,</span> <span class="n">methods</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;text_detection&quot;</span><span class="p">,</span> <span class="s2">&quot;label_detection&quot;</span><span class="p">])</span>
+<span class="n">result</span> <span class="o">=</span> <span class="n">vision</span><span class="o">.</span><span class="n">batch_annotate_image</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="convert-to-json">
+<h3>Convert To Json<a class="headerlink" href="#convert-to-json" title="Permalink to this headline">¶</a></h3>
+<p>The results from API calls are <cite>AnnotateImageResponse</cite> objects. While they have many convenient methods to help operate
+on them, they are not directly serializable. You can use <cite>to_json</cite> method to store these objects to serializable object:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">json_result</span> <span class="o">=</span> <span class="n">Vision</span><span class="o">.</span><span class="n">to_json</span><span class="p">(</span><span class="n">result</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="async-annotation">
+<h3>Async Annotation<a class="headerlink" href="#async-annotation" title="Permalink to this headline">¶</a></h3>
+<p>You can use <cite>add_request</cite> to add images on Google Cloud Storage and annotate them asynchronously.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">gcs_test_image</span> <span class="o">=</span> <span class="s2">&quot;gc://my-bucket/path/to/my/image.jpg&quot;</span>
+<span class="c1"># Add multiple requests</span>
+<span class="n">vision</span><span class="o">.</span><span class="n">add_request</span><span class="p">(</span><span class="n">image_path</span><span class="o">=</span><span class="n">gcs_test_image</span><span class="p">,</span> <span class="n">methods</span><span class="o">=</span><span class="s2">&quot;text_detection&quot;</span><span class="p">)</span>
+<span class="n">vision</span><span class="o">.</span><span class="n">add_request</span><span class="p">(</span><span class="n">image_path</span><span class="o">=</span><span class="n">gcs_test_image</span><span class="p">,</span> <span class="n">methods</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;text_detection&quot;</span><span class="p">,</span> <span class="s2">&quot;label_detection&quot;</span><span class="p">])</span>
+
+<span class="c1"># Trigger async annotation</span>
+<span class="n">output_path</span> <span class="o">=</span> <span class="s2">&quot;gc://my-bucket/path/to/output/</span>
+<span class="n">operator</span> <span class="o">=</span> <span class="n">vision</span><span class="o">.</span><span class="n">async_annotate_image</span><span class="p">(</span><span class="n">output_gcs_uri</span><span class="o">=</span><span class="n">output_path</span><span class="p">,</span> <span class="n">batch_size</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+
+<span class="c1"># Wait until it finishes.</span>
+<span class="n">timeout</span> <span class="o">=</span> <span class="mi">90</span> <span class="c1"># max time out seconds</span>
+<span class="n">response</span> <span class="o">=</span> <span class="n">operator</span><span class="o">.</span><span class="n">result</span><span class="p">(</span><span class="n">timeout</span><span class="p">)</span>
+
+<span class="c1"># Download to local using Storage client if needed.</span>
+<span class="n">output_dir</span> <span class="o">=</span> <span class="s2">&quot;/my/local/dir&quot;</span>
+<span class="n">storage</span><span class="o">.</span><span class="n">download</span><span class="p">(</span><span class="n">response</span><span class="o">.</span><span class="n">output_config</span><span class="o">.</span><span class="n">gcs_destination</span><span class="o">.</span><span class="n">uri</span><span class="p">,</span> <span class="n">to_object</span><span class="o">=</span><span class="n">output_dir</span><span class="p">))</span>
+</pre></div>
+</div>
+<p>Please note that currently async annotation only support input and output on GCS.</p>
+</div>
+</div>
+<div class="section" id="storage">
+<h2>Storage<a class="headerlink" href="#storage" title="Permalink to this headline">¶</a></h2>
+<p>This class provides python apis to work with Google Cloud Storage. It provides intuitive methods to move files and
+folders between local environment and Google Cloud Storage. This class uses Google Cloud Service authentication. For
+details and instructions on Google Cloud Storage, please view
+<a class="reference external" href="https://cloud.google.com/storage/docs">their doc web site</a>.</p>
+<div class="section" id="id6">
+<h3>Authentication<a class="headerlink" href="#id6" title="Permalink to this headline">¶</a></h3>
+<p>Google storage service credential file is similar to Google Vision credentials. You cannot authenticate it with Google
+Suite classes (drive, gmail and sheets).</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">storage_auth</span> <span class="o">=</span> <span class="n">Authentication</span><span class="p">(</span><span class="n">credential</span><span class="o">=</span><span class="n">cloud_service_file</span><span class="p">,</span> <span class="n">services</span><span class="o">=</span><span class="s2">&quot;storage&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="instantiate-storage-class">
+<h3>Instantiate Storage Class<a class="headerlink" href="#instantiate-storage-class" title="Permalink to this headline">¶</a></h3>
+<p>Using the authenticated object, you can instantiate a storage class by:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">storage</span> <span class="o">=</span> <span class="n">Storage</span><span class="p">(</span><span class="n">service</span><span class="o">=</span><span class="n">storage_auth</span><span class="o">.</span><span class="n">get_service_client</span><span class="p">())</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="upload-download-move-and-remove-files">
+<h3>Upload, Download, Move and Remove Files<a class="headerlink" href="#upload-download-move-and-remove-files" title="Permalink to this headline">¶</a></h3>
+<p>You can upload a single file:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">result</span> <span class="o">=</span> <span class="n">storage</span><span class="o">.</span><span class="n">upload</span><span class="p">(</span><span class="n">from_object</span><span class="o">=</span><span class="s2">&quot;/home/user/my_local_file.txt&quot;</span><span class="p">,</span>
+                        <span class="n">to_object</span><span class="o">=</span><span class="s2">&quot;gs://my_bucket/my/path/to/target_file.txt&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>You can also upload a folder. This will recursively upload every file in the folder</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">result</span> <span class="o">=</span> <span class="n">storage</span><span class="o">.</span><span class="n">upload</span><span class="p">(</span><span class="n">from_object</span><span class="o">=</span><span class="s2">&quot;/home/user/my_local_folder&quot;</span><span class="p">,</span>
+                        <span class="n">to_object</span><span class="o">=</span><span class="s2">&quot;gs://my_bucket/my/path/to/target_folder&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Note that this method persists the structure of source folder. In the above example, if the source folder structure is:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">/</span><span class="n">home</span><span class="o">/</span><span class="n">user</span><span class="o">/</span><span class="n">my_local_folder</span>
+ <span class="o">|</span><span class="n">_</span> <span class="n">a</span><span class="o">.</span><span class="n">txt</span>
+ <span class="o">|</span><span class="n">_</span> <span class="n">subfolder</span>
+     <span class="o">|</span><span class="n">_</span> <span class="n">b</span><span class="o">.</span><span class="n">txt</span>
+     <span class="o">|</span><span class="n">_</span> <span class="n">c</span><span class="o">.</span><span class="n">txt</span>
+</pre></div>
+</div>
+<p>Then the uploaded structure would be:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">gs</span><span class="p">:</span><span class="o">//</span><span class="n">my_bucket</span><span class="o">/</span><span class="n">my</span><span class="o">/</span><span class="n">path</span><span class="o">/</span><span class="n">to</span><span class="o">/</span><span class="n">target_folder</span>
+ <span class="o">|</span><span class="n">_</span> <span class="n">a</span><span class="o">.</span><span class="n">txt</span>
+ <span class="o">|</span><span class="n">_</span> <span class="n">subfolder</span>
+     <span class="o">|</span><span class="n">_</span> <span class="n">b</span><span class="o">.</span><span class="n">txt</span>
+     <span class="o">|</span><span class="n">_</span> <span class="n">c</span><span class="o">.</span><span class="n">txt</span>
+</pre></div>
+</div>
+<p>You can download file or folder from Google Cloud. Similarly, if the source object is a folder, that this method
+persists the structure of source folder.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">result</span> <span class="o">=</span> <span class="n">storage</span><span class="o">.</span><span class="n">download</span><span class="p">(</span><span class="n">from_object</span><span class="o">=</span><span class="s2">&quot;gs://my_bucket/my/path/to/target_folder&quot;</span><span class="p">,</span>
+                          <span class="n">to_object</span><span class="o">=</span><span class="s2">&quot;/home/user/my_local_folder&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>To copy files or folders from one Google Storage location to another:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">result</span> <span class="o">=</span> <span class="n">storage</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">from_object</span><span class="o">=</span><span class="s2">&quot;gs://my_bucket/my/path/to/source_folder&quot;</span><span class="p">,</span>
+                      <span class="n">to_object</span><span class="o">=</span><span class="s2">&quot;gs://my_bucket/my/path/to/destination_folder&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>To remove files or folders on Google Cloud:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">storage</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">target_object</span><span class="o">=</span><span class="s2">&quot;gs://my_bucket/my/path/to/target_folder&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="create-remove-and-get-bucket">
+<h3>Create, Remove and Get Bucket<a class="headerlink" href="#create-remove-and-get-bucket" title="Permalink to this headline">¶</a></h3>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">storage</span><span class="o">.</span><span class="n">create_bucket</span><span class="p">(</span><span class="n">bucket_name</span><span class="o">=</span><span class="s2">&quot;my_bucket&quot;</span><span class="p">)</span>
+<span class="n">bucket</span> <span class="o">=</span> <span class="n">storage</span><span class="o">.</span><span class="n">get_bucket</span><span class="p">(</span><span class="n">bucket_name</span><span class="o">=</span><span class="s2">&quot;my_bucket&quot;</span><span class="p">)</span>
+<span class="n">storage</span><span class="o">.</span><span class="n">remove_bucket</span><span class="p">(</span><span class="n">bucket_name</span><span class="o">=</span><span class="s2">&quot;my_bucket&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>

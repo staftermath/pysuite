@@ -1,0 +1,365 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>pysuite.vision &mdash; pysuite 0.4.0 documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+
+  
+  
+  
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+        <script src="../../_static/jquery.js"></script>
+        <script src="../../_static/underscore.js"></script>
+        <script src="../../_static/doctools.js"></script>
+        <script src="../../_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="../../_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../../index.html" class="icon icon-home" alt="Documentation Home"> pysuite
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../user_manual.html">User Manual</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../auth.html">Auth</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../drive.html">Drive</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../sheets.html">Sheets</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../gmail.html">GMail</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../vision.html">Vision</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../storage.html">Storage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../utilities.html">utilities</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">pysuite</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../index.html" class="icon icon-home"></a> &raquo;</li>
+        
+          <li><a href="../index.html">Module code</a> &raquo;</li>
+        
+      <li>pysuite.vision</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for pysuite.vision</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;Implement api to access google vision API</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="kn">import</span> <span class="nn">logging</span>
+<span class="kn">import</span> <span class="nn">json</span>
+<span class="kn">from</span> <span class="nn">pathlib</span> <span class="kn">import</span> <span class="n">PosixPath</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Union</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">List</span>
+<span class="kn">import</span> <span class="nn">warnings</span>
+
+<span class="kn">from</span> <span class="nn">google.cloud</span> <span class="kn">import</span> <span class="n">vision</span> <span class="k">as</span> <span class="n">gv</span>
+<span class="kn">from</span> <span class="nn">google.cloud.vision_v1.types</span> <span class="kn">import</span> <span class="n">AnnotateImageResponse</span>
+<span class="kn">from</span> <span class="nn">google.cloud.vision_v1.types.image_annotator</span> <span class="kn">import</span> <span class="n">BatchAnnotateImagesResponse</span>
+<span class="kn">from</span> <span class="nn">google.cloud.vision_v1</span> <span class="kn">import</span> <span class="n">types</span><span class="p">,</span> <span class="n">ImageAnnotatorClient</span>
+<span class="kn">from</span> <span class="nn">google.api_core.operation</span> <span class="kn">import</span> <span class="n">Operation</span>
+
+<span class="kn">from</span> <span class="nn">pysuite.storage</span> <span class="kn">import</span> <span class="n">is_gcs_uri</span>
+
+
+<div class="viewcode-block" id="Vision"><a class="viewcode-back" href="../../vision.html#pysuite.vision.Vision">[docs]</a><span class="k">class</span> <span class="nc">Vision</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;Class to interact with Google Vision API.</span>
+
+<span class="sd">    :param service: an authorized Google Vision service client.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">service</span><span class="p">:</span> <span class="n">ImageAnnotatorClient</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_service</span> <span class="o">=</span> <span class="n">service</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_requests</span> <span class="o">=</span> <span class="p">[]</span>
+
+<div class="viewcode-block" id="Vision.load_image"><a class="viewcode-back" href="../../vision.html#pysuite.vision.Vision.load_image">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">load_image</span><span class="p">(</span><span class="n">image_path</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">PosixPath</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">gv</span><span class="o">.</span><span class="n">Image</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Load a local image as Image class that can be used to submit image annotation requests.</span>
+
+<span class="sd">        :param image_path: Path to the image file.</span>
+<span class="sd">        :return: Loaded Image object from the target file</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">image_path</span><span class="p">,</span> <span class="s2">&quot;rb&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+            <span class="n">image</span> <span class="o">=</span> <span class="n">gv</span><span class="o">.</span><span class="n">Image</span><span class="p">(</span><span class="n">content</span><span class="o">=</span><span class="n">f</span><span class="o">.</span><span class="n">read</span><span class="p">())</span>
+            <span class="k">return</span> <span class="n">image</span></div>
+
+<div class="viewcode-block" id="Vision.add_request"><a class="viewcode-back" href="../../vision.html#pysuite.vision.Vision.add_request">[docs]</a>    <span class="k">def</span> <span class="nf">add_request</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">image_path</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">PosixPath</span><span class="p">],</span> <span class="n">methods</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="nb">str</span><span class="p">]):</span>
+        <span class="sd">&quot;&quot;&quot;Add a request to annotate a local or GCS image. Multiple annotation methods can be added at the same time.</span>
+<span class="sd">        The request will not be immediately submitted. This method is useful for `batch_annotate_image` and</span>
+<span class="sd">        `async_annotate_image`.</span>
+
+<span class="sd">        :example:</span>
+
+<span class="sd">        &gt;&gt;&gt; vision.add_request(&quot;/my/image.png&quot;, methods=[&quot;LABEL_DETECTION&quot;, &quot;test_detection&quot;])</span>
+
+<span class="sd">        :example:</span>
+
+<span class="sd">        &gt;&gt;&gt; vision.add_request(&quot;gs://my_gcs_bucket/image/path.jpg&quot;, methods=[&quot;LABEL_DETECTION&quot;, &quot;test_detection&quot;])</span>
+
+<span class="sd">        :param image_path: Local or GCS path to the image file.</span>
+<span class="sd">        :param methods: A list of strings representing supported annotation methods. Please view</span>
+<span class="sd">          google.cloud.vision_v1.types.Feature.Type for all supported methods. They are case-insensitive.</span>
+<span class="sd">        :return: None</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">request</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_create_request</span><span class="p">(</span><span class="n">image_path</span><span class="p">,</span> <span class="n">methods</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_requests</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">request</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Vision.annotate_image"><a class="viewcode-back" href="../../vision.html#pysuite.vision.Vision.annotate_image">[docs]</a>    <span class="k">def</span> <span class="nf">annotate_image</span><span class="p">(</span>
+            <span class="bp">self</span><span class="p">,</span> <span class="n">image_path</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">PosixPath</span><span class="p">],</span> <span class="n">methods</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="nb">str</span><span class="p">]</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">AnnotateImageResponse</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Submit a request to annotate a local image using specified methods.</span>
+
+<span class="sd">        :param image_path: Path to the image file.</span>
+<span class="sd">        :param methods: A list of strings representing supported annotation methods. Please view</span>
+<span class="sd">          google.cloud.vision_v1.types.Feature.Type for all supported methods. They are case-insensitive.</span>
+<span class="sd">        :return: An AnnotateImageResponse object with annotated content.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">request</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_create_request</span><span class="p">(</span><span class="n">image_path</span><span class="p">,</span> <span class="n">methods</span><span class="p">)</span>
+
+        <span class="n">response</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_service</span><span class="o">.</span><span class="n">annotate_image</span><span class="p">(</span><span class="n">request</span><span class="o">=</span><span class="n">request</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">response</span></div>
+
+<div class="viewcode-block" id="Vision.batch_annotate_image"><a class="viewcode-back" href="../../vision.html#pysuite.vision.Vision.batch_annotate_image">[docs]</a>    <span class="k">def</span> <span class="nf">batch_annotate_image</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">BatchAnnotateImagesResponse</span><span class="p">]:</span>
+        <span class="sd">&quot;&quot;&quot;Submit the prepared requests to annotate images and return a response with annotated content. You must first</span>
+<span class="sd">        call `add_request` to prepare the configurations. If no configurations were prepared, this method will return</span>
+<span class="sd">        None.</span>
+
+<span class="sd">        :return: An BatchAnnotateImagesResponse object with annotated content. Or None if no requests were prepared.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_requests</span><span class="p">:</span>
+            <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s2">&quot;No requests was prepared&quot;</span><span class="p">,</span> <span class="ne">UserWarning</span><span class="p">)</span>
+            <span class="k">return</span>
+
+        <span class="n">response</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_service</span><span class="o">.</span><span class="n">batch_annotate_images</span><span class="p">(</span><span class="n">requests</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_requests</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">response</span></div>
+
+<div class="viewcode-block" id="Vision.async_annotate_image"><a class="viewcode-back" href="../../vision.html#pysuite.vision.Vision.async_annotate_image">[docs]</a>    <span class="k">def</span> <span class="nf">async_annotate_image</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">output_gcs_uri</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">batch_size</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Operation</span><span class="p">]:</span>
+        <span class="sd">&quot;&quot;&quot;Annotate images asynchronously and place output in Google Cloud Storage in batches.</span>
+
+<span class="sd">        :param output_gcs_uri: Target output location on Google Cloud Storage.</span>
+<span class="sd">        :param batch_size: Maximum number request processed in each batch. If there are 10 requests submitted together,</span>
+<span class="sd">          and `batch_size` is 2, there will be 5 output files (batches) created. Default is 0. Meaning only create one</span>
+<span class="sd">          batch.</span>
+<span class="sd">        :return: An Operation object. You can use it to wait until the process is completed.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_requests</span><span class="p">:</span>
+            <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s2">&quot;No requests was prepared&quot;</span><span class="p">,</span> <span class="ne">UserWarning</span><span class="p">)</span>
+            <span class="k">return</span> <span class="kc">None</span>
+
+        <span class="n">output_config</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s2">&quot;gcs_destination&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;uri&quot;</span><span class="p">:</span> <span class="n">output_gcs_uri</span><span class="p">},</span>
+            <span class="s2">&quot;batch_size&quot;</span><span class="p">:</span> <span class="n">batch_size</span>
+        <span class="p">}</span>
+
+        <span class="n">response</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_service</span><span class="o">.</span><span class="n">async_batch_annotate_images</span><span class="p">(</span><span class="n">requests</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_requests</span><span class="p">,</span> <span class="n">output_config</span><span class="o">=</span><span class="n">output_config</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">response</span></div>
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">_translate_method</span><span class="p">(</span><span class="n">method</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Translate string method to corresponding feature type in google.cloud.vision_v1.types.Feature.Type. This is</span>
+<span class="sd">        case insensitive. If no such type is implemented, a NotImplementedError will be raised.</span>
+
+<span class="sd">        :param method: A string representation of feature type implemented in google vision.</span>
+<span class="sd">        :return: The corresponding attributes of feature type.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">return</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">types</span><span class="o">.</span><span class="n">Feature</span><span class="o">.</span><span class="n">Type</span><span class="p">,</span> <span class="n">method</span><span class="o">.</span><span class="n">upper</span><span class="p">())</span>
+        <span class="k">except</span> <span class="ne">AttributeError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Cannot find requested method </span><span class="si">{</span><span class="n">method</span><span class="si">}</span><span class="s2">.&quot;</span><span class="p">)</span> <span class="kn">from</span> <span class="nn">e</span>
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">_create_request</span><span class="p">(</span><span class="n">image_path</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">PosixPath</span><span class="p">],</span> <span class="n">methods</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="nb">str</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">methods</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+            <span class="n">methods</span> <span class="o">=</span> <span class="p">[</span><span class="n">methods</span><span class="p">]</span>
+        <span class="n">features</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">method</span> <span class="ow">in</span> <span class="n">methods</span><span class="p">:</span>
+            <span class="n">features</span><span class="o">.</span><span class="n">append</span><span class="p">({</span><span class="s2">&quot;type_&quot;</span><span class="p">:</span> <span class="n">Vision</span><span class="o">.</span><span class="n">_translate_method</span><span class="p">(</span><span class="n">method</span><span class="p">)})</span>
+
+        <span class="k">if</span> <span class="n">is_gcs_uri</span><span class="p">(</span><span class="n">image_path</span><span class="p">):</span>
+            <span class="c1"># Google storage image uri is provided</span>
+            <span class="n">image</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;source&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;image_uri&quot;</span><span class="p">:</span> <span class="n">image_path</span><span class="p">}}</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c1"># Local image path is provided</span>
+            <span class="n">image</span> <span class="o">=</span> <span class="n">Vision</span><span class="o">.</span><span class="n">load_image</span><span class="p">(</span><span class="n">image_path</span><span class="p">)</span>
+
+        <span class="n">request</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s2">&quot;image&quot;</span><span class="p">:</span> <span class="n">image</span><span class="p">,</span>
+            <span class="s2">&quot;features&quot;</span><span class="p">:</span> <span class="n">features</span>
+        <span class="p">}</span>
+        <span class="k">return</span> <span class="n">request</span>
+
+<div class="viewcode-block" id="Vision.to_json"><a class="viewcode-back" href="../../vision.html#pysuite.vision.Vision.to_json">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">to_json</span><span class="p">(</span><span class="n">response</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">AnnotateImageResponse</span><span class="p">,</span> <span class="n">BatchAnnotateImagesResponse</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Convert possible image responses to dictionary. If it&#39;s not a supported response, a type error will be</span>
+<span class="sd">        raised.</span>
+
+<span class="sd">        :param response: A response returned from `annotate_image` or `batch_annotate_image`.</span>
+<span class="sd">        :return: A dictionary containing annotated contents.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">response</span><span class="p">,</span> <span class="n">AnnotateImageResponse</span><span class="p">):</span>
+            <span class="n">annotated</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">types</span><span class="o">.</span><span class="n">image_annotator</span><span class="o">.</span><span class="n">AnnotateImageResponse</span><span class="o">.</span><span class="n">to_json</span><span class="p">(</span><span class="n">response</span><span class="p">))</span>
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">response</span><span class="p">,</span> <span class="n">BatchAnnotateImagesResponse</span><span class="p">):</span>
+            <span class="n">annotated</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">types</span><span class="o">.</span><span class="n">image_annotator</span><span class="o">.</span><span class="n">BatchAnnotateImagesResponse</span><span class="o">.</span><span class="n">to_json</span><span class="p">(</span><span class="n">response</span><span class="p">))</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Invalid type of response. Expecting AnnotateImageResponse or BatchAnnotateImagesResponse.&quot;</span>
+                            <span class="sa">f</span><span class="s2">&quot;Got </span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">response</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">annotated</span></div></div>
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        
+        &copy; Copyright 2020, Weiwen Gu
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>
