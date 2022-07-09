@@ -1,92 +1,51 @@
 import pytest
-from pathlib import Path
+from pathlib import PosixPath
 import json
 
 from googleapiclient.discovery import Resource
 from google.cloud.vision_v1 import ImageAnnotatorClient
 from google.cloud.storage.client import Client as StorageClient
+from google.oauth2.credentials import Credentials
 
-from pysuite.auth import Authentication
+from pysuite.auth import Authentication, load_oauth, get_token_from_secrets_file
 
 
-credential_folder = Path(__file__).resolve().parent.parent / "credentials"
-credential_file = credential_folder / "credential.json"
-drive_token_file = credential_folder / "drive_token.json"
-sheet_token_file = credential_folder / "sheets_token.json"
-gmail_token_file = credential_folder / "gmail_token.json"
-cloud_service_file = credential_folder / "cloud_service.json"
-multi_token_file = credential_folder / "token.json"
+test_project_id = "pysuite-test"
+credential_folder = PosixPath(__file__).resolve().parent.parent / "credentials"
+client_secret_file = credential_folder / "secret_file.json"
+token_file = credential_folder / "credential.json"
 
 
 @pytest.mark.skip("this will prompt browser")
 def test_load_from_file_correctly(tmpdir):
-    token_path = Path(tmpdir.join("test_load_from_file_token.json"))
-    result = Authentication(credential=credential_file, token=token_path, services="drive")
-    assert result._credential.valid
-    assert not result._credential.expired
+    token_path = PosixPath(tmpdir.join("test_load_from_file_token.json"))
+    result = get_token_from_secrets_file(secret_file=client_secret_file, services=["drive", "sheets", "gmail", "vision", "storage"])
+    with open(token_path, 'w') as fp:
+        json.dump(result, fp)
 
-
-def test_invalid_service_raise_exception(tmpdir):
-    with pytest.raises(ValueError):
-        Authentication(credential=credential_file, token=Path(tmpdir.join("not_exist.json")), services="bad_service")
+    assert isinstance(result, dict)
 
 
 @pytest.mark.parametrize(
-    ("token_dict"),
+    ("credential"),
     [
-        {"token": "aaa", "missing_refresh_token": "bbb", "service": "drive"},  # need "refresh_token" key
-        {"missing_token": "aaa", "refresh_token": "bbb", "service": "drive"},  # need "token" key
+        token_file,
+        json.load(open(token_file, 'r'))
     ]
 )
-def test_when_token_file_has_incorrect_format_raise_exception(tmpdir, token_dict):
-    temp_token_file = Path(tmpdir.join("temp_token.json"))
-    with open(temp_token_file, 'w') as f:
-        json.dump(token_dict, f)
-
-    with pytest.raises(KeyError):
-        Authentication(credential=credential_file, token=temp_token_file, services="drive")
-
-
-@pytest.mark.parametrize(
-    "service",
-    [
-        "drive",
-        "gmail",
-        "sheets",
-        ["drive", "gmail", "sheets"]
-    ]
-)
-def test_init_non_cloud_service_when_token_file_not_provided_raise_exception_correctly(service):
-    with pytest.raises(ValueError):
-        Authentication(credential=credential_file, token=None, services=service)
-
-
-@pytest.mark.parametrize(
-    ("credential_dict"),
-    [
-        {"missing_installed": {"irrelevant": "a"}},  # need "installed" key
-        {"installed": {"missing_token_uri": "a", "client_id": "b", "client_secret": "c"}},  # need "token_uri" key
-        {"installed": {"token_uri": "a", "missing_client_id": "b", "client_secret": "c"}},  # need "client_id" key
-        {"installed": {"token_uri": "a", "client_id": "b", "missing_client_secret": "c"}},  # need "client_secret" key
-    ]
-)
-def test_when_credential_file_has_incorrect_format_raise_exception(tmpdir, credential_dict):
-    temp_credential_file = Path(tmpdir.join("temp_credential.json"))
-    with open(temp_credential_file, 'w') as f:
-        json.dump(credential_dict, f)
-
-    with pytest.raises(KeyError):
-        Authentication(credential=temp_credential_file, token=drive_token_file, services="drive")
+def test_load_oauth_correctly(credential):
+    result = load_oauth(credential)
+    assert isinstance(result, Credentials)
 
 
 def test_when_mixing_cloud_and_non_cloud_service_raise_exception_correctly():
     with pytest.raises(ValueError):
-        Authentication(credential=credential_file, token=multi_token_file, services=["drive", "vision"])
+        Authentication(credential=token_file, services=["drive", "vision"])
 
 
 @pytest.fixture(scope="session")
 def drive_auth():
-    return Authentication(credential=credential_file, token=drive_token_file, services="drive")
+    return Authentication(credential=token_file, services="drive")
 
 
 def test_get_client_from_drive_auth_return_correct_values(drive_auth):
@@ -96,7 +55,7 @@ def test_get_client_from_drive_auth_return_correct_values(drive_auth):
 
 @pytest.fixture(scope="session")
 def sheets_auth():
-    return Authentication(credential=credential_file, token=sheet_token_file, services="sheets")
+    return Authentication(credential=token_file, services="sheets")
 
 
 def test_get_client_from_sheets_auth_return_correct_values(sheets_auth):
@@ -106,7 +65,7 @@ def test_get_client_from_sheets_auth_return_correct_values(sheets_auth):
 
 @pytest.fixture(scope="session")
 def gmail_auth():
-    return Authentication(credential=credential_file, token=gmail_token_file, services="gmail")
+    return Authentication(credential=token_file, services="gmail")
 
 
 def test_get_client_from_gmail_auth_return_correct_values(gmail_auth):
@@ -116,7 +75,7 @@ def test_get_client_from_gmail_auth_return_correct_values(gmail_auth):
 
 @pytest.fixture(scope="session")
 def vision_auth():
-    return Authentication(credential=cloud_service_file, token=None, services="vision")
+    return Authentication(credential=token_file, services="vision")
 
 
 def test_get_client_from_vision_auth_return_correct_values(vision_auth):
@@ -126,8 +85,7 @@ def test_get_client_from_vision_auth_return_correct_values(vision_auth):
 
 @pytest.fixture(scope="session")
 def multi_auth():
-    return Authentication(credential=credential_file,
-                          token=multi_token_file,
+    return Authentication(credential=token_file,
                           services=["drive", "sheets", "gmail"])
 
 
@@ -152,7 +110,7 @@ def test_get_service_when_service_not_authorized_raise_exception(multi_auth, ser
 
 @pytest.fixture(scope="session")
 def storage_auth():
-    return Authentication(credential=cloud_service_file, token=None, services="storage")
+    return Authentication(credential=token_file, services="storage", project_id=test_project_id)
 
 
 def test_get_client_from_storage_auth_return_correct_values(storage_auth):
