@@ -101,7 +101,6 @@ class Authentication:
         self._credential = load_oauth(credential)
         self._project_id = project_id
         self._services = self._get_services(services)
-        self._scopes = self._get_scopes()
         self.refresh()
 
     def refresh(self):
@@ -144,14 +143,6 @@ class Authentication:
             # Won't reach here
             raise ValueError(f"Invalid service: {service}. This is an implementation error.")  # pragma: no cover
 
-    def _get_scopes(self) -> list:
-        try:
-            scopes = [SCOPES[service] for service in self._services]
-            return scopes
-        except KeyError as e:
-            logging.critical(f"{self._services} is not a valid service. expecting {SCOPES.keys()}")
-            raise e
-
     def _get_services(self, services: Union[list, str]) -> list:
         if isinstance(services, str):
             services = [services]
@@ -165,7 +156,3 @@ class Authentication:
                                  f"Found {diff}")
 
         return services
-
-    @property
-    def is_google_cloud(self):
-        return set(self._services).issubset(CLOUD_SERVICES)
