@@ -3,7 +3,7 @@
 import json
 import logging
 from pathlib import PosixPath
-from typing import Union, Optional
+from typing import Union, Optional, List
 from googleapiclient.discovery import build
 from google.auth.transport.requests import Request
 from google.auth.exceptions import RefreshError
@@ -32,7 +32,16 @@ DEFAULT_VERSIONS = {
 }
 
 
-def get_token_from_secrets_file(secret_file, scopes = None, services = None, **kwargs) -> dict:
+def get_token_from_secrets_file(secret_file, scopes: Optional[List[str]] = None,
+                                services: Optional[List[str]] = None, **kwargs) -> dict:
+    """Generates oauth credential dictionary from OAuth client secret file.
+
+    :param secret_file: Path to the client secret file.
+    :param scopes: A list of Google API scopes. If None, `services` must be provided.
+    :param services: A list of supported services by pysuite.
+    :param kwargs: Additional arguments for `Flow.from_client_secrets_file`.
+    :return: A dictionary containing oauth credentials.
+    """
     if scopes is None and services is None:
         raise ValueError("Scopes or services required.")
     if scopes is None:
@@ -56,10 +65,10 @@ def get_token_from_secrets_file(secret_file, scopes = None, services = None, **k
 
 
 def load_oauth(credential) -> Credentials:
-    """load credential json file needed to authenticate Google Suite Apps. If token file does not exists,
-    confirmation is needed from browser prompt and the token file will be created.
+    """Loads various types of object to create Credentials object needed to authenticate Google Suite Apps.
 
-    :param credential: path to the credential json file.
+    :param credential: path to the credential json file, or pre-generated Credentials object, or a dictionary containing
+      OAuth credentials.
     :return: a Credential object
     """
     if isinstance(credential, Credentials):
@@ -76,12 +85,19 @@ def load_oauth(credential) -> Credentials:
 
 
 class Authentication:
-    """read from credential file and token file and authenticate with Google service for requested services. if token
-    file does not exists, confirmation is needed from browser prompt and the token file will be created. You can pass
-    a list of services or one service.
+    """Accepts various types of credentials and authenticate with Google service for requested services.
+
+    You can pass a list of services or one service.
     """
     def __init__(self, credential: Union[PosixPath, str, Credentials, dict], services: Union[list, str],
                  project_id: Optional[str] = None):
+        """
+
+        :param credential: path to the credential json file, or pre-generated Credentials object, or a dictionary
+          containing OAuth credentials.
+        :param services: A list of services allowed by the provided credentials.
+        :param project_id: Project id for the provided credentials. You can get it from Google Cloud Console.
+        """
         self._credential = load_oauth(credential)
         self._project_id = project_id
         self._services = self._get_services(services)
@@ -98,7 +114,7 @@ class Authentication:
             logging.critical('Unable to refresh oauth credentials. You may need to manually update oauth file.')
             raise
 
-    def get_service_client(self, service: Optional[str]=None, version: Optional[str]=None):
+    def get_service_client(self, service: Optional[str] = None, version: Optional[str] = None):
         """get a service object for requested service. This service must be within authorized scope set up at
         initiation stage.
 
