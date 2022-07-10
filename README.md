@@ -13,84 +13,65 @@ operate with several Google API services. Currently, the supported services are:
 - [Google Vision](https://cloud.google.com/vision)
 - [Google Cloud Storage](https://cloud.google.com/storage/docs/apis)
 
+For example, you can upload a pandas dataframe to a Google sheet as simple as:
+```python
+sheets_client.to_sheet(df, id='{sheet_id}', sheet_range='tab!A1:F')
+```
+Or download sheet to a pandas dataframe:
+```python
+df = sheets_client.read_sheet(id='{sheet_id}', sheet_range='tab!A1:F')
+```
+
 For details on how to use pysuite, please view the 
-[documentation page](https://staftermath.github.io/pysuite/user_manual.html)
+[documentation page](https://staftermath.github.io/pysuite/user_manual.html).
 
 ## Get credentials
-Credential files are necessary to access all Google Services supported in pysuite. There are two categories. Each 
-requires its own credential file. 
+Credential files are necessary to access all Google Services supported in pysuite.
 
-- Google Suite: This includes Google Drive, Gmail and Spreadsheet.
-- Google Cloud: This includes Google Vision and Cloud Storage
-
-### Google Suite
-You need to get a credential from 
-<a href=https://console.developers.google.com/apis/dashboard>Google API Console</a>. The credential looks like:
+You need to first get a client secret file from
+<a href=https://console.cloud.google.com/apis/credentials>Google API Console</a>. The credential looks like:
 
 ```json
 {
-  "installed": {
-    "client_id": "xxxxxxxxxxxxxxxxx.apps.googleusercontent.com",
-    "project_id": "xxxxxxxxxxxxx-xxxxxxxxxxxx",
+  "web": {
+    "client_id": "xxxxx",
+    "project_id": "xxxxx",
     "auth_uri": "https://accounts.google.com/o/oauth2/auth",
     "token_uri": "https://oauth2.googleapis.com/token",
     "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
-    "client_secret": "xxxxxxxxxxxxxxxx",
+    "client_secret": "xxx",
     "redirect_uris": [
-      "urn:ietf:wg:oauth:2.0:oob",
-      "http://localhost"
+      "https://console.developers.google.com/apis/credentials"
     ]
   }
 }
 ```
 
-You can also provide a token json file if possible, the token file looks like:
+You can then populate the oauth credential file that looks like:
 
 ```json
-{
-     "token": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
-     "refresh_token": "xxxxxxxxx"
-}
+{"client_id": "xxx",
+ "client_secret": "xxx",
+ "expiry": "2022-12-31T00:00:00.000000Z",
+ "refresh_token": "xxx",
+ "scopes": ["https://www.googleapis.com/auth/drive",
+            "https://www.googleapis.com/auth/spreadsheets",
+            "https://www.googleapis.com/auth/gmail.compose",
+            "https://www.googleapis.com/auth/cloud-vision",
+            "https://www.googleapis.com/auth/cloud-platform"],
+ "token": "xxx",
+ "token_uri": "https://oauth2.googleapis.com/token"}
 ```
 
-If token file doesn't exist, a confirmation is needed from browser prompt. Then the token file will be created.
-```python
-from pysuite import Authentication
+`auth.get_token_from_secrets_file` is a helper function to populate OAuth credential json from
+client secret file. For details, please see documentation.
 
-credential_json_file = "/tmp/credential.json"
-token_path_file = "/tmp/token.json"
-client = Authentication(credential=credential_json_file, token=token_path_file, services="sheets")
-```
-
-### Google Cloud Service
-
-You need to get a credential json from [Google Cloud](https://cloud.google.com/docs/authentication/api-keys). The 
-credential looks like:
-
-```json
-{
-  "type": "service_account",
-  "project_id": "your_project_id",
-  "private_key_id": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
-  "private_key": "-----BEGIN PRIVATE KEY-----xxxxxxxxxxx-----END PRIVATE KEY-----\n",
-  "client_email": "some@email.address",
-  "client_id": "xxxxxxxxxxxxxxxx",
-  "auth_uri": "https://accounts.google.com/o/oauth2/auth",
-  "token_uri": "https://oauth2.googleapis.com/token",
-  "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
-  "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/xxxxxxxxx"
-}
-```
-
-You can use `Authentication` class similarly. Note that token file is not needed for Cloud
-Service.
+`Authentication` class provides one-stop-shop to prepare credentials and authentications
+for all clients in pysuites.
 
 ```python
 from pysuite import Authentication
 
 credential_json_file = "/tmp/credential.json"
-client = Authentication(credential=credential_json_file, token=None, services=["storage", "vision"])
+client = Authentication(credential=credential_json_file, services=["storage", "vision"])
 ```
-
-
-
