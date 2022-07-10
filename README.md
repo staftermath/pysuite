@@ -73,5 +73,5 @@ for all clients in pysuites.
 from pysuite import Authentication
 
 credential_json_file = "/tmp/credential.json"
-client = Authentication(credential=credential_json_file, services=["storage", "vision"])
+auth = Authentication(credential=credential_json_file, services=["storage", "vision"])
 ```
