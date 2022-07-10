@@ -1,8 +1,11 @@
+import logging
+
 import pytest
 from pathlib import PosixPath
 import json
 
 from googleapiclient.discovery import Resource
+from google.auth.exceptions import RefreshError
 from google.cloud.vision_v1 import ImageAnnotatorClient
 from google.cloud.storage.client import Client as StorageClient
 from google.oauth2.credentials import Credentials
@@ -27,10 +30,11 @@ def test_load_from_file_correctly(tmpdir):
 
 
 @pytest.mark.parametrize(
-    ("credential"),
+    "credential",
     [
         token_file,
-        json.load(open(token_file, 'r'))
+        json.load(open(token_file, 'r')),
+        Credentials(**json.load(open(token_file, 'r'))),
     ]
 )
 def test_load_oauth_correctly(credential):
@@ -38,9 +42,30 @@ def test_load_oauth_correctly(credential):
     assert isinstance(result, Credentials)
 
 
+def test_load_oauth_raise_error_with_bad_type():
+    with pytest.raises(TypeError):
+        load_oauth(123)
+
+
 def test_when_mixing_cloud_and_non_cloud_service_raise_exception_correctly():
     with pytest.raises(ValueError):
         Authentication(credential=token_file, services=["drive", "vision"])
+
+
+def test_authentication_log_correctly_when_refresh_error(caplog):
+    cred_dict = {
+        "client_id": "bad_client_id",
+        "client_secret": "bad_client_secret",
+        "refresh_token": "bad_refresh_token",
+        "token": "bad_token",
+        "token_uri": "https://oauth2.googleapis.com/token",
+    }
+    with pytest.raises(RefreshError), caplog.at_level(logging.CRITICAL):
+        Authentication(credential=cred_dict, services=["gmail"])
+
+    result = caplog.records[0].message
+    expected = "Unable to refresh oauth credentials. You may need to manually update oauth file."
+    assert expected == result
 
 
 @pytest.fixture(scope="session")

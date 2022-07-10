@@ -33,7 +33,7 @@ DEFAULT_VERSIONS = {
 
 
 def get_token_from_secrets_file(secret_file, scopes: Optional[List[str]] = None,
-                                services: Optional[List[str]] = None, **kwargs) -> dict:
+                                services: Optional[List[str]] = None, **kwargs) -> dict:  # pragma: no cover
     """Generates oauth credential dictionary from OAuth client secret file.
 
     :param secret_file: Path to the client secret file.
