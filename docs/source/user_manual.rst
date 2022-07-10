@@ -7,8 +7,8 @@ detailed documentation, please refer to the corresponding pages for each class.
 
 Installation
 ------------
-pysuite is tested under linux for python 3.6, 3.7 and 3.8. It is also expected to run on MacOS. Certain efforts have
-been spent to avoid OS dependencies. However, it has not been tested under Windows.
+pysuite is tested under linux for python 3.6, 3.7, 3.8 and 3.9. It is also expected to run on MacOS. Certain efforts
+have been spent to avoid OS dependencies. However, it has not been tested under Windows.
 
 The easiest way to install pysuite is to use pip:
 
@@ -27,39 +27,64 @@ Authentication
 
 Get credentials
 +++++++++++++++
+If you are familiar with OAuth, feel free to skip this section.
+pysuite relies on OAuth2 to authenticate all API calls. OAuth credentials can be obtained in the following way.
 
-You need to get a credential from `Google API Console <https://console.developers.google.com/apis/dashboard>`_. The
-credential looks like:
+First , you need to get a client secret file from
+`Google API Console <https://console.cloud.google.com/apis/credentials>`_.
+
+Go to `CREATE CREDENTIALS` -> `OAuth client ID`. Select `Web application` in *Application type*. Enter the name of your
+choice under *Name*. Click `ADD URI` under *Authorized redirect URIs` and enter
+`https://console.developers.google.com/apis/credentials`. Then click *CREATE* to create the OAuth client ID. You can now
+download the secret json file. It looks like:
 
 .. code-block:: json
 
     {
-      "installed": {
-        "client_id": "xxxxxxxxxxxxxxxxx.apps.googleusercontent.com",
-        "project_id": "xxxxxxxxxxxxx-xxxxxxxxxxxx",
+      "web": {
+        "client_id": "xxxxx",
+        "project_id": "xxxxx",
         "auth_uri": "https://accounts.google.com/o/oauth2/auth",
         "token_uri": "https://oauth2.googleapis.com/token",
         "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
-        "client_secret": "xxxxxxxxxxxxxxxx",
+        "client_secret": "xxx",
         "redirect_uris": [
-          "urn:ietf:wg:oauth:2.0:oob",
-          "http://localhost"
+          "https://console.developers.google.com/apis/credentials"
         ]
       }
     }
 
-You need to save this credential to a json file and pass to :code:`Authentication` class.
-In addition, you need to have a file to store refresh token. A json object will be written to the token file every time
-Authentication file is instantiated.
+This secret file can be used to generate an OAuth credential file. `auth.get_token_from_secrets_file` provides you with
+a simple way to do so.
 
-The token file will be written in the following json format:
+.. code-block:: python
+
+  client_secret_file = "/path/to/your/client_secret_file.json"
+  services = ["gmail", "drive"]  # Specify the services supported by pysuite.
+  oauth_dict = get_token_from_secrets_file(client_secret_file, services=services)
+
+A URL will be printed in the terminal. Open that URL will prompt request for permissions for the corresponding
+services. Once you accept them, the browser will be redirected to Google Cloud API Console. Copy the *full* URL of the
+redirected page and paste it to the terminal prompt. A json credential will be printed. You can copy the credential and
+save as a json. Alternatively, you may save the returned dictionary.
+
+The OAuth credential file looks like:
 
 .. code-block:: json
 
-    {
-        "token": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
-        "refresh_token": "xxxxxxxxxxxx"
-    }
+    {"client_id": "xxx",
+     "client_secret": "xxx",
+     "expiry": "2022-12-31T00:00:00.000000Z",
+     "refresh_token": "xxx",
+     "scopes": ["https://www.googleapis.com/auth/drive",
+                "https://www.googleapis.com/auth/spreadsheets",
+                "https://www.googleapis.com/auth/gmail.compose",
+                "https://www.googleapis.com/auth/cloud-vision",
+                "https://www.googleapis.com/auth/cloud-platform"],
+     "token": "xxx",
+     "token_uri": "https://oauth2.googleapis.com/token"}
+
+You can now use :code:`Authentication` class to prepare authentication. See next section.
 
 Authenticate
 ++++++++++++
@@ -68,20 +93,17 @@ Once you created a credential file from the previous section, :code:`Authenticat
 credential and provide clients for API class such as :code:`Drive`, :code:`Sheets` and :code:`GMail`. Google API uses a
 refresh token to periodically refresh your credential. By keeping a token file, you will not be needing to manually
 authorize your credential file through browser. :code:`Authentication` helps you automatically refresh token when
-expired. An :code:`Authentication` class can be instantiated as follows.
+expired.
+
+An :code:`Authentication` class can be instantiated as follows.
 
 .. code-block:: python
 
   from pysuite import Authentication
 
   credential_file = "./credentials/credentials.json"
-  token_file = "./credentials/token.json"
 
-  drive_auth = Authentication(credential=credential_file, token=token_file, services="drive")
-
-this will prompt a web browser confirmation for the first time if :code:`token` file is not created. Once
-you confirm access, the token will be created/overwritten. Future authorization will automatically use the token file.
-No manual confirmation will be needed.
+  drive_auth = Authentication(credential=credential_file, services="drive")
 
 You may provide a string or a list of services. Currently accepted services are 'drive', 'sheets' or 'gmail'. With
 :code:`Authentication` class, You can generate different service used by corresponding API class such as :code:`Drive`,
@@ -91,9 +113,9 @@ For example:
 
 .. code-block:: python
 
-    drive_and_sheet_auth = Authentication(credential=credential_file, token=token_file, services=["drive", "sheet"])
-    sheet_and_gmail_auth = Authentication(credential=credential_file, token=token_file, services=["sheet", "gmail"])
-    sheet_only_auth = Authentication(credential=credential_file, token=token_file, services="sheet")
+    drive_and_sheet_auth = Authentication(credential=credential_file, services=["drive", "sheet"])
+    sheet_and_gmail_auth = Authentication(credential=credential_file, services=["sheet", "gmail"])
+    sheet_only_auth = Authentication(credential=credential_file,, services="sheet")
 
     drive_and_sheet_auth.get_service_client("drive")  # get a service client for Drive
     drive_and_sheet_auth.get_service_client("sheet")  # get a service client for Sheet
@@ -103,6 +125,18 @@ For example:
 
 The token file is associated with authorized services. In order to successfully authorize your credential, you need to
 first enable API through `Google API Console <https://console.developers.google.com/apis/dashboard>`_.
+
+.. note::
+
+  Google Storage client requires you to provide a project_id. This is the project id associated to the client secret
+  file. An mismatching project id may be accepted at instantiation step, but sequential API call will raise errors.
+
+  .. code-block:: python
+
+    Authentication(credential=credential_file, services=["storage"], project_id="your_project_id")
+
+You can also pass a `Credentials` object or a dictionary to `Authentication` class. Please view the signature of
+`Authentication` class for details.
 
 Drive
 -----
@@ -347,12 +381,9 @@ directly in the body as external links.
                   gdrive_ids=["gdrivefile_id1", "gdrive_file_id2"]
                   )
 
-Credential for Google Cloud
+Support for Google Cloud
 ---------------------------
-Pysuite also provides python apis for some Google Cloud services such as Google Vision. These class requires Google Cloud
-Service credential. It is a completely different credential from that for drive, gmail and sheets API. You can find
-the steps to obtain the credential file from `this page <https://cloud.google.com/vision/docs/before-you-begin>`_.
-
+Pysuite also provides python apis for some Google Cloud services such as Google Vision and Google Storage.
 
 Vision
 ------
@@ -362,9 +393,6 @@ asynchronized apis are not supported. This will be supported in the future updat
 
 Authentication
 ++++++++++++++
-You can authenticate the connection in the same way as drive, gmail or sheets. Since the vision service credential file
-is different from that for drive, gmail or sheets, you cannot authenticate them together. Additionally, `token` is not
-required for vision.
 
 .. code-block:: python
 
@@ -426,13 +454,13 @@ You can use `add_request` to add images on Google Cloud Storage and annotate the
 
 .. code-block:: python
 
-    gcs_test_image = "gc://my-bucket/path/to/my/image.jpg"
+    gcs_test_image = "gs://my-bucket/path/to/my/image.jpg"
     # Add multiple requests
     vision.add_request(image_path=gcs_test_image, methods="text_detection")
     vision.add_request(image_path=gcs_test_image, methods=["text_detection", "label_detection"])
 
     # Trigger async annotation
-    output_path = "gc://my-bucket/path/to/output/
+    output_path = "gs://my-bucket/path/to/output/
     operator = vision.async_annotate_image(output_gcs_uri=output_path, batch_size=2)
 
     # Wait until it finishes.
@@ -454,12 +482,11 @@ details and instructions on Google Cloud Storage, please view
 
 Authentication
 ++++++++++++++
-Google storage service credential file is similar to Google Vision credentials. You cannot authenticate it with Google
-Suite classes (drive, gmail and sheets).
+`project_id` is required to use Google storage service.
 
 .. code-block:: python
 
-    storage_auth = Authentication(credential=cloud_service_file, services="storage")
+    storage_auth = Authentication(credential=cloud_service_file, services="storage", project_id="your_project_id")
 
 Instantiate Storage Class
 +++++++++++++++++++++++++
