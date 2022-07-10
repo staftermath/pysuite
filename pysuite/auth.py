@@ -96,7 +96,8 @@ class Authentication:
         :param credential: path to the credential json file, or pre-generated Credentials object, or a dictionary
           containing OAuth credentials.
         :param services: A list of services allowed by the provided credentials.
-        :param project_id: Project id for the provided credentials. You can get it from Google Cloud Console.
+        :param project_id: Project id for the provided credentials. You can get it from Google Cloud Console. This is
+          needed if "storage" service is requested.
         """
         self._credential = load_oauth(credential)
         self._project_id = project_id
