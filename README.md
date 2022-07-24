@@ -67,11 +67,11 @@ You can then populate the oauth credential file that looks like:
 client secret file. For details, please see documentation.
 
 `Authentication` class provides one-stop-shop to prepare credentials and authentications
-for all clients in pysuites.
+for all clients in pysuite.
 
 ```python
 from pysuite import Authentication
 
 credential_json_file = "/tmp/credential.json"
-auth = Authentication(credential=credential_json_file, services=["storage", "vision"])
+auth = Authentication(credential=credential_json_file, project_id='my_project_id')
 ```
