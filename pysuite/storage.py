@@ -4,7 +4,7 @@ from pathlib import PosixPath, Path
 from typing import Union
 
 from google.cloud import storage
-from google.cloud.storage.client import Client, Bucket
+from google.cloud.storage.client import Bucket
 
 from pysuite.auth import Authentication
 

@@ -4,10 +4,7 @@ import pytest
 from pathlib import PosixPath
 import json
 
-from googleapiclient.discovery import Resource
 from google.auth.exceptions import RefreshError
-from google.cloud.vision_v1 import ImageAnnotatorClient
-from google.cloud.storage.client import Client as StorageClient
 from google.oauth2.credentials import Credentials
 
 from pysuite.auth import Authentication, load_oauth, get_token_from_secrets_file

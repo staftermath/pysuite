@@ -1,6 +1,5 @@
 """Implement api to access google vision API
 """
-import logging
 import json
 from pathlib import PosixPath
 from typing import Union, Optional, List
