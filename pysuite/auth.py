@@ -89,19 +89,16 @@ class Authentication:
 
     You can pass a list of services or one service.
     """
-    def __init__(self, credential: Union[PosixPath, str, Credentials, dict], services: Union[list, str],
-                 project_id: Optional[str] = None):
+    def __init__(self, credential: Union[PosixPath, str, Credentials, dict], project_id: Optional[str] = None):
         """
 
         :param credential: path to the credential json file, or pre-generated Credentials object, or a dictionary
           containing OAuth credentials.
-        :param services: A list of services allowed by the provided credentials.
         :param project_id: Project id for the provided credentials. You can get it from Google Cloud Console. This is
           needed if "storage" service is requested.
         """
-        self._credential = load_oauth(credential)
-        self._project_id = project_id
-        self._services = self._get_services(services)
+        self.credential = load_oauth(credential)
+        self.project_id = project_id
         self.refresh()
 
     def refresh(self):
@@ -109,51 +106,7 @@ class Authentication:
         """
         request = Request()
         try:
-            self._credential.refresh(request)
+            self.credential.refresh(request)
         except RefreshError:
             logging.critical('Unable to refresh oauth credentials. You may need to manually update oauth file.')
             raise
-
-    def get_service_client(self, service: Optional[str] = None, version: Optional[str] = None):
-        """get a service object for requested service. This service must be within authorized scope set up at
-        initiation stage.
-
-        :param service: type of service, "drive" or "sheets". If None and self._services has more than 1 items, an
-          exception will be raised.
-        :param version: version of target service. if None, default version will be used. it varies with service.
-        :return: a service object used to access API for that service.
-        """
-        if service is None:
-            if len(self._services) > 1:
-                raise ValueError(f"service cannot be inferred. the authorized services are {self._services}")
-
-            service = self._services[0]
-        elif service not in self._services:
-            raise ValueError(f"service {service} is not among authorized services: {self._services}")
-
-        if version is None:
-            version = DEFAULT_VERSIONS[service]
-
-        if service not in CLOUD_SERVICES:
-            return build(service, version, credentials=self._credential, cache_discovery=True)
-        elif service == "vision":
-            return gv.ImageAnnotatorClient(credentials=self._credential)
-        elif service == "storage":
-            return storage.Client(project=self._project_id, credentials=self._credential)
-        else:
-            # Won't reach here
-            raise ValueError(f"Invalid service: {service}. This is an implementation error.")  # pragma: no cover
-
-    def _get_services(self, services: Union[list, str]) -> list:
-        if isinstance(services, str):
-            services = [services]
-        if not set(services).issubset(SCOPES.keys()):
-            raise ValueError(f"invalid services. got {services}, expecting {SCOPES.keys()}")
-
-        if set(services).intersection(CLOUD_SERVICES):
-            diff = set(services).difference(CLOUD_SERVICES)
-            if diff:
-                raise ValueError(f"Google cloud services {CLOUD_SERVICES} cannot be mixed with non cloud services. "
-                                 f"Found {diff}")
-
-        return services

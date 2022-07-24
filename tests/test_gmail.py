@@ -3,12 +3,12 @@ import pytest
 from pysuite.gmail import GMail
 
 from tests.helper import resource_folder
-from tests.test_auth import gmail_auth, multi_auth
+from tests.test_auth import auth_fixture
 
 
 @pytest.fixture()
-def gmail(gmail_auth):
-    return GMail(service=gmail_auth.get_service_client())
+def gmail(auth_fixture):
+    return GMail(auth=auth_fixture)
 
 
 @pytest.mark.parametrize(("body", "to", "local_files", "gdrive_ids"),

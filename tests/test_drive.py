@@ -4,13 +4,13 @@ from pathlib import Path
 from pysuite.drive import Drive
 from googleapiclient.errors import HttpError
 
-from tests.test_auth import drive_auth, multi_auth
+from tests.test_auth import auth_fixture
 from tests.helper import TEST_DRIVE_FOLDER_ID, purge_temp_file, prefix
 
 
 @pytest.fixture()
-def drive(drive_auth):
-    return Drive(service=drive_auth.get_service_client(), max_retry=5, sleep=10)
+def drive(auth_fixture):
+    return Drive(auth=auth_fixture, max_retry=5, sleep=10)
 
 
 def test_get_id_return_correct_value(drive):
@@ -139,13 +139,6 @@ def test_create_folder_correctly(drive, clean_folder, prefix):
     expected = f"{prefix}create_folder"
     id = drive.create_folder(expected, parent_ids=[folder_id])
     result = drive.get_name(id)
-    assert result == expected
-
-
-def test_multi_auth_token(multi_auth):
-    drive = Drive(multi_auth.get_service_client("drive"))
-    result = drive.get_name("1-zIfn0kUcK6KI9PfZLXu6uCt01ZSOTOZ")
-    expected = "drive_test_file"
     assert result == expected
 
 

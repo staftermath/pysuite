@@ -5,22 +5,28 @@ from pathlib import PosixPath, Path
 from typing import Union, Optional, List
 import re
 
+from googleapiclient.discovery import build
 from googleapiclient.discovery import Resource
 from googleapiclient.http import MediaIoBaseDownload, MediaFileUpload
 
+from pysuite.auth import Authentication
 from pysuite.utilities import retry_on_out_of_quota, MAX_RETRY_ATTRIBUTE, SLEEP_ATTRIBUTE
+
+
+def _get_client(auth: Authentication, version: str) -> Resource:
+    return build("drive", version, credentials=auth.credential)
 
 
 class Drive:
     """Class to interact with Google Drive API
 
-    :param service: an authorized Google Drive service client.
+    :param auth: an authorized Google Drive service client.
     :param max_retry: max number of retry on quota exceeded error. if 0 or less, no retry will be attempted.
     :param sleep: base number of seconds between retries. the sleep time is exponentially increased after each retry.
     """
 
-    def __init__(self, service: Resource, max_retry: int=0, sleep: int=5):
-        self._service = service
+    def __init__(self, auth: Authentication, version: str = "v3", max_retry: int = 0, sleep: int = 5):
+        self._client = _get_client(auth, version)
         setattr(self, MAX_RETRY_ATTRIBUTE, max_retry)
         setattr(self, SLEEP_ATTRIBUTE, sleep)
 
@@ -32,7 +38,7 @@ class Drive:
         :param to_file: local file path
         :return: None
         """
-        request = self._service.files().get_media(fileId=id)
+        request = self._client.files().get_media(fileId=id)
         with open(to_file, 'wb') as fh:
             downloader = MediaIoBaseDownload(fh, request)
             done = False
@@ -42,7 +48,7 @@ class Drive:
 
     @retry_on_out_of_quota()
     def upload(self, from_file: Union[str, PosixPath], name: Optional[str]=None, mimetype: Optional[str]=None,
-               parent_id: Optional[str]=None) -> str:
+               parent_id: Optional[str] = None) -> str:
         """upload local file to gdrive.
 
         :param from_file: path to local file.
@@ -61,9 +67,9 @@ class Drive:
                                 mimetype=mimetype,
                                 resumable=True)
 
-        file = self._service.files().create(body=file_metadata,
-                                            media_body=media,
-                                            fields='id').execute()
+        file = self._client.files().create(body=file_metadata,
+                                           media_body=media,
+                                           fields='id').execute()
         return file.get("id")
 
     @retry_on_out_of_quota()
@@ -77,7 +83,7 @@ class Drive:
         media = MediaFileUpload(str(from_file),
                                 resumable=True)
 
-        self._service.files().update(body=dict(), fileId=id, media_body=media).execute()
+        self._client.files().update(body=dict(), fileId=id, media_body=media).execute()
 
     @retry_on_out_of_quota()
     def get_id(self, name: str, parent_id: Optional[str]=None):
@@ -91,9 +97,9 @@ class Drive:
         if parent_id is not None:
             q += f" and '{parent_id}' in parents"
 
-        response = self._service.files().list(pageSize=10,
-                                              fields=self._get_fields_query_string(),
-                                              q=q).execute()
+        response = self._client.files().list(pageSize=10,
+                                             fields=self._get_fields_query_string(),
+                                             q=q).execute()
 
         item = response.get('files', None)
         if item is None:
@@ -134,9 +140,9 @@ class Drive:
 
         if parent_id is not None:
             q += f" and '{parent_id}' in parents"
-        response = self._service.files().list(pageSize=100,
-                                              fields=self._get_fields_query_string(),
-                                              q=q).execute()
+        response = self._client.files().list(pageSize=100,
+                                             fields=self._get_fields_query_string(),
+                                             q=q).execute()
         item = response.get('files', [])
         return item
 
@@ -155,10 +161,10 @@ class Drive:
         result = []
         page_token = ""  # place holder to start the loop
         while page_token is not None:
-            response = self._service.files().list(q=q,
-                                                  spaces='drive',
-                                                  fields=self._get_fields_query_string(["id", "name", "parents"]),
-                                                  pageToken=page_token).execute()
+            response = self._client.files().list(q=q,
+                                                 spaces='drive',
+                                                 fields=self._get_fields_query_string(["id", "name", "parents"]),
+                                                 pageToken=page_token).execute()
             result.extend(response.get("files", []))
             page_token = response.get("nextPageToken", None)
 
@@ -182,7 +188,7 @@ class Drive:
         :param recursive: if True and target id represents a folder, remove all nested files and folders.
         :return: None
         """
-        self._service.files().delete(fileId=id).execute()
+        self._client.files().delete(fileId=id).execute()
 
     @retry_on_out_of_quota()
     def create_folder(self, name: str, parent_ids: Optional[list]=None) -> str:
@@ -205,7 +211,7 @@ class Drive:
 
             file_metadata["parents"] = parent_ids
 
-        folder = self._service.files().create(body=file_metadata, fields='id').execute()
+        folder = self._client.files().create(body=file_metadata, fields='id').execute()
         return folder.get("id")
 
     @retry_on_out_of_quota()
@@ -220,7 +226,7 @@ class Drive:
         :return: name of the object shared.
         """
         call_back = None
-        batch = self._service.new_batch_http_request(callback=call_back)
+        batch = self._client.new_batch_http_request(callback=call_back)
 
         for email in emails:
             user_permission = {
@@ -228,7 +234,7 @@ class Drive:
                 "role": role,
                 "emailAddress": email
             }
-            batch.add(self._service.permissions().create(
+            batch.add(self._client.permissions().create(
                 fileId=id,
                 body=user_permission,
                 fields='id',
@@ -261,7 +267,7 @@ class Drive:
         :param id: id of the target Google drive object
         :return: name of the object
         """
-        file = self._service.files().get(fileId=id).execute()
+        file = self._client.files().get(fileId=id).execute()
         return file['name']
 
     @retry_on_out_of_quota()
@@ -277,5 +283,5 @@ class Drive:
         request = {"name": name}
         if parent_id is not None:
             request["parents"] = parent_id
-        file = self._service.files().copy(fileId=id, body=request, fields='id').execute()
+        file = self._client.files().copy(fileId=id, body=request, fields='id').execute()
         return file.get("id")

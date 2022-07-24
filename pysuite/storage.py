@@ -3,19 +3,27 @@
 from pathlib import PosixPath, Path
 from typing import Union
 
+from google.cloud import storage
 from google.cloud.storage.client import Client, Bucket
 
+from pysuite.auth import Authentication
+
 GS_HEADER = "gs://"
+
+
+def _get_client(auth: Authentication):
+    return storage.Client(project=auth.project_id, credentials=auth.credential)
 
 
 class Storage:
     """Class to interact with Google Storage API.
 
-    :param service: an authorized Google Storage service client.
+    :param auth: An pysuite Authentication object.
+    :param project_id: The project id for the corresponding credential.
     """
 
-    def __init__(self, service: Client):
-        self._service = service
+    def __init__(self, auth: Authentication):
+        self._client = _get_client(auth)
 
     def upload(self, from_object: Union[str, PosixPath], to_object: str):
         """Upload a file or a folder to google storage. If `from_object` is a folder, this method will
@@ -112,7 +120,7 @@ class Storage:
         :param bucket_name: The name of the Google storage bucket.
         :return: None
         """
-        return self._service.create_bucket(bucket_name)
+        return self._client.create_bucket(bucket_name)
 
     def get_bucket(self, bucket_name: str) -> Bucket:
         """Get a Bucket object for the target Google storage bucket.
@@ -120,7 +128,7 @@ class Storage:
         :param bucket_name: The name of the target bucket.
         :return: A Bucket object for the target bucket.
         """
-        return self._service.get_bucket(bucket_name)
+        return self._client.get_bucket(bucket_name)
 
     def remove_bucket(self, bucket_name: str, force: bool = False):
         """Remove the target bucket.
@@ -130,7 +138,7 @@ class Storage:
           removed. Default is False.
         :return:
         """
-        bucket = self._service.get_bucket(bucket_name)
+        bucket = self._client.get_bucket(bucket_name)
         bucket.delete(force=force)
 
     def _split_gs_object(self, target_object: str) -> (str, str):
