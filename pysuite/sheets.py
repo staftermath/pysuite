@@ -4,23 +4,29 @@ import logging
 from typing import Optional, List
 import re
 
+from googleapiclient.discovery import build
 from googleapiclient.discovery import Resource
 
+from pysuite.auth import Authentication
 from pysuite.utilities import retry_on_out_of_quota, MAX_RETRY_ATTRIBUTE, SLEEP_ATTRIBUTE
 
 VALID_DIMENSION = {"COLUMNS", "ROWS"}
 
 
+def _get_client(auth: Authentication, version: str) -> Resource:
+    return build("sheets", version, credentials=auth.credential).spreadsheets()
+
+
 class Sheets:
     """provide api to operate google spreadsheet. An authenticated google api client is needed.
 
-    :param service: an authorized Google Spreadsheet service client.
+    :param auth: an authorized Google Spreadsheet service client.
     :param max_retry: max number of retry on quota exceeded error. if 0 or less, no retry will be attempted.
     :param sleep: base number of seconds between retries. the sleep time is exponentially increased after each retry.
     """
 
-    def __init__(self, service: Resource, max_retry: int=0, sleep: int=5):
-        self._service = service.spreadsheets()
+    def __init__(self, auth: Authentication, version: str = "v4", max_retry: int = 0, sleep: int = 5):
+        self._client = _get_client(auth, version)
         setattr(self, MAX_RETRY_ATTRIBUTE, max_retry)
         setattr(self, SLEEP_ATTRIBUTE, sleep)
 
@@ -41,9 +47,9 @@ class Sheets:
         if dimension not in VALID_DIMENSION:
             raise ValueError(f"{dimension} is not a valid dimension. expecting {VALID_DIMENSION}.")
 
-        result = self._service.values().get(spreadsheetId=id,
-                                            range=sheet_range,
-                                            majorDimension=dimension).execute()
+        result = self._client.values().get(spreadsheetId=id,
+                                           range=sheet_range,
+                                           majorDimension=dimension).execute()
         values = result.get('values', [])
 
         if fill_row and dimension == "ROWS":
@@ -65,10 +71,10 @@ class Sheets:
         self.clear(id=id, sheet_range=range)
         body = {"values": values}
         logging.info(f"Updating sheet '{id}' range '{range}'")
-        request = self._service.values().update(spreadsheetId=id,
-                                                range=range,
-                                                valueInputOption="RAW",
-                                                body=body)
+        request = self._client.values().update(spreadsheetId=id,
+                                               range=range,
+                                               valueInputOption="RAW",
+                                               body=body)
         result = request.execute()
         msg = f"{result.get('updatedRange')} has been updated ({result.get('updatedRows')} rows " \
               f"and {result.get('updatedColumns')} columns)"
@@ -83,7 +89,7 @@ class Sheets:
           and download column A to D and rows from 1 to the last row with non-empty values.
         :return: None
         """
-        self._service.values().clear(spreadsheetId=id, range=sheet_range, body={}).execute()
+        self._client.values().clear(spreadsheetId=id, range=sheet_range, body={}).execute()
 
     def read_sheet(self, id: str, sheet_range: str, header=True, dtypes: Optional[dict]=None,
                    columns: Optional[list]=None, fill_row: bool=True):
@@ -155,7 +161,7 @@ class Sheets:
         file_metadata = {
             "properties": {"title": name}
         }
-        response = self._service.create(body=file_metadata, fields="spreadsheetId").execute()
+        response = self._client.create(body=file_metadata, fields="spreadsheetId").execute()
         return response.get("spreadsheetId")
 
     @retry_on_out_of_quota()
@@ -166,7 +172,7 @@ class Sheets:
         :param body: request json
         :return: response from batch upate
         """
-        response = self._service.batchUpdate(spreadsheetId=id, body=body).execute()
+        response = self._client.batchUpdate(spreadsheetId=id, body=body).execute()
         return response
 
     def create_sheet(self, id: str, title: str):

@@ -1,6 +1,5 @@
 """Implement api to access google vision API
 """
-import logging
 import json
 from pathlib import PosixPath
 from typing import Union, Optional, List
@@ -13,16 +12,21 @@ from google.cloud.vision_v1 import types, ImageAnnotatorClient
 from google.api_core.operation import Operation
 
 from pysuite.storage import is_gcs_uri
+from pysuite.auth import Authentication
+
+
+def _get_client(auth: Authentication) -> ImageAnnotatorClient:
+    return ImageAnnotatorClient(credentials=auth.credential)
 
 
 class Vision:
     """Class to interact with Google Vision API.
 
-    :param service: an authorized Google Vision service client.
+    :param auth: an authorized Google Vision service client.
     """
 
-    def __init__(self, service: ImageAnnotatorClient):
-        self._service = service
+    def __init__(self, auth: Authentication):
+        self._client = _get_client(auth)
         self._requests = []
 
     @staticmethod
@@ -69,7 +73,7 @@ class Vision:
         """
         request = self._create_request(image_path, methods)
 
-        response = self._service.annotate_image(request=request)
+        response = self._client.annotate_image(request=request)
         return response
 
     def batch_annotate_image(self) -> Optional[BatchAnnotateImagesResponse]:
@@ -83,7 +87,7 @@ class Vision:
             warnings.warn("No requests was prepared", UserWarning)
             return
 
-        response = self._service.batch_annotate_images(requests=self._requests)
+        response = self._client.batch_annotate_images(requests=self._requests)
         return response
 
     def async_annotate_image(self, output_gcs_uri: str, batch_size: int = 0) -> Optional[Operation]:
@@ -104,7 +108,7 @@ class Vision:
             "batch_size": batch_size
         }
 
-        response = self._service.async_batch_annotate_images(requests=self._requests, output_config=output_config)
+        response = self._client.async_batch_annotate_images(requests=self._requests, output_config=output_config)
         return response
 
     @staticmethod

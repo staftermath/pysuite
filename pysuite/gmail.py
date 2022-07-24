@@ -8,17 +8,25 @@ from email.mime.text import MIMEText
 from email.mime.base import MIMEBase
 from typing import Union, Optional, List
 
+from googleapiclient.discovery import build
 from googleapiclient.discovery import Resource
+
+from pysuite.auth import Authentication
+
+
+def _get_client(auth: Authentication, version: str) -> Resource:
+    return build("gmail", version, credentials=auth.credential).users().messages()
 
 
 class GMail:
-    """A class containing methods to interact with Gmail APIs such as sending emails
+    """Implements methods to interact with Gmail APIs such as sending emails.
 
-    :param service: an authorized GMail service client.
+    :param auth: an authorized GMail service client.
+    :param version: version of API used. Default is "v1"
     """
 
-    def __init__(self, service: Resource):
-        self._service = service.users().messages()
+    def __init__(self, auth: Authentication, version: str = "v1"):
+        self._client = _get_client(auth, version)
 
     def compose(self, sender: str, to: Union[str, list], cc: Optional[Union[str, list]]=None,
                 bcc: Optional[Union[str, list]]=None, body: Optional[str]=None, subject: Optional[str]=None,
@@ -132,7 +140,7 @@ class GMail:
         """
         body = {'raw': urlsafe_b64encode(msg.as_bytes()).decode(),
                 'payload': {'mimeType': 'text/html'}}
-        response = self._service.send(userId=user_id, body=body).execute()
+        response = self._client.send(userId=user_id, body=body).execute()
         logging.debug(response)
         return response
 

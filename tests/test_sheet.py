@@ -6,8 +6,8 @@ from pandas.testing import assert_frame_equal
 from googleapiclient.errors import HttpError
 
 from pysuite.sheets import Sheets, get_col_counts_from_range, get_column_number
-from tests.test_auth import sheets_auth, multi_auth
-from tests.test_drive import drive, drive_auth
+from tests.test_auth import auth_fixture
+from tests.test_drive import drive
 from tests.helper import purge_temp_file, prefix
 
 test_sheet_id = "1CNOH3o2Zz05mharkLXuwX72FpRka8-KFpIm9bEaja50"
@@ -15,8 +15,8 @@ test_sheet_folder = "1qqFJ-OaV1rdPSeFtdaf6lUwFIpupOiiF"
 
 
 @pytest.fixture(scope="session")
-def sheets(sheets_auth):
-    return Sheets(service=sheets_auth.get_service_client(), max_retry=10, sleep=10)
+def sheets(auth_fixture):
+    return Sheets(auth=auth_fixture, max_retry=10, sleep=10)
 
 
 @pytest.mark.parametrize(("dimension", "range", "force_fill", "expected"),
@@ -156,17 +156,6 @@ def test_to_sheet_update_values_correctly(sheets, clean_up_sheet_creation):
     result = sheets.download(id=test_sheet_id, sheet_range=sheet_range)
     expected = [["col1", "col2"], ["a", "1"], ["", "2"], ["c", "3"]]
     assert result == expected
-
-
-def test_multi_auth_token(multi_auth):
-    sheets = Sheets(multi_auth.get_service_client("sheets"))
-    result = sheets.read_sheet(id=test_sheet_id, sheet_range="download!A1:C")
-    expected = pd.DataFrame({
-        "col1": ["1", "2", "3"],
-        "col2": ["a", "b", "c"],
-        "col3": ["10.15", "20.2", "0.59"]
-    })
-    assert_frame_equal(result, expected)
 
 
 @pytest.fixture()

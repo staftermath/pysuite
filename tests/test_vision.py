@@ -4,16 +4,16 @@ from pathlib import Path
 import pytest
 
 from pysuite.vision import Vision
-from tests.test_auth import vision_auth
-from tests.test_storage import storage_auth, storage, prepare_env, create_bucket, prefix_lower, tmp_bucket
+from tests.test_auth import auth_fixture
+from tests.test_storage import storage, prepare_env, create_bucket, prefix_lower, tmp_bucket
 from tests.helper import resource_folder
 
 test_image = resource_folder / "vision_test_image.jpg"
 
 
 @pytest.fixture()
-def vision(vision_auth):
-    return Vision(service=vision_auth.get_service_client())
+def vision(auth_fixture):
+    return Vision(auth=auth_fixture)
 
 
 @pytest.mark.parametrize(

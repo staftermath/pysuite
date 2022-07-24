@@ -6,11 +6,12 @@ from google.cloud.storage.client import Bucket
 from google.api_core.exceptions import NotFound
 
 from pysuite.storage import Storage, _add_folder_tree_to_new_base_dir
-from tests.test_auth import storage_auth
+from tests.test_auth import auth_fixture
 from tests.helper import resource_folder, prefix_lower
 
 TEST_BUCKET = "pysuite_bucket"
 SINGLE_FILE = "base.txt"
+
 
 @pytest.fixture(scope="module")
 def tmp_bucket(prefix_lower):
@@ -18,8 +19,8 @@ def tmp_bucket(prefix_lower):
 
 
 @pytest.fixture()
-def storage(storage_auth):
-    return Storage(service=storage_auth.get_service_client())
+def storage(auth_fixture):
+    return Storage(auth=auth_fixture)
 
 
 @pytest.mark.parametrize(
