@@ -1,4 +1,4 @@
-"""Implement api to access google storage API
+"""Implements api to access google storage API.
 """
 from pathlib import PosixPath, Path
 from typing import Union
@@ -16,7 +16,7 @@ def _get_client(auth: Authentication):
 
 
 class Storage:
-    """Class to interact with Google Storage API.
+    """Interacts with Google Storage API.
 
     :param auth: An pysuite Authentication object.
     :param project_id: The project id for the corresponding credential.
@@ -26,12 +26,13 @@ class Storage:
         self._client = _get_client(auth)
 
     def upload(self, from_object: Union[str, PosixPath], to_object: str):
-        """Upload a file or a folder to google storage. If `from_object` is a folder, this method will
-        upload it recursively.
+        """Uploads a file or a folder to google storage.
+
+        If `from_object` is a folder, this method will upload it recursively.
 
         :param from_object: Path to the local file or folder to be uploaded.
         :param to_object: Target Google storage object location. If `from_object` is a file, this will be a file. If
-          `from_object` is a folder, this will be a folder. This is a string that looks like "gs://xxxxx"
+          `from_object` is a folder, this will be a folder. This is a string that looks like "gs://xxxxx".
         :return: None
         """
         from_object: PosixPath = Path(from_object).resolve()
@@ -50,10 +51,11 @@ class Storage:
                     blob.upload_from_filename(str(_from))
 
     def download(self, from_object: str, to_object: Union[str, PosixPath]):
-        """Download target Google storage file or folder to local. If `from_object` is a folder, this method will
-        download it recursively.
+        """Downloads target Google storage file or folder to local.
 
-        :param from_object: Target Google storage path to be downloaded. This is a string that looks like "gs://xxxx"
+        If `from_object` is a folder, this method will download it recursively.
+
+        :param from_object: Target Google storage path to be downloaded. This is a string that looks like "gs://xxxx".
         :param to_object: Path to the local file or folder. If `from_object` is a file, this will be a file. If
           `from_object` is a folder, this will be a folder.
         :return: None
@@ -70,9 +72,11 @@ class Storage:
                 blob.download_to_filename(str(_to_file))
 
     def remove(self, target_object: str):
-        """Remove target Google storage file or folder. If `target_object` is a folder, this will remove it recursively.
+        """Removes target Google storage file or folder.
 
-        :param target_object: Target Google storage file or folder. This is a string that looks like "gs://xxxx"
+        If `target_object` is a folder, this will remove it recursively.
+
+        :param target_object: Target Google storage file or folder. This is a string that looks like "gs://xxxx".
         :return: None
         """
         _bucket, _ = self._split_gs_object(target_object)
@@ -80,11 +84,12 @@ class Storage:
         bucket.delete_blobs(blobs=list(self.list(target_object=target_object)))
 
     def copy(self, from_object: str, to_object: str):
-        """Copy Google storage file or folder from one location to another. If `from_object` is a folder, this will
-        copy it recursively.
+        """Copies Google storage file or folder from one location to another.
 
-        :param from_object: Source Google storage file or folder. This is a string that looks like "gs://xxxx"
-        :param to_object: Destination Google storage file or folder. This is a string that looks like "gs://xxxx"
+        If `from_object` is a folder, this will copy it recursively.
+
+        :param from_object: Source Google storage file or folder. This is a string that looks like "gs://xxxx".
+        :param to_object: Destination Google storage file or folder. This is a string that looks like "gs://xxxx".
         :return: None
         """
         _src_bucket, _src_gs_object = self._split_gs_object(from_object)
@@ -102,11 +107,13 @@ class Storage:
                 src_bucket.copy_blob(blob, dest_bucket, _dest_gs_object)
 
     def list(self, target_object: str):
-        """Search Google storage target location and return an iterator. This iterator generates all files under the
-        target location. If the target is a single file, the iterator only one object.
+        """Searches Google storage target location and return an iterator.
+
+        This iterator generates all files under the target location. If the target is a single file, the iterator only
+        one object.
 
         :param target_object: Target Google storage location. This could be a file or a folder. This is a string that
-          looks like "gs://xxxxx"
+          looks like "gs://xxxxx".
         :return: An iterator that iterates over the target location. Each item is a Blob object.
         """
         _bucket, _gs_object = self._split_gs_object(target_object=target_object)
@@ -123,7 +130,7 @@ class Storage:
         return self._client.create_bucket(bucket_name)
 
     def get_bucket(self, bucket_name: str) -> Bucket:
-        """Get a Bucket object for the target Google storage bucket.
+        """Gets a Bucket object for the target Google storage bucket.
 
         :param bucket_name: The name of the target bucket.
         :return: A Bucket object for the target bucket.
@@ -131,7 +138,7 @@ class Storage:
         return self._client.get_bucket(bucket_name)
 
     def remove_bucket(self, bucket_name: str, force: bool = False):
-        """Remove the target bucket.
+        """Removes the target bucket.
 
         :param bucket_name: Target bucket name.
         :param force: Whether force remove the target bucket. If True, even if the bucket is not empty, it will be
@@ -142,8 +149,9 @@ class Storage:
         bucket.delete(force=force)
 
     def _split_gs_object(self, target_object: str) -> (str, str):
-        """Split a string that looks like "gs://bucket_name/object/path" into bucket name and object path. If it is not
-        a valid gs path, an ValueError will be raised.
+        """Splits a string that looks like "gs://bucket_name/object/path" into bucket name and object path.
+
+        If it is not a valid gs path, an ValueError will be raised.
 
         :param target_object: Target google storage path.
         :return: A tuple of string. (bucket name, object path)
@@ -160,11 +168,11 @@ def is_gcs_uri(target_uri: str):
 
 
 def _add_folder_tree_to_new_base_dir(from_path: PosixPath, to_path: str) -> (PosixPath, str):
-    """Construct Google storage folder tree based on local folder tree so that the hierarchy is maintained.
+    """Constructs Google storage folder tree based on local folder tree so that the hierarchy is maintained.
 
     :param from_path: Path to a local folder.
     :param to_path: Path to the target Google storage folder.
-    :return: Iterate and yield tuples of (local file, corresponding Google storage file Path)
+    :return: Iterate and yield tuples of (local file, corresponding Google storage file Path).
     """
     folder_tree = from_path.rglob("*")
     for f in folder_tree:

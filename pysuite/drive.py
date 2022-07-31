@@ -18,7 +18,7 @@ def _get_client(auth: Authentication, version: str) -> Resource:
 
 
 class Drive:
-    """Class to interact with Google Drive API
+    """Interacts with Google Drive API.
 
     :param auth: an authorized Google Drive service client.
     :param max_retry: max number of retry on quota exceeded error. if 0 or less, no retry will be attempted.
@@ -32,10 +32,10 @@ class Drive:
 
     @retry_on_out_of_quota()
     def download(self, id: str, to_file: Union[str, PosixPath]):
-        """download the google drive file with the requested id to target local file.
+        """Downloads the google drive file with the requested id to target local file.
 
-        :param id: id of the google drive file
-        :param to_file: local file path
+        :param id: id of the google drive file.
+        :param to_file: local file path.
         :return: None
         """
         request = self._client.files().get_media(fileId=id)
@@ -47,16 +47,16 @@ class Drive:
                 logging.info(f"Download {status.progress()*100}%")
 
     @retry_on_out_of_quota()
-    def upload(self, from_file: Union[str, PosixPath], name: Optional[str]=None, mimetype: Optional[str]=None,
+    def upload(self, from_file: Union[str, PosixPath], name: Optional[str] = None, mimetype: Optional[str] = None,
                parent_id: Optional[str] = None) -> str:
-        """upload local file to gdrive.
+        """Uploads local file to Google Drive.
 
         :param from_file: path to local file.
         :param name: name of google drive file. If None, the name of local file will be used.
         :param mimetype: Mime-type of the file. If None then a mime-type will be guessed from the file extension.
         :param parent_id: id of the folder you want to upload the file to. If None, it will be uploaded to
           root of Google drive.
-        :return: id of the uploaded file
+        :return: id of the uploaded file.
         """
         file_metadata = {'name': name if name is not None else Path(from_file).name}
 
@@ -74,10 +74,10 @@ class Drive:
 
     @retry_on_out_of_quota()
     def update(self, id: str, from_file: Union[str, PosixPath]):
-        """update the Google drive with local file.
+        """Updates the Google drive with a local file.
 
-        :param id: id of the Google drive file to be updated
-        :param from_file: path to local file.
+        :param id: id of the Google drive file to be updated.
+        :param from_file: path to the local file.
         :return: None
         """
         media = MediaFileUpload(str(from_file),
@@ -86,8 +86,10 @@ class Drive:
         self._client.files().update(body=dict(), fileId=id, media_body=media).execute()
 
     @retry_on_out_of_quota()
-    def get_id(self, name: str, parent_id: Optional[str]=None):
-        """get the id of the file with specified name. if more than one file are found, an error will be raised.
+    def get_id(self, name: str, parent_id: Optional[str] = None):
+        """Gets the id of the file with specified name.
+
+        If more than one file are found, an error will be raised.
 
         :param name: name of the file to be searched.
         :param parent_id: id of the folder to limit the search. If None, the full Google drive will be searched.
@@ -111,20 +113,21 @@ class Drive:
         return item[0]['id']
 
     @retry_on_out_of_quota()
-    def find(self, name_contains: Optional[str]=None, name_not_contains: Optional[str]=None,
-             parent_id: Optional[str]=None) -> list:
-        """find all files whose name contain specified string and do not contain specified string. Note that Google
-        API has unexpected behavior when searching for strings in name. It is can only search first 26 character. In
-        addition, it seems to search from first alphabetic character and Assume there are the following files:
-        'positive_a', 'positive_b', 'a', '_a', 'ba'
+    def find(self, name_contains: Optional[str] = None, name_not_contains: Optional[str] = None,
+             parent_id: Optional[str] = None) -> list:
+        """Finds all files whose name contain specified string and do not contain specified string.
+
+        Note that Google API has unexpected behavior when searching for strings in name. It is can only search first 26
+        character. In addition, it seems to search from first alphabetic character and Assume there are the following
+        files: 'positive_a', 'positive_b', 'a', '_a', 'ba'.
 
         :example:
 
-        >>> self.find(name_contains='a')  # this finds only 'a' and '_a', not 'positive_a' or 'ba'
+        >>> self.find(name_contains='a')  # this finds only 'a' and '_a', not 'positive_a' or 'ba'.
 
-        :param name_contains: a string contained in the name
-        :param name_not_contains: a string that is not contained in the name
-        :param parent_id: parent folder id
+        :param name_contains: a string contained in the name.
+        :param name_not_contains: a string that is not contained in the name.
+        :param parent_id: parent folder id.
         :return: a list of dictionaries containing id and name of found files.
         """
         if name_contains is None and name_not_contains is None:
@@ -148,18 +151,19 @@ class Drive:
 
     @retry_on_out_of_quota()
     def list(self, id: str, regex: str=None, recursive: bool=False, depth: int=3) -> list:
-        """list the content of the folder by the given id.
+        """Lists the content of the folder by the given id.
 
         :param id: id of the folder to be listed.
         :param regex: an regular expression used to filter returned file and folders.
         :param recursive: if True, children of the folder will also be listed.
-        :param depth: number of recursion if recursive is True. This is to prevent cyclic nesting or deep nested folders.
+        :param depth: number of recursion if recursive is True. This is to prevent cyclic nesting or deep nested
+          folders.
         :return: a list of dictionaries containing id, name of the object contained in the target folder and list of
           parent ids.
         """
         q = f"'{id}' in parents and trashed = false"
         result = []
-        page_token = ""  # place holder to start the loop
+        page_token = ""  # placeholder to start the loop.
         while page_token is not None:
             response = self._client.files().list(q=q,
                                                  spaces='drive',
@@ -180,8 +184,9 @@ class Drive:
         return result
 
     @retry_on_out_of_quota()
-    def delete(self, id: str, recursive: bool=False):
-        """delete target file from google drive
+    def delete(self, id: str, recursive: bool = False):
+        """Deletes target file from google drive.
+
         TODO: implement recursive delete
 
         :param id: id of target object.
@@ -191,8 +196,8 @@ class Drive:
         self._client.files().delete(fileId=id).execute()
 
     @retry_on_out_of_quota()
-    def create_folder(self, name: str, parent_ids: Optional[list]=None) -> str:
-        """create a folder on google drive by the given name.
+    def create_folder(self, name: str, parent_ids: Optional[list] = None) -> str:
+        """Create a folder on google drive by the given name.
 
         :param name: name of the folder to be created.
         :param parent_ids: list of ids where you want to create your folder in.
@@ -215,8 +220,8 @@ class Drive:
         return folder.get("id")
 
     @retry_on_out_of_quota()
-    def share(self, id: str, emails: List[str], role: str= "reader", notify=True):  # pragma: no cover
-        """modify the permission of the target object and share with the provided emails.
+    def share(self, id: str, emails: List[str], role: str = "reader", notify: bool = True):  # pragma: no cover
+        """Modifies the permission of the target object and share with the provided emails.
 
         :param id: id of target object.
         :param emails: list of emails to be shared with.
@@ -244,10 +249,10 @@ class Drive:
         return self.get_name(id)
 
     def _get_fields_query_string(self, fields: Optional[list]=None) -> str:
-        """create a string used to query gdrive object and return requested fields.
+        """Creates a string used to query gdrive object and return requested fields.
 
         :param fields: list of fields to be returned in query.
-        :return: a string used to query gdrive. only usable in `fields` arguments in list()
+        :return: a string used to query gdrive. only usable in `fields` arguments in list().
         """
         if fields is None:
             fields = ["id", "name"]
@@ -262,17 +267,17 @@ class Drive:
 
     @retry_on_out_of_quota()
     def get_name(self, id: str) -> str:
-        """get the name of the Google drive object.
+        """Get the name of the Google drive object.
 
-        :param id: id of the target Google drive object
-        :return: name of the object
+        :param id: id of the target Google drive object.
+        :return: name of the object.
         """
         file = self._client.files().get(fileId=id).execute()
         return file['name']
 
     @retry_on_out_of_quota()
-    def copy(self, id: str, name: str, parent_id: Optional[str]=None) -> str:
-        """copy target file and give the new file specified name. return the id of the created file.
+    def copy(self, id: str, name: str, parent_id: Optional[str] = None) -> str:
+        """Copies target file and give the new file specified name. return the id of the created file.
 
         :param id: target file to be copied.
         :param name: name of the new file.
