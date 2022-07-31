@@ -75,9 +75,9 @@ def test_download_return_correct_values(sheets, dimension, range, force_fill, ex
 @pytest.fixture(scope="module")
 def clean_up_sheet_creation(sheets, prefix):
     title = f"{prefix}test_sheet"
-    result = sheets.create_sheet(id=test_sheet_id, title=title)
+    result = sheets.create_tab(id=test_sheet_id, title=title)
     yield result, title
-    sheets.delete_sheet(id=test_sheet_id, sheet_id=result["sheetId"])
+    sheets.delete_tab(id=test_sheet_id, tab_id=result["sheetId"])
 
 
 def test_upload_and_clear_change_sheet_value_correctly(sheets, clean_up_sheet_creation):
@@ -85,7 +85,7 @@ def test_upload_and_clear_change_sheet_value_correctly(sheets, clean_up_sheet_cr
     sheet_range = f"{title}!A1:B"
 
     values = [["a", "b"], ["c", "d"], [1, 2]]
-    sheets.upload(values=values, id=test_sheet_id, range=sheet_range)
+    sheets.upload(values=values, id=test_sheet_id, sheet_range=sheet_range)
 
     result = sheets.download(id=test_sheet_id, sheet_range=sheet_range)
     expected = [["a", "b"], ["c", "d"], ["1", "2"]]
@@ -151,7 +151,7 @@ def test_to_sheet_update_values_correctly(sheets, clean_up_sheet_creation):
         "col2": [1, 2, 3]
     })
     sheet_range = f"{title}!A1:B"
-    sheets.to_sheet(df, id=test_sheet_id, sheet_range=sheet_range)
+    sheets.write_sheet(df, id=test_sheet_id, sheet_range=sheet_range)
 
     result = sheets.download(id=test_sheet_id, sheet_range=sheet_range)
     expected = [["col1", "col2"], ["a", "1"], ["", "2"], ["c", "3"]]
@@ -179,7 +179,7 @@ def test_create_sheet_create_correctly(clean_up_sheet_creation):
 def test_rename_sheet_change_title_correctly(sheets, clean_up_sheet_creation, prefix):
     id = clean_up_sheet_creation[0]["sheetId"]
     new_title = f"{prefix}new_title"
-    sheets.rename_sheet(id=test_sheet_id, sheet_id=id, title=new_title)
+    sheets.rename_tab(id=test_sheet_id, tab_id=id, title=new_title)
     try:
         sheets.download(id=test_sheet_id, sheet_range=f"{new_title}!A1:B2")
     except HttpError as e:

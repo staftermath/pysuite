@@ -31,12 +31,12 @@ class Sheets:
         setattr(self, SLEEP_ATTRIBUTE, sleep)
 
     @retry_on_out_of_quota()
-    def download(self, id: str, sheet_range: str, dimension: str= "ROWS", fill_row: bool=False) -> list:
+    def download(self, id: str, sheet_range: str, dimension: str = "ROWS", fill_row: bool = False) -> list:
         """download target sheet range by specified dimension. All entries will be considered as strings.
 
         :param id: id of the target spreadsheet.
-        :param sheet_range: range in the target spreadsheet. for example, 'sheet!A1:D'. this means selecting from tab "sheet"
-          and download column A to D and rows from 1 to the last row with non-empty values.
+        :param sheet_range: range in the target spreadsheet. for example, 'tab!A1:D'. this means selecting from tab
+          "tab" and download column A to D and rows from 1 to the last row with non-empty values.
         :param dimension: "ROW" or "COLUMNS". If "ROWS", each entry in the output list would be one row in the
           spreadsheet. If "COLUMNS", each entry in the output list would be one column in the spreadsheet.
         :param fill_row: Whether force to return rows with desired number of columns. Google Sheet API ignores trailing
@@ -59,20 +59,20 @@ class Sheets:
         return values
 
     @retry_on_out_of_quota()
-    def upload(self, values: list, id: str, range: str) -> None:
+    def upload(self, values: list, id: str, sheet_range: str) -> None:
         """Upload a list of lists to target sheet range. All entries in the provided list must be serializable.
 
         :param values: a list of lists of objects that can be converted to str.
         :param id: id of the target spreadsheet
-        :param range: range in the target spreadsheet. for example, 'sheet!A1:D'. this means selecting from tab "sheet"
+        :param sheet_range: range in the target spreadsheet. for example, 'sheet!A1:D'. this means selecting from tab "sheet"
           and download column A to D and rows from 1 to the last row with non-empty values.
         :return: None
         """
-        self.clear(id=id, sheet_range=range)
+        self.clear(id=id, sheet_range=sheet_range)
         body = {"values": values}
-        logging.info(f"Updating sheet '{id}' range '{range}'")
+        logging.info(f"Updating sheet '{id}' range '{sheet_range}'")
         request = self._client.values().update(spreadsheetId=id,
-                                               range=range,
+                                               range=sheet_range,
                                                valueInputOption="RAW",
                                                body=body)
         result = request.execute()
@@ -91,8 +91,8 @@ class Sheets:
         """
         self._client.values().clear(spreadsheetId=id, range=sheet_range, body={}).execute()
 
-    def read_sheet(self, id: str, sheet_range: str, header=True, dtypes: Optional[dict]=None,
-                   columns: Optional[list]=None, fill_row: bool=True):
+    def read_sheet(self, id: str, sheet_range: str, header: bool = True, dtypes: Optional[dict] = None,
+                   columns: Optional[list] = None, fill_row: bool = True):
         """download the target sheet range into a pandas dataframe. this method will fail if pandas cannot be imported.
 
         :param id: id of the target spreadsheet
@@ -136,7 +136,7 @@ class Sheets:
 
         return df
 
-    def to_sheet(self, df, id: str, sheet_range: str):
+    def write_sheet(self, df, id: str, sheet_range: str):
         """Upload pandas dataframe to target sheet range. The number of columns must fit the range. More columns or
         fewer columns will both raise exception. The data in the provided dataframe must be serializable.
 
@@ -149,7 +149,7 @@ class Sheets:
         """
         values = df.fillna('').values.tolist()
         values.insert(0, list(df.columns))  # insert column names to first row.
-        self.upload(values, id=id, range=sheet_range)
+        self.upload(values, id=id, sheet_range=sheet_range)
 
     @retry_on_out_of_quota()
     def create_spreadsheet(self, name: str) -> str:
@@ -175,11 +175,11 @@ class Sheets:
         response = self._client.batchUpdate(spreadsheetId=id, body=body).execute()
         return response
 
-    def create_sheet(self, id: str, title: str):
-        """create a new sheet with given name in the specified spreadsheet.
+    def create_tab(self, id: str, title: str):
+        """create a new tab with given name in the specified spreadsheet.
 
         :param id: id of the spreadsheet
-        :param title: title of the new sheet
+        :param title: title of the new tab.
         :return: a dictionary containing information about created sheet, such as sheet id, title, index.
         """
         request = {"requests": [{"addSheet": {"properties": {"title": title}}}]}
@@ -187,27 +187,27 @@ class Sheets:
         info = response.get("replies")[0]["addSheet"]["properties"]
         return info
 
-    def delete_sheet(self, id: str, sheet_id: int):
-        """delete the specified sheet in the target spreadsheet. You can find sheet_id from URL when you select the
+    def delete_tab(self, id: str, tab_id: int):
+        """delete the specified tab in the target spreadsheet. You can find tab_id from URL when you select the
         sheet in the spreadsheet after "gid="
 
         :param id: id of spreadsheet.
-        :param sheet_id: id of sheet
+        :param tab_id: id of tab.
         :return: None
         """
-        request = {"requests": [{"deleteSheet": {"sheetId": sheet_id}}]}
+        request = {"requests": [{"deleteSheet": {"sheetId": tab_id}}]}
         self.batch_update(id=id, body=request)
 
-    def rename_sheet(self, id: str, sheet_id: int, title: str):
-        """rename a sheet in target spreadsheet to the new title.
+    def rename_tab(self, id: str, tab_id: int, title: str):
+        """rename a tab in target spreadsheet to the new title.
 
         :param id: id of the target spreadsheet
-        :param sheet_id: id of the sheet
+        :param tab_id: id of the tab.
         :param title: new title of the sheet
         :return: None
         """
         request = {"requests": [
-            {"updateSheetProperties": {"properties": {"sheetId": sheet_id, "title": title}, "fields": "title"}}
+            {"updateSheetProperties": {"properties": {"sheetId": tab_id, "title": title}, "fields": "title"}}
         ]
         }
         self.batch_update(id=id, body=request)
