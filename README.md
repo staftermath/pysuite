@@ -14,8 +14,9 @@ operate with several Google API services. Currently, the supported services are:
 - [Google Cloud Storage](https://cloud.google.com/storage/docs/apis)
 
 For example, you can upload a pandas dataframe to a Google sheet as simple as:
+
 ```python
-sheets_client.to_sheet(df, id='{sheet_id}', sheet_range='tab!A1:F')
+sheets_client.write_sheet(df, id='{sheet_id}', sheet_range='tab!A1:F')
 ```
 Or download sheet to a pandas dataframe:
 ```python
