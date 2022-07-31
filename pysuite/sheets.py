@@ -1,4 +1,4 @@
-"""implement api to access google sheet
+"""Implements api to access google sheet.
 """
 import logging
 from typing import Optional, List
@@ -18,7 +18,7 @@ def _get_client(auth: Authentication, version: str) -> Resource:
 
 
 class Sheets:
-    """provide api to operate google spreadsheet. An authenticated google api client is needed.
+    """Provides api to operate google spreadsheet. An authenticated google api client is needed.
 
     :param auth: an authorized Google Spreadsheet service client.
     :param max_retry: max number of retry on quota exceeded error. if 0 or less, no retry will be attempted.
@@ -32,7 +32,9 @@ class Sheets:
 
     @retry_on_out_of_quota()
     def download(self, id: str, sheet_range: str, dimension: str = "ROWS", fill_row: bool = False) -> list:
-        """download target sheet range by specified dimension. All entries will be considered as strings.
+        """Downloads target sheet range by specified dimension.
+
+        All entries will be considered as strings.
 
         :param id: id of the target spreadsheet.
         :param sheet_range: range in the target spreadsheet. for example, 'tab!A1:D'. this means selecting from tab
@@ -60,12 +62,14 @@ class Sheets:
 
     @retry_on_out_of_quota()
     def upload(self, values: list, id: str, sheet_range: str) -> None:
-        """Upload a list of lists to target sheet range. All entries in the provided list must be serializable.
+        """Uploads a list of lists to target sheet range.
+
+        All entries in the provided list must be serializable.
 
         :param values: a list of lists of objects that can be converted to str.
-        :param id: id of the target spreadsheet
-        :param sheet_range: range in the target spreadsheet. for example, 'sheet!A1:D'. this means selecting from tab "sheet"
-          and download column A to D and rows from 1 to the last row with non-empty values.
+        :param id: id of the target spreadsheet.
+        :param sheet_range: range in the target spreadsheet. for example, 'sheet!A1:D'. this means selecting from tab
+          "sheet" and download column A to D and rows from 1 to the last row with non-empty values.
         :return: None
         """
         self.clear(id=id, sheet_range=sheet_range)
@@ -82,27 +86,29 @@ class Sheets:
 
     @retry_on_out_of_quota()
     def clear(self, id: str, sheet_range: str):
-        """remove content in the target sheet range.
+        """Removes content in the target sheet range.
 
-        :param id: id of the target spreadsheet
-        :param sheet_range: range in the target spreadsheet.  for example, 'sheet!A1:D'. this means selecting from tab "sheet"
-          and download column A to D and rows from 1 to the last row with non-empty values.
+        :param id: id of the target spreadsheet.
+        :param sheet_range: range in the target spreadsheet.  for example, 'sheet!A1:D'. this means selecting from tab
+          "sheet" and download column A to D and rows from 1 to the last row with non-empty values.
         :return: None
         """
         self._client.values().clear(spreadsheetId=id, range=sheet_range, body={}).execute()
 
     def read_sheet(self, id: str, sheet_range: str, header: bool = True, dtypes: Optional[dict] = None,
                    columns: Optional[list] = None, fill_row: bool = True):
-        """download the target sheet range into a pandas dataframe. this method will fail if pandas cannot be imported.
+        """Downloads the target sheet range into a pandas dataframe.
 
-        :param id: id of the target spreadsheet
-        :param sheet_range: range in the target spreadsheet.  for example, 'sheet!A1:D'. this means selecting from tab "sheet"
-          and download column A to D and rows from 1 to the last row with non-empty values.
+        This method will fail if pandas cannot be imported.
+
+        :param id: id of the target spreadsheet.
+        :param sheet_range: range in the target spreadsheet.  for example, 'sheet!A1:D'. this means selecting from tab
+          "sheet" and download column A to D and rows from 1 to the last row with non-empty values.
         :param header: whether first row is used as column names in the output dataframe.
         :param dtypes: a mapping from column name to the type. if not None, type conversions will be applied to columns
           requested in the dictionary.
         :param columns: a list of column names. If not None and `header` is False, this will be used as columns of the
-          output dataframe
+          output dataframe.
         :param fill_row: Whether attempt to fill the trailing empty cell with empty strings. This prevents errors when
           the trailing cells in some rows are empty in the sheet. When header is True, this will attempt to fill the
           missing header with _col{i}, where i is the index of the column (starting from 1).
@@ -137,14 +143,16 @@ class Sheets:
         return df
 
     def write_sheet(self, df, id: str, sheet_range: str):
-        """Upload pandas dataframe to target sheet range. The number of columns must fit the range. More columns or
-        fewer columns will both raise exception. The data in the provided dataframe must be serializable.
+        """Uploads pandas dataframe to target sheet range.
 
-        :param df: pandas dataframe to be uploaded
-        :type df: pandas.DataFrame
-        :param id: id of the target spreadsheet
-        :param sheet_range: range in the target spreadsheet.  for example, 'sheet!A1:D'. this means selecting from tab "sheet"
-          and download column A to D and rows from 1 to the last row with non-empty values.
+        The number of columns must fit the range. More columns or fewer columns will both raise exception. The data in
+        the provided dataframe must be serializable.
+
+        :param df: pandas dataframe to be uploaded.
+        :type df: pandas.DataFrame.
+        :param id: id of the target spreadsheet.
+        :param sheet_range: range in the target spreadsheet.  for example, 'sheet!A1:D'. this means selecting from tab
+          "sheet" and download column A to D and rows from 1 to the last row with non-empty values.
         :return: None
         """
         values = df.fillna('').values.tolist()
@@ -153,10 +161,10 @@ class Sheets:
 
     @retry_on_out_of_quota()
     def create_spreadsheet(self, name: str) -> str:
-        """create a spreadsheet with requested name.
+        """Creates a spreadsheet with requested name.
 
         :param name: name of the created sheet.
-        :return: id of the spreadsheet
+        :return: id of the spreadsheet.
         """
         file_metadata = {
             "properties": {"title": name}
@@ -166,19 +174,19 @@ class Sheets:
 
     @retry_on_out_of_quota()
     def batch_update(self, id: str, body: dict):
-        """low level api used to submit a json body to make changes to the specified spreadsheet.
+        """Low level api used to submit a json body to make changes to the specified spreadsheet.
 
-        :param id: id of the target spreadsheet
-        :param body: request json
-        :return: response from batch upate
+        :param id: id of the target spreadsheet.
+        :param body: request json.
+        :return: response from batch update.
         """
         response = self._client.batchUpdate(spreadsheetId=id, body=body).execute()
         return response
 
     def create_tab(self, id: str, title: str):
-        """create a new tab with given name in the specified spreadsheet.
+        """Creates a new tab with given name in the specified spreadsheet.
 
-        :param id: id of the spreadsheet
+        :param id: id of the spreadsheet.
         :param title: title of the new tab.
         :return: a dictionary containing information about created sheet, such as sheet id, title, index.
         """
@@ -188,8 +196,9 @@ class Sheets:
         return info
 
     def delete_tab(self, id: str, tab_id: int):
-        """delete the specified tab in the target spreadsheet. You can find tab_id from URL when you select the
-        sheet in the spreadsheet after "gid="
+        """Deletes the specified tab in the target spreadsheet.
+
+        You can find tab_id from URL when you select the sheet in the spreadsheet after "gid=".
 
         :param id: id of spreadsheet.
         :param tab_id: id of tab.
@@ -199,11 +208,11 @@ class Sheets:
         self.batch_update(id=id, body=request)
 
     def rename_tab(self, id: str, tab_id: int, title: str):
-        """rename a tab in target spreadsheet to the new title.
+        """Renames a tab in target spreadsheet to the new title.
 
-        :param id: id of the target spreadsheet
+        :param id: id of the target spreadsheet.
         :param tab_id: id of the tab.
-        :param title: new title of the sheet
+        :param title: new title of the sheet.
         :return: None
         """
         request = {"requests": [

@@ -46,8 +46,8 @@ def retry_on_type_and_msg(exception: Exception, msg_pattern: Optional[str] = Non
 def retry_on_out_of_quota():
     """A decorator to give wrapped function ability to retry on quota exceeded related HttpError raise by Google API.
     It only works on class method and requires "max_retry" and "sleep" attribute in the class. If `max_retry` is
-    non-positive, no retry will be attempt. `sleep` is the base number of seconds between consecutive retries. The number
-    of wait seconds will double after each sleep.
+    non-positive, no retry will be attempt. `sleep` is the base number of seconds between consecutive retries. The
+    number of wait seconds will double after each sleep.
 
     :return:
     """

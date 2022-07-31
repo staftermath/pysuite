@@ -20,7 +20,7 @@ def _get_client(auth: Authentication) -> ImageAnnotatorClient:
 
 
 class Vision:
-    """Class to interact with Google Vision API.
+    """Interacts with Google Vision API.
 
     :param auth: an authorized Google Vision service client.
     """
@@ -31,19 +31,20 @@ class Vision:
 
     @staticmethod
     def load_image(image_path: Union[str, PosixPath]) -> gv.Image:
-        """Load a local image as Image class that can be used to submit image annotation requests.
+        """Loads a local image as Image class that can be used to submit image annotation requests.
 
         :param image_path: Path to the image file.
-        :return: Loaded Image object from the target file
+        :return: Loaded Image object from the target file.
         """
         with open(image_path, "rb") as f:
             image = gv.Image(content=f.read())
             return image
 
     def add_request(self, image_path: Union[str, PosixPath], methods: Union[List[str], str]):
-        """Add a request to annotate a local or GCS image. Multiple annotation methods can be added at the same time.
-        The request will not be immediately submitted. This method is useful for `batch_annotate_image` and
-        `async_annotate_image`.
+        """Adds a request to annotate a local or GCS image.
+
+        Multiple annotation methods can be added at the same time. The request will not be immediately submitted.
+        This method is useful for `batch_annotate_image` and `async_annotate_image`.
 
         :example:
 
@@ -64,7 +65,7 @@ class Vision:
     def annotate_image(
             self, image_path: Union[str, PosixPath], methods: Union[List[str], str]
     ) -> AnnotateImageResponse:
-        """Submit a request to annotate a local image using specified methods.
+        """Submits a request to annotate a local image using specified methods.
 
         :param image_path: Path to the image file.
         :param methods: A list of strings representing supported annotation methods. Please view
@@ -77,9 +78,10 @@ class Vision:
         return response
 
     def batch_annotate_image(self) -> Optional[BatchAnnotateImagesResponse]:
-        """Submit the prepared requests to annotate images and return a response with annotated content. You must first
-        call `add_request` to prepare the configurations. If no configurations were prepared, this method will return
-        None.
+        """Submits the prepared requests to annotate images and return a response with annotated content.
+
+        You must first call `add_request` to prepare the configurations. If no configurations were prepared,
+        this method will return None.
 
         :return: An BatchAnnotateImagesResponse object with annotated content. Or None if no requests were prepared.
         """
@@ -91,7 +93,7 @@ class Vision:
         return response
 
     def async_annotate_image(self, output_gcs_uri: str, batch_size: int = 0) -> Optional[Operation]:
-        """Annotate images asynchronously and place output in Google Cloud Storage in batches.
+        """Annotates images asynchronously and place output in Google Cloud Storage in batches.
 
         :param output_gcs_uri: Target output location on Google Cloud Storage.
         :param batch_size: Maximum number request processed in each batch. If there are 10 requests submitted together,
@@ -113,7 +115,7 @@ class Vision:
 
     @staticmethod
     def _translate_method(method: str):
-        """Translate string method to corresponding feature type in google.cloud.vision_v1.types.Feature.Type. This is
+        """Translates string method to corresponding feature type in google.cloud.vision_v1.types.Feature.Type. This is
         case insensitive. If no such type is implemented, a NotImplementedError will be raised.
 
         :param method: A string representation of feature type implemented in google vision.
@@ -147,8 +149,9 @@ class Vision:
 
     @staticmethod
     def to_json(response: Union[AnnotateImageResponse, BatchAnnotateImagesResponse]) -> dict:
-        """Convert possible image responses to dictionary. If it's not a supported response, a type error will be
-        raised.
+        """Converts possible image responses to dictionary.
+
+        If it's not a supported response, a type error will be raised.
 
         :param response: A response returned from `annotate_image` or `batch_annotate_image`.
         :return: A dictionary containing annotated contents.

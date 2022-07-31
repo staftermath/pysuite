@@ -66,7 +66,7 @@ def load_oauth(credential) -> Credentials:
 
     :param credential: path to the credential json file, or pre-generated Credentials object, or a dictionary containing
       OAuth credentials.
-    :return: a Credential object
+    :return: a Credential object.
     """
     if isinstance(credential, Credentials):
         return credential
@@ -87,7 +87,7 @@ class Authentication:
     You can pass a list of services or one service.
     """
     def __init__(self, credential: Union[PosixPath, str, Credentials, dict], project_id: Optional[str] = None):
-        """
+        """Instantiates an Authentication object.
 
         :param credential: path to the credential json file, or pre-generated Credentials object, or a dictionary
           containing OAuth credentials.
@@ -99,7 +99,7 @@ class Authentication:
         self.refresh()
 
     def refresh(self):
-        """Refreshes token if not valid or has expired. In addition token file is overwritten.
+        """Refreshes token if not valid or has expired.
         """
         request = Request()
         try:

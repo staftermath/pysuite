@@ -28,26 +28,26 @@ class GMail:
     def __init__(self, auth: Authentication, version: str = "v1"):
         self._client = _get_client(auth, version)
 
-    def compose(self, sender: str, to: Union[str, list], cc: Optional[Union[str, list]]=None,
-                bcc: Optional[Union[str, list]]=None, body: Optional[str]=None, subject: Optional[str]=None,
-                local_files: Optional[Union[str, PosixPath]]=None,
-                gdrive_ids: Optional[List[str]]=None,
-                user_id: Optional[str]=None,
-                is_html: bool=True) -> dict:
-        """Compose an email and send through gmail api.
+    def compose(self, sender: str, to: Union[str, list], cc: Optional[Union[str, list]] = None,
+                bcc: Optional[Union[str, list]] = None, body: Optional[str] = None, subject: Optional[str] = None,
+                local_files: Optional[Union[str, PosixPath]] = None,
+                gdrive_ids: Optional[List[str]] = None,
+                user_id: Optional[str] = None,
+                is_html: bool = True) -> dict:
+        """Composes an email and send through gmail api.
 
-        :param sender: email of the sender
-        :param to: a string of one email or list of emails of the targets
-        :param cc: a string of one email or list of emails of cc'ed targets
-        :param bcc: a string of one email or list of emails of bcc'ed targets
+        :param sender: email of the sender.
+        :param to: a string of one email or list of emails of the targets.
+        :param cc: a string of one email or list of emails of cc'ed targets.
+        :param bcc: a string of one email or list of emails of bcc'ed targets.
         :param body: main content in email body.
-        :param subject: subject line
-        :param local_files: list of files to be attached in the email
-        :param gdrive_ids: list of gdrive ids attached in the email
+        :param subject: subject line.
+        :param local_files: list of files to be attached in the email.
+        :param gdrive_ids: list of gdrive ids attached in the email.
         :param user_id: identification of user. If None, it sender email will be used.
         :param is_html: whether body is send in html format. If False, plain text format will be used.
         :return: a dictionary of response. containing 'id' (id of the email). 'threadId' (id of the email thread) and
-          'labelIds' (list of label ids)
+          'labelIds' (list of label ids).
         """
         msg = self._create_message_skeleton(subject=subject,
                                             sender=sender,
@@ -62,7 +62,7 @@ class GMail:
         return response
 
     def _attach_local_files(self, msg: MIMEBase, files: Optional[List[Union[str, PosixPath]]]) -> MIMEBase:
-        """Attach a list of local files to msg. If files is None, no changes will be made.
+        """Attaches a list of local files to msg. If files is None, no changes will be made.
 
         :param msg: a MIMEBase object to attach files with.
         :param files: list of local files to be attached.
@@ -81,13 +81,15 @@ class GMail:
         return msg
 
     def _attach_body(self, msg: MIMEBase, body: Optional[str], ids: Optional[List[str]], is_html: bool) -> MIMEBase:
-        """Attach email body to the msg. If gdrive ids are provided, attach gdrive file hyperlinks in the body. The
-        format of the email can be specified to 'html' or 'plain'.
+        """Attaches email body to the msg.
+
+        If Google Drive ids are provided, attach the file hyperlinks in the body. The format of the email can be
+        specified to 'html' or 'plain'.
 
         :param msg: a MIMEBase object.
         :param body: body of the email.
         :param ids: a list of gdrive file ids.
-        :param is_html: whether email should be send in html format or plain text format
+        :param is_html: whether email should be send in html format or plain text format.
         :return: a msg with body attached.
         """
         if body is not None:
@@ -98,12 +100,13 @@ class GMail:
         return msg
 
     def _attach_gdrive_files(self, msg: MIMEBase, ids: Optional[List[str]]) -> MIMEBase:
-        """Attach a list of gdrive files to the msg body in forms of hyper links. If ids is None, no attachment will be
-        added.
+        """Attaches a list of Google Drive files to the msg body in forms of hyper links.
 
-        :param msg: a MIMEBase object
+        If ids is None, no attachment will be added.
+
+        :param msg: a MIMEBase object.
         :param ids: list of gdrive ids.
-        :return: a MIMEBase object with gdrive link attached
+        :return: a MIMEBase object with gdrive link attached.
         """
         if ids is None:
             return msg
@@ -118,8 +121,9 @@ class GMail:
         msg.attach(gdrive_html)
         return msg
 
-    def _create_message_skeleton(self, sender: str, to: Union[str, list], cc: Optional[Union[str, list]]=None,
-                                 bcc: Optional[Union[str, list]]=None, subject: Optional[str]=None) -> MIMEMultipart:
+    def _create_message_skeleton(
+            self, sender: str, to: Union[str, list], cc: Optional[Union[str, list]] = None,
+            bcc: Optional[Union[str, list]] = None, subject: Optional[str] = None) -> MIMEMultipart:
         message = MIMEMultipart()
         message['from'] = sender
         message['to'] = self._format_recipients(to)
@@ -132,11 +136,11 @@ class GMail:
         return message
 
     def _send(self, user_id: str, msg: MIMEBase) -> dict:
-        """Send composed email through API.
+        """Sends composed email through API.
 
         :param user_id: displayed user id.
         :param msg: A composed MIMEBase object.
-        :return: dictionary of response
+        :return: dictionary of response.
         """
         body = {'raw': urlsafe_b64encode(msg.as_bytes()).decode(),
                 'payload': {'mimeType': 'text/html'}}
@@ -145,7 +149,7 @@ class GMail:
         return response
 
     def _format_recipients(self, recipients: Union[str, list]) -> str:
-        """Convert a list of emails to a string accepted by gmail API.
+        """Converts a list of emails to a string accepted by gmail API.
 
         :param recipients: list of emails.
         :return: a string representing all recipients.
